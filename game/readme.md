@@ -12,9 +12,13 @@ Game Ghost is a landscape, offline, mobile-first top-down roguelite vertical sli
 - `data/` contains typed, data-only Resource contracts and seed `mock_*.tres` data.
 - `services/` contains the three permitted autoloads: session, local save, and audio.
 - `assets/runtime/` is reserved for runtime-ready game assets.
+- `source_art/concepts/` holds concept references that are never loaded as runtime sprites.
 - `tests/` contains deterministic GUT coverage.
+- `tools/validate_godot_version.gd` enforces the version in `godot_version.txt` and the landscape ProjectSettings value.
 
-Concept/source art belongs outside `assets/runtime/`; it is reference material and must not be treated as runtime sprites.
+The existing repository-level `assets/` reference images remain untouched. New concept art belongs under `source_art/concepts/`; it is reference material and must not be treated as runtime sprites.
+
+All project paths use lowercase ASCII snake_case. Vendored third-party paths, including `addons/gut/`, retain their upstream names and are exempt from this project naming rule.
 
 ## Verification
 
@@ -23,6 +27,7 @@ From this directory, import and validate the project headlessly:
 ```powershell
 godot --headless --import --path .
 godot --headless --editor --quit --path .
+godot --headless --path . --script res://tools/validate_godot_version.gd
 godot --headless -s res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
 ```
 
