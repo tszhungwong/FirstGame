@@ -21,3 +21,10 @@ func test_running_engine_matches_the_committed_version_pin() -> void:
 
 func test_version_validator_rejects_a_mismatched_engine_version() -> void:
 	assert_false(VERSION_VALIDATOR.versions_match("4.6.2", "4.6.3"))
+
+
+func test_landscape_canvas_expands_for_non_sixteen_by_nine_displays() -> void:
+	var project_config := ConfigFile.new()
+
+	assert_eq(project_config.load("res://project.godot"), OK)
+	assert_eq(project_config.get_value("display", "window/stretch/aspect", ""), "expand")

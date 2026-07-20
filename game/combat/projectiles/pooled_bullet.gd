@@ -138,6 +138,9 @@ func _emit_returned_to_pool(lease_id: int) -> void:
 
 
 func _draw() -> void:
-	var color := Color("68e0d1") if from_player else Color("ff846e")
+	var color := Color("5ee0bd") if from_player else Color("ff5b45")
+	var core := Color("d8fff2") if from_player else Color("ffd064")
+	draw_line(Vector2(-18.0, 0.0), Vector2(-4.0, 0.0), Color(color, 0.42), collision_radius * 1.15, true)
+	draw_circle(Vector2.ZERO, collision_radius + 2.5, Color(color, 0.28))
 	draw_circle(Vector2.ZERO, collision_radius, color)
-	draw_line(Vector2(-13.0, 0.0), Vector2(-4.0, 0.0), color, 3.0)
+	draw_circle(Vector2.ZERO, maxf(2.0, collision_radius * 0.38), core)

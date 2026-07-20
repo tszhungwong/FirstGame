@@ -25,11 +25,11 @@ func _ready() -> void:
 	await get_tree().physics_frame
 	var ember := sandbox.get_node_or_null("Ember") as Ember
 	var pool := sandbox.get_node_or_null("ProjectilePool") as ObjectPool
-	var joystick := sandbox.get_node_or_null("CombatHud/HudRoot/VirtualJoystick") as VirtualJoystick
-	var dash_button := sandbox.get_node_or_null("CombatHud/HudRoot/DashButton") as Button
-	var skill_button := sandbox.get_node_or_null("CombatHud/HudRoot/SkillButton") as Button
-	var health_label := sandbox.get_node_or_null("CombatHud/HudRoot/HealthLabel") as Label
-	var enemy_label := sandbox.get_node_or_null("CombatHud/HudRoot/EnemyLabel") as Label
+	var joystick := sandbox.get_node_or_null("CombatHud/HudRoot/SafeAreaRoot/VirtualJoystick") as VirtualJoystick
+	var dash_button := sandbox.get_node_or_null("CombatHud/HudRoot/SafeAreaRoot/DashButton") as Button
+	var skill_button := sandbox.get_node_or_null("CombatHud/HudRoot/SafeAreaRoot/SkillButton") as Button
+	var health_label := sandbox.get_node_or_null("CombatHud/HudRoot/SafeAreaRoot/HealthLabel") as Label
+	var enemy_label := sandbox.get_node_or_null("CombatHud/HudRoot/SafeAreaRoot/EnemyLabel") as Label
 	var camera := sandbox.get_node_or_null("Ember/Camera") as Camera2D
 	var archetypes: Dictionary[int, bool] = {}
 	var enemies: Array[CombatEnemy] = []

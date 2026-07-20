@@ -71,6 +71,11 @@ func _ready() -> void:
 		return
 	if not _smoke_save_recovery():
 		return
+	game.queue_free()
+	losing_run.queue_free()
+	await get_tree().process_frame
+	AudioService.stop_all()
+	await get_tree().create_timer(0.4).timeout
 	print("RUN_LOOP_SMOKE_OK: clear, reward, upgrade stats, forest rules, boss win, death loss, and save recovery are observable")
 	get_tree().quit(0)
 

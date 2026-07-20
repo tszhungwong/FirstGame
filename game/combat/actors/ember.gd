@@ -21,6 +21,8 @@ var _move_direction: Vector2 = Vector2.ZERO
 var _dash_direction: Vector2 = Vector2.RIGHT
 var _facing: Vector2 = Vector2.RIGHT
 var _alive: bool = true
+var _last_health: int = -1
+var _visual: EmberVisual
 
 
 func configure(
@@ -56,6 +58,7 @@ func _ready() -> void:
 	add_child(health)
 	health.health_changed.connect(_on_health_changed)
 	health.died.connect(_on_defeated)
+	_last_health = health.current_health
 
 	_targeting = TargetingComponent.new()
 	add_child(_targeting)
@@ -65,6 +68,9 @@ func _ready() -> void:
 	dash.health_component = health
 	dash.dash_state_changed.connect(_on_dash_state_changed)
 	add_child(dash)
+	_visual = EmberVisual.new()
+	_visual.name = "Visual"
+	add_child(_visual)
 
 	var camera := Camera2D.new()
 	camera.name = "Camera"
@@ -75,7 +81,7 @@ func _ready() -> void:
 	camera.limit_right = int(arena_rect.end.x)
 	camera.limit_bottom = int(arena_rect.end.y)
 	add_child(camera)
-	queue_redraw()
+	_refresh_visual()
 
 
 func _physics_process(delta: float) -> void:
@@ -88,7 +94,7 @@ func _physics_process(delta: float) -> void:
 	_move_direction = _read_move_direction()
 	if _move_direction != Vector2.ZERO and not _facing.is_equal_approx(_move_direction):
 		_facing = _move_direction
-		queue_redraw()
+		_refresh_visual()
 
 	if Input.is_action_just_pressed("dash"):
 		request_dash()
@@ -106,6 +112,7 @@ func _physics_process(delta: float) -> void:
 		global_position = forest_rules.resolve_actor_position(previous_position, global_position)
 	var arena_inset := Vector2.ONE * definition.arena_inset
 	global_position = global_position.clamp(arena_rect.position + arena_inset, arena_rect.end - arena_inset)
+	_refresh_visual()
 	_auto_fire()
 
 
@@ -119,12 +126,14 @@ func request_dash() -> void:
 	var requested_direction: Vector2 = _move_direction if _move_direction != Vector2.ZERO else _facing
 	if dash.try_start():
 		_dash_direction = requested_direction.normalized()
+		AudioService.play_cue(&"dash")
 
 
 func request_active_skill() -> void:
 	if not _alive or _skill_cooldown > 0.0:
 		return
 	_skill_cooldown = definition.active_skill_cooldown
+	AudioService.play_cue(&"ember_burst")
 	var projectile_count: int = maxi(definition.active_skill_projectiles, 1)
 	for index: int in projectile_count:
 		var angle: float = TAU * float(index) / float(projectile_count)
@@ -195,6 +204,7 @@ func _auto_fire() -> void:
 
 
 func _shoot(direction: Vector2) -> void:
+	AudioService.play_cue(&"ember_shot")
 	var shot_count := maxi(combat_stats.multishot, 1)
 	for shot_index: int in shot_count:
 		var offset := (float(shot_index) - float(shot_count - 1) * 0.5) * 0.14
@@ -220,28 +230,22 @@ func _shoot(direction: Vector2) -> void:
 
 
 func _on_health_changed(current: int, maximum: int) -> void:
+	if _last_health >= 0 and current < _last_health:
+		AudioService.play_cue(&"player_hit")
+	_last_health = current
 	health_changed.emit(current, maximum)
 
 
 func _on_defeated() -> void:
 	_alive = false
 	defeated.emit()
-	queue_redraw()
+	_refresh_visual()
 
 
 func _on_dash_state_changed(_is_dashing: bool) -> void:
-	queue_redraw()
+	_refresh_visual()
 
 
-func _draw() -> void:
-	var body_color := Color("68e0d1") if _alive else Color("52636a")
-	if is_concealed():
-		body_color.a = 0.48
-	draw_circle(Vector2.ZERO, 22.0, Color("17333a"))
-	draw_circle(Vector2.ZERO, 17.0, body_color)
-	draw_circle(Vector2(-6.0, -5.0), 3.0, Color("eafff9"))
-	draw_circle(Vector2(6.0, -5.0), 3.0, Color("eafff9"))
-	draw_line(Vector2.ZERO, _facing * 31.0, Color("f6c85f"), 6.0)
-	draw_arc(Vector2.ZERO, 26.0, 0.0, TAU, 36, Color("f6c85f"), 3.0)
-	if health != null and health.invulnerable:
-		draw_arc(Vector2.ZERO, 34.0, 0.0, TAU, 40, Color(0.7, 1.0, 0.95, 0.8), 4.0)
+func _refresh_visual() -> void:
+	if is_instance_valid(_visual):
+		_visual.set_state(_facing, _alive, is_concealed(), health != null and health.invulnerable)

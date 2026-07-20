@@ -100,6 +100,7 @@ func _on_enemy_defeated(enemy: CombatEnemy) -> void:
 
 func _show_rewards(choices: Array[UpgradeDefinition]) -> void:
 	_freeze_combat()
+	AudioService.play_cue(&"room_clear")
 	_reward_panel.visible = true
 	var list := _reward_panel.get_node("Choices") as VBoxContainer
 	for child: Node in list.get_children():
@@ -118,6 +119,7 @@ func _show_rewards(choices: Array[UpgradeDefinition]) -> void:
 
 
 func _choose_reward(id: StringName) -> void:
+	AudioService.play_cue(&"reward_select")
 	controller.choose_upgrade(id)
 
 
@@ -157,20 +159,19 @@ func _freeze_combat() -> void:
 func _build_ui() -> void:
 	var layer := CanvasLayer.new()
 	layer.name = "RunUi"
+	layer.layer = 2
 	add_child(layer)
 	_room_label = Label.new()
-	_room_label.position = Vector2(430.0, 24.0)
+	_room_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_room_label.add_theme_font_size_override("font_size", 22)
 	layer.add_child(_room_label)
 	_pause_button = Button.new()
 	_pause_button.text = "PAUSE"
-	_pause_button.position = Vector2(1150.0, 22.0)
 	_pause_button.size = Vector2(100.0, 42.0)
 	_pause_button.pressed.connect(_toggle_pause)
 	layer.add_child(_pause_button)
 	_reward_panel = PanelContainer.new()
 	_reward_panel.name = "RewardPanel"
-	_reward_panel.position = Vector2(390.0, 150.0)
 	_reward_panel.size = Vector2(500.0, 440.0)
 	_reward_panel.process_mode = Node.PROCESS_MODE_ALWAYS
 	var choices := VBoxContainer.new()
@@ -180,7 +181,6 @@ func _build_ui() -> void:
 	_reward_panel.visible = false
 	layer.add_child(_reward_panel)
 	_end_panel = PanelContainer.new()
-	_end_panel.position = Vector2(340.0, 210.0)
 	_end_panel.size = Vector2(600.0, 280.0)
 	_end_panel.process_mode = Node.PROCESS_MODE_ALWAYS
 	_end_label = Label.new()
@@ -190,21 +190,34 @@ func _build_ui() -> void:
 	_end_panel.add_child(_end_label)
 	_end_panel.visible = false
 	layer.add_child(_end_panel)
+	get_viewport().size_changed.connect(_layout_run_ui)
+	_layout_run_ui()
+
+
+func _layout_run_ui() -> void:
+	if not is_instance_valid(_room_label):
+		return
+	var content := SafeAreaLayout.current_content_rect(get_viewport().get_visible_rect().size, 16.0)
+	_room_label.position = Vector2(content.get_center().x - 220.0, content.position.y)
+	_room_label.size = Vector2(440.0, 42.0)
+	_pause_button.position = Vector2(content.end.x - _pause_button.size.x, content.position.y)
+	_reward_panel.position = content.get_center() - _reward_panel.size * 0.5
+	_end_panel.position = content.get_center() - _end_panel.size * 0.5
 
 
 func _draw() -> void:
 	if controller == null or controller.current_room() == null:
 		return
 	var room := controller.current_room()
-	draw_rect(Rect2(Vector2.ZERO, room.arena_size), Color("142521"), true)
+	draw_rect(Rect2(Vector2.ZERO, room.arena_size), GamePalette.FOREST_DEEP, true)
 	for mud: Rect2 in room.mud_areas:
-		draw_rect(mud, Color("554933"), true)
+		draw_rect(mud, GamePalette.MUD, true)
 	for river: Rect2 in room.river_areas:
-		draw_rect(river, Color("245b68"), true)
+		draw_rect(river, GamePalette.WATER, true)
 	for bridge: Rect2 in room.bridge_areas:
 		draw_rect(bridge, Color("9a7447"), true)
 	for grass: Rect2 in room.grass_areas:
-		draw_rect(grass, Color(0.18, 0.43, 0.25, 0.72), true)
+		draw_rect(grass, Color(GamePalette.FOREST_MID, 0.78), true)
 	for tree: Vector2 in room.tree_positions:
 		draw_circle(tree, room.tree_radius, Color("273e2b"))
 		draw_circle(tree, room.tree_radius * 0.42, Color("68472f"))

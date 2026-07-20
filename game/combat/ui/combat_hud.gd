@@ -10,6 +10,8 @@ var _skill_button: Button
 var _enemy_label: Label
 var _defeat_panel: ColorRect
 var _cooldown_timer: Timer
+var _hud_root: Control
+var _safe_root: Control
 
 
 func configure(player: Ember) -> void:
@@ -17,89 +19,104 @@ func configure(player: Ember) -> void:
 
 
 func _ready() -> void:
-	var root := Control.new()
-	root.name = "HudRoot"
-	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(root)
+	_hud_root = Control.new()
+	_hud_root.name = "HudRoot"
+	_hud_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(_hud_root)
+	_safe_root = Control.new()
+	_safe_root.name = "SafeAreaRoot"
+	_safe_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_hud_root.add_child(_safe_root)
 
 	var title := Label.new()
-	title.text = "EMBER VANGUARD  /  COMBAT CALIBRATION"
-	title.add_theme_font_size_override("font_size", 20)
-	title.position = Vector2(32.0, 22.0)
-	root.add_child(title)
+	title.text = "EMBER VANGUARD"
+	title.add_theme_font_size_override("font_size", 18)
+	title.position = Vector2.ZERO
+	title.add_theme_color_override("font_color", GamePalette.PARCHMENT)
+	_safe_root.add_child(title)
 
 	_health_bar = ProgressBar.new()
-	_health_bar.position = Vector2(32.0, 54.0)
-	_health_bar.size = Vector2(360.0, 28.0)
+	_health_bar.position = Vector2(0.0, 30.0)
+	_health_bar.size = Vector2(340.0, 28.0)
 	_health_bar.show_percentage = false
 	_health_bar.max_value = ember.definition.max_health
 	_health_bar.value = ember.definition.max_health
 	_health_bar.add_theme_stylebox_override("background", _panel_style(Color(0.03, 0.08, 0.09, 0.82), Color("244b50"), 2))
 	_health_bar.add_theme_stylebox_override("fill", _panel_style(Color("45c9aa"), Color("9cf5d5"), 1))
-	root.add_child(_health_bar)
+	_safe_root.add_child(_health_bar)
 
 	_health_label = Label.new()
 	_health_label.name = "HealthLabel"
-	_health_label.position = Vector2(42.0, 57.0)
+	_health_label.position = Vector2(10.0, 33.0)
 	_health_label.add_theme_font_size_override("font_size", 16)
-	root.add_child(_health_label)
+	_safe_root.add_child(_health_label)
 
 	_enemy_label = Label.new()
 	_enemy_label.name = "EnemyLabel"
 	_enemy_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_enemy_label.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	_enemy_label.offset_left = -330.0
-	_enemy_label.offset_top = 28.0
-	_enemy_label.offset_right = -32.0
-	_enemy_label.offset_bottom = 60.0
+	_enemy_label.offset_left = -250.0
+	_enemy_label.offset_top = 2.0
+	_enemy_label.offset_right = -112.0
+	_enemy_label.offset_bottom = 34.0
 	_enemy_label.add_theme_font_size_override("font_size", 18)
-	root.add_child(_enemy_label)
+	_safe_root.add_child(_enemy_label)
 
 	var hint := Label.new()
-	hint.text = "WASD / ARROWS TO MOVE   •   SPACE DASH   •   E BURST"
+	hint.text = "MOVE  /  DASH  /  EMBER BURST"
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	hint.offset_top = 88.0
-	hint.offset_bottom = 116.0
+	hint.offset_top = 66.0
+	hint.offset_bottom = 94.0
 	hint.modulate = Color(0.75, 0.88, 0.86, 0.78)
-	root.add_child(hint)
+	_safe_root.add_child(hint)
 
 	var joystick := VirtualJoystick.new()
 	joystick.name = "VirtualJoystick"
 	joystick.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	joystick.offset_left = 28.0
-	joystick.offset_top = -206.0
-	joystick.offset_right = 206.0
-	joystick.offset_bottom = -28.0
+	joystick.offset_left = 0.0
+	joystick.offset_top = -178.0
+	joystick.offset_right = 178.0
+	joystick.offset_bottom = 0.0
 	joystick.direction_changed.connect(_on_virtual_move)
-	root.add_child(joystick)
+	_safe_root.add_child(joystick)
 
 	_dash_button = _make_action_button("DASH\nSPACE", Color("318a83"))
 	_dash_button.name = "DashButton"
 	_dash_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	_dash_button.offset_left = -194.0
-	_dash_button.offset_top = -178.0
-	_dash_button.offset_right = -54.0
-	_dash_button.offset_bottom = -38.0
+	_dash_button.offset_left = -140.0
+	_dash_button.offset_top = -160.0
+	_dash_button.offset_right = 0.0
+	_dash_button.offset_bottom = -20.0
 	_dash_button.pressed.connect(ember.request_dash)
-	root.add_child(_dash_button)
+	_safe_root.add_child(_dash_button)
 
 	_skill_button = _make_action_button("EMBER BURST\nE", Color("9a6330"))
 	_skill_button.name = "SkillButton"
 	_skill_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	_skill_button.offset_left = -354.0
-	_skill_button.offset_top = -142.0
-	_skill_button.offset_right = -224.0
-	_skill_button.offset_bottom = -12.0
+	_skill_button.offset_left = -290.0
+	_skill_button.offset_top = -140.0
+	_skill_button.offset_right = -160.0
+	_skill_button.offset_bottom = -10.0
 	_skill_button.pressed.connect(ember.request_active_skill)
-	root.add_child(_skill_button)
+	_safe_root.add_child(_skill_button)
+
+	var performance_overlay := PerformanceOverlay.new()
+	performance_overlay.name = "PerformanceOverlay"
+	performance_overlay.configure(ember, ember.projectile_pool)
+	performance_overlay.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	performance_overlay.offset_left = -250.0
+	performance_overlay.offset_top = 44.0
+	performance_overlay.offset_right = 0.0
+	performance_overlay.offset_bottom = 98.0
+	_safe_root.add_child(performance_overlay)
 
 	_defeat_panel = ColorRect.new()
 	_defeat_panel.color = Color(0.04, 0.06, 0.07, 0.84)
 	_defeat_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_defeat_panel.visible = false
 	_defeat_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(_defeat_panel)
+	_hud_root.add_child(_defeat_panel)
 	var defeat_label := Label.new()
 	defeat_label.text = "CALIBRATION FAILED\nRELAUNCH TO TRY AGAIN"
 	defeat_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -116,6 +133,8 @@ func _ready() -> void:
 	_cooldown_timer.autostart = true
 	_cooldown_timer.timeout.connect(_update_cooldowns)
 	add_child(_cooldown_timer)
+	_hud_root.resized.connect(_apply_safe_area)
+	_apply_safe_area()
 	_on_health_changed(ember.health.current_health, ember.health.max_health)
 	_on_enemy_count_changed(ember.enemy_count())
 	_update_cooldowns()
@@ -166,3 +185,15 @@ func _on_ember_defeated() -> void:
 
 func _on_virtual_move(direction: Vector2) -> void:
 	ember.set_virtual_move(direction)
+
+
+func _apply_safe_area() -> void:
+	if not is_instance_valid(_safe_root):
+		return
+	var content := SafeAreaLayout.current_content_rect(get_viewport().get_visible_rect().size, 16.0)
+	apply_content_rect(content)
+
+
+func apply_content_rect(content: Rect2) -> void:
+	_safe_root.position = content.position
+	_safe_root.size = content.size

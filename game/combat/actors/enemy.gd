@@ -123,6 +123,7 @@ func _update_charger(delta: float) -> void:
 				_state_timer = definition.telegraph_duration
 				_charge_direction = global_position.direction_to(target.global_position)
 				velocity = Vector2.ZERO
+				AudioService.play_cue(&"enemy_telegraph")
 				queue_redraw()
 		ChargeState.TELEGRAPH:
 			velocity = Vector2.ZERO
@@ -197,10 +198,17 @@ func _draw() -> void:
 			draw_rect(Rect2(Vector2(-23.0, -23.0), Vector2(46.0, 46.0)), Color("f0a64a"))
 			draw_rect(Rect2(Vector2(-13.0, -13.0), Vector2(26.0, 26.0)), Color("754627"))
 			if _state == ChargeState.TELEGRAPH:
-				draw_line(Vector2.ZERO, _charge_direction * definition.attack_range, Color(1.0, 0.35, 0.22, 0.75), 6.0)
-				draw_arc(Vector2.ZERO, 34.0, 0.0, TAU, 32, Color("ff5d42"), 5.0)
+				_draw_charge_telegraph(6.0)
 		EnemyDefinition.Archetype.BOSS:
 			draw_circle(Vector2.ZERO, 48.0, Color("7d3f65"))
 			draw_arc(Vector2.ZERO, 58.0, 0.0, TAU, 40, Color("f6c85f"), 7.0)
 			if _state == ChargeState.TELEGRAPH:
-				draw_line(Vector2.ZERO, _charge_direction * definition.attack_range, Color(1.0, 0.22, 0.12, 0.9), 10.0)
+				_draw_charge_telegraph(11.0)
+
+
+func _draw_charge_telegraph(width: float) -> void:
+	var endpoint := _charge_direction * definition.attack_range
+	draw_line(Vector2.ZERO, endpoint, Color(0.16, 0.07, 0.06, 0.85), width + 6.0, true)
+	draw_line(Vector2.ZERO, endpoint, Color("ff5b45"), width, true)
+	draw_circle(endpoint, width * 0.8, Color("ffd064"))
+	draw_arc(Vector2.ZERO, definition.collision_radius + 13.0, 0.0, TAU, 32, Color("ffd064"), 4.0)
