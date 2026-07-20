@@ -15,3 +15,9 @@ enum Archetype {
 @export var move_speed: float = 0.0
 @export var contact_damage: int = 0
 @export var attack_range: float = 0.0
+@export var attack_cooldown: float = 0.0
+@export var projectile_speed: float = 0.0
+@export var projectile_lifetime: float = 0.0
+@export var telegraph_duration: float = 0.0
+@export var charge_speed: float = 0.0
+@export var charge_duration: float = 0.0

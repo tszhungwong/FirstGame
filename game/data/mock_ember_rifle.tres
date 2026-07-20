@@ -10,3 +10,4 @@ damage = 8
 fire_rate = 4.0
 projectile_speed = 760.0
 projectile_lifetime = 1.2
+target_range = 900.0

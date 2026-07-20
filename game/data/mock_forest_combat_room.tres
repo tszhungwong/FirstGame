@@ -1,12 +1,19 @@
-[gd_resource type="Resource" script_class="RoomDefinition" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="RoomDefinition" load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://data/room_definition.gd" id="1_room"]
+[ext_resource type="Script" path="res://data/enemy_definition.gd" id="2_enemy"]
+[ext_resource type="Resource" path="res://data/mock_forest_chaser.tres" id="2_chaser"]
+[ext_resource type="Resource" path="res://data/mock_forest_shooter.tres" id="3_shooter"]
+[ext_resource type="Resource" path="res://data/mock_forest_charger.tres" id="4_charger"]
 
 [resource]
 script = ExtResource("1_room")
 id = &"forest_combat_01"
 display_name = "Forest Clearing"
 enemy_count = 6
+arena_size = Vector2(2200, 1200)
+enemy_definitions = Array[ExtResource("2_enemy")]([ExtResource("2_chaser"), ExtResource("3_shooter"), ExtResource("4_charger"), ExtResource("2_chaser"), ExtResource("3_shooter"), ExtResource("4_charger")])
+enemy_spawn_points = Array[Vector2]([Vector2(650, 280), Vector2(1550, 260), Vector2(1780, 650), Vector2(1420, 920), Vector2(620, 900), Vector2(350, 560)])
 includes_grass = true
 includes_river = true
 includes_mud = true

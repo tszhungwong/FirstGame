@@ -7,4 +7,7 @@ extends Resource
 @export var move_speed: float = 0.0
 @export var starting_weapon: WeaponDefinition
 @export var dash_cooldown: float = 0.0
+@export var dash_duration: float = 0.0
+@export var dash_speed_multiplier: float = 1.0
 @export var active_skill_cooldown: float = 0.0
+@export var active_skill_projectiles: int = 1

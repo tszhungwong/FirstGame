@@ -10,3 +10,4 @@ max_health = 24
 move_speed = 160.0
 contact_damage = 8
 attack_range = 24.0
+attack_cooldown = 0.7

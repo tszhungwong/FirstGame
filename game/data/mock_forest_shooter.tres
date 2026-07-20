@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/enemy_definition.gd" id="1_enemy"]
+
+[resource]
+script = ExtResource("1_enemy")
+id = &"forest_shooter"
+display_name = "Thorn Spitter"
+archetype = 1
+max_health = 18
+move_speed = 115.0
+contact_damage = 6
+attack_range = 520.0
+attack_cooldown = 1.4
+projectile_speed = 380.0
+projectile_lifetime = 2.2
