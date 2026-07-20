@@ -146,3 +146,93 @@ Godot prints `Unable to open Android 'build-tools' directory` during import/edit
 
 - Android packaging remains blocked by the local machine's missing Android SDK build-tools. It does not affect desktop/headless combat execution.
 - Touch controls are exercised structurally and share the same callable paths as keyboard controls, but physical-device gesture feel still needs device playtesting when Android tooling is available.
+
+## Reviewer-finding remediation (2026-07-21)
+
+### Behavioral smoke coverage
+
+The original smoke only proved node presence and survival. It now performs deterministic observable checks and fails with a named `COMBAT_SMOKE_FAILED` condition when any system is inert:
+
+- Finds all three typed enemy archetypes, then verifies a melee enemy changes position under its own AI.
+- Repositions that melee enemy inside its Resource-defined attack geometry and verifies Ember loses health and the signal-driven health HUD text changes.
+- Fires a real pooled `PooledBullet` through physics collision and verifies enemy health decreases, the bullet returns, and the next acquisition has the same instance ID.
+- Initializes that reused bullet with a short lifetime away from colliders and verifies expiry also returns it.
+- Supplies a real `InputEventScreenTouch` to `VirtualJoystick._gui_input`, verifies Ember moves, and verifies the enabled smoothing camera follows.
+- Activates the HUD dash button through its typed `pressed` signal, then verifies cooldown starts, health invulnerability starts and ends, cooldown remains active, and the timer-driven button text/disabled state changes.
+- Activates the HUD skill button through its typed `pressed` signal, then verifies skill cooldown, nonzero projectile activity, HUD cooldown state, and full pool return.
+- Checks runtime pool capacity/growth policy, player/enemy collider geometry, bullet radius, and camera smoothing values against their typed Resources.
+
+Headless viewport dispatch did not route a synthetic touch to `Button`; this produced the expected RED `injected dash button did not start cooldown`. The action buttons are therefore exercised at the typed `pressed` signal boundary, while the custom virtual joystick is exercised with the real touch event object that its control code consumes.
+
+### Additional RED/GREEN chronology
+
+All focused commands used:
+
+```text
+Godot --headless --path . -s res://addons/gut/gut_cmdln.gd -gtest=res://tests/<focused_test>.gd -gexit
+Godot --headless --path . res://tests/smoke/combat_smoke.tscn
+```
+
+1. **Zero-duration dash boundary**
+   - RED: `test_zero_duration_dash_never_leaves_health_invulnerable` failed because invulnerability stayed true and damage applied `0` instead of `4`; focused result `1/2 passed`, `11/13` assertions.
+   - GREEN: clamped duration/cooldown to zero and only enabled invulnerability for a positive duration; focused result `2/2 passed`, `13` assertions.
+2. **Real pooled-bullet preallocation**
+   - RED: a real `pooled_bullet.tscn` instance started with `collision_mask=1` and direction `(1,0)` instead of a fully despawned state; focused result `1/2 passed`, `12/14` assertions.
+   - GREEN: every newly preallocated bullet runs `on_despawn()` before becoming available; focused result `2/2 passed`, `14` assertions at that point.
+3. **Data-driven collision/performance tuning**
+   - RED: smoke printed `collision or pool tuning is missing from typed resources`.
+   - Intermediate RED: after adding non-default Resource values, runtime equivalence still failed, proving script constants were still active.
+   - GREEN: `.tres` values now drive pool capacity/growth, projectile radius, Ember collider/inset/projectile offset/camera smoothing, and enemy collider/inset/attack padding/ranged spacing/projectile offset/charge hit range.
+   - A follow-up ownership RED moved projectile radius out of `RoomDefinition`; it now belongs to `WeaponDefinition` and `EnemyDefinition`, while pool capacity/growth remain room-level performance settings.
+4. **Concrete typed boundaries**
+   - RED: the source-contract test reported 15 missing concrete declarations across damage, dash, pool, bullet, Ember, enemy, sandbox, and HUD.
+   - GREEN: `DamageComponent`, `HealthComponent`, `DashComponent`, `ObjectPool`, `PooledBullet`, `Ember`, `CombatEnemy`, `CombatSandbox`, and `CombatHud` now use concrete properties, arguments, return values, and typed signal connections. Dynamic `Node.call`, string signal connections, and capability checks were removed from gameplay boundaries; focused result `2/2 passed`, `17` assertions.
+5. **Hot-path work**
+   - RED: the hot-path test identified four failures: HUD `_process`, HUD group query, Ember per-physics redraw, and enemy per-physics redraw.
+   - GREEN: sandbox registration maintains Ember's reusable target buffer; HUD health/enemy values are signal-driven and cooldowns use a 10 Hz Timer; actor redraws occur only on facing/dash/charger/death visual changes.
+   - RED/GREEN follow-up: bullet geometry lacked an unchanged-value guard; the added guard prevents redraw work when pooled projectiles reuse the same radius. Focused result `2/2 passed`, `9` assertions.
+6. **HUD observability**
+   - RED: strengthened smoke failed because stable `HealthLabel` and `EnemyLabel` nodes did not exist.
+   - GREEN: named controls plus health/enemy/cooldown assertions prove the signal/timer refactor changes visible HUD state.
+
+### Files refined
+
+- Typed components and boundaries: `game/combat/components/*.gd`, `actors/{ember,enemy}.gd`, `projectiles/{object_pool,pooled_bullet}.gd`, `combat_sandbox.gd`, and `ui/combat_hud.gd`.
+- Performance/input behavior: `actors/{ember,enemy}.gd`, `controls/virtual_joystick.gd`, `projectiles/pooled_bullet.gd`, and `ui/combat_hud.gd`.
+- Typed tuning contracts/data: `character_definition.gd`, `weapon_definition.gd`, `enemy_definition.gd`, `room_definition.gd`, and their existing `mock_*.tres` values.
+- Focused coverage: `test_damage_component.gd`, `test_dash_component.gd`, `test_health_component.gd`, `test_object_pool.gd`, `test_targeting_component.gd`, and `tests/smoke/combat_smoke.gd`.
+
+### Fresh final verification
+
+```text
+Godot --headless --import --path game
+EXIT=0; ERROR_OR_LEAK_COUNT=0
+
+Godot --headless --editor --quit --path game
+EXIT=0; ERROR_OR_LEAK_COUNT=0
+
+Godot --headless --path game --script res://tools/validate_godot_version.gd
+Godot version pin and landscape ProjectSettings verified: 4.6.3
+EXIT=0; ERROR_OR_LEAK_COUNT=0
+
+Godot --headless --path game -s res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
+14/14 passed; 70 assertions; EXIT=0; ERROR_OR_LEAK_COUNT=0
+
+Godot --headless --path game res://tests/smoke/combat_smoke.tscn
+COMBAT_SMOKE_OK: controls, cooldowns, damage, enemy AI, camera, and projectile reuse are observable
+EXIT=0; ERROR_OR_LEAK_COUNT=0
+
+Godot --headless --path game --quit-after 180
+EXIT=0; ERROR_OR_LEAK_COUNT=0
+```
+
+Import/editor retain only the previously documented environment message `Unable to open Android 'build-tools' directory`; it is not a parse/runtime/ObjectDB failure.
+
+### Reviewer-fix self-review
+
+- Confirmed the smoke cannot pass when dash, active skill, bullet collision, bullet expiry, pool reuse, enemy movement, enemy attack, camera follow, virtual joystick handling, action button wiring, or HUD updates are inert.
+- Confirmed all preallocated bullets have zero collision mask, zero direction/lifetime, hidden state, and disabled processing before entering the available list.
+- Confirmed zero and negative dash durations cannot leave health invulnerable.
+- Confirmed gameplay source has no `Node.call`, string-based gameplay signal connection, `has_method`, or `has_signal` boundary.
+- Confirmed auto-fire reuses a registered target buffer, HUD has no frame `_process`, group queries are absent from gameplay hot paths, and redraws are state-driven.
+- Confirmed newly added attributes remain owned by their correct models: character geometry/camera values on `CharacterDefinition`, projectile geometry on weapon/enemy definitions, enemy movement/attack geometry on `EnemyDefinition`, and pool capacity/growth on `RoomDefinition`.

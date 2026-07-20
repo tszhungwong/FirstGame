@@ -7,4 +7,5 @@ extends Resource
 @export var fire_rate: float = 0.0
 @export var projectile_speed: float = 0.0
 @export var projectile_lifetime: float = 0.0
+@export var projectile_collision_radius: float = 0.0
 @export var target_range: float = 0.0

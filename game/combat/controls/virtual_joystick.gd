@@ -48,7 +48,10 @@ func _set_from_position(local_position: Vector2) -> void:
 
 
 func _set_direction(value: Vector2) -> void:
-	_direction = value.limit_length(1.0)
+	var next_direction: Vector2 = value.limit_length(1.0)
+	if _direction.is_equal_approx(next_direction):
+		return
+	_direction = next_direction
 	direction_changed.emit(_direction)
 	queue_redraw()
 

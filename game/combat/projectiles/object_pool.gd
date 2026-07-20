@@ -3,10 +3,11 @@ extends Node
 
 @export var pooled_scene: PackedScene
 @export var initial_size: int = 0
-@export var can_grow: bool = true
+@export var can_grow: bool = false
 
-var _available: Array[Node] = []
-var _in_use: Array[Node] = []
+var _available: Array[PooledBullet] = []
+var _in_use: Array[PooledBullet] = []
+var _projectile_collision_radius: float = 0.0
 
 
 func _ready() -> void:
@@ -14,37 +15,34 @@ func _ready() -> void:
 		_initialize()
 
 
-func configure(scene: PackedScene, size: int, grow: bool) -> void:
+func configure(scene: PackedScene, size: int, grow: bool, collision_radius: float = 0.0) -> void:
 	pooled_scene = scene
 	initial_size = maxi(size, 0)
 	can_grow = grow
+	_projectile_collision_radius = maxf(collision_radius, 0.0)
 	_initialize()
 
 
-func acquire() -> Node:
+func acquire() -> PooledBullet:
 	if _available.is_empty():
 		if not can_grow or pooled_scene == null:
 			return null
 		_create_instance()
-	var instance: Node = _available.pop_back()
+	var instance: PooledBullet = _available.pop_back()
 	_in_use.append(instance)
 	instance.process_mode = Node.PROCESS_MODE_INHERIT
-	if instance is CanvasItem:
-		(instance as CanvasItem).visible = true
-	if instance.has_method("on_spawn"):
-		instance.call("on_spawn")
+	instance.visible = true
+	instance.on_spawn()
 	return instance
 
 
-func release(instance: Node) -> void:
+func release(instance: PooledBullet) -> void:
 	if not _in_use.has(instance):
 		return
 	_in_use.erase(instance)
-	if instance.has_method("on_despawn"):
-		instance.call("on_despawn")
+	instance.on_despawn()
 	instance.process_mode = Node.PROCESS_MODE_DISABLED
-	if instance is CanvasItem:
-		(instance as CanvasItem).visible = false
+	instance.visible = false
 	_available.append(instance)
 
 
@@ -57,7 +55,7 @@ func in_use_count() -> int:
 
 
 func release_all() -> void:
-	for instance: Node in _in_use.duplicate():
+	for instance: PooledBullet in _in_use.duplicate():
 		release(instance)
 
 
@@ -68,13 +66,14 @@ func _initialize() -> void:
 		_create_instance()
 
 
-func _create_instance() -> Node:
-	var instance: Node = pooled_scene.instantiate()
+func _create_instance() -> PooledBullet:
+	var instance := pooled_scene.instantiate() as PooledBullet
+	assert(instance != null, "ObjectPool requires a PooledBullet root scene")
 	add_child(instance)
+	instance.configure_collision_radius(_projectile_collision_radius)
+	instance.on_despawn()
 	instance.process_mode = Node.PROCESS_MODE_DISABLED
-	if instance is CanvasItem:
-		(instance as CanvasItem).visible = false
-	if instance.has_signal("returned_to_pool"):
-		instance.connect("returned_to_pool", release.bind(instance))
+	instance.visible = false
+	instance.returned_to_pool.connect(release)
 	_available.append(instance)
 	return instance

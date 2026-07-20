@@ -1,19 +1,10 @@
 extends GutTest
 
-const DASH_COMPONENT_PATH := "res://combat/components/dash_component.gd"
-const HEALTH_COMPONENT = preload("res://combat/components/health_component.gd")
-
-
 func test_dash_grants_temporary_invulnerability_and_respects_cooldown() -> void:
-	var dash_script := load(DASH_COMPONENT_PATH) as GDScript
-	assert_not_null(dash_script)
-	if dash_script == null:
-		return
-
-	var health: Node = autofree(HEALTH_COMPONENT.new())
+	var health := autofree(HealthComponent.new()) as HealthComponent
 	health.max_health = 20
 	health.reset()
-	var dash: Node = autofree(dash_script.new())
+	var dash := autofree(DashComponent.new()) as DashComponent
 	dash.cooldown = 1.5
 	dash.duration = 0.2
 	dash.health_component = health
@@ -28,3 +19,18 @@ func test_dash_grants_temporary_invulnerability_and_respects_cooldown() -> void:
 	assert_eq(health.take_damage(4), 4)
 	dash.advance(1.3)
 	assert_true(dash.try_start())
+
+
+func test_zero_duration_dash_never_leaves_health_invulnerable() -> void:
+	var health := autofree(HealthComponent.new()) as HealthComponent
+	health.max_health = 20
+	health.reset()
+	var dash := autofree(DashComponent.new()) as DashComponent
+	dash.cooldown = 1.0
+	dash.duration = 0.0
+	dash.health_component = health
+
+	assert_true(dash.try_start())
+	assert_false(dash.is_dashing())
+	assert_false(health.invulnerable)
+	assert_eq(health.take_damage(4), 4)

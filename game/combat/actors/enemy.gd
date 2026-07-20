@@ -1,9 +1,7 @@
 class_name CombatEnemy
 extends CharacterBody2D
 
-signal defeated(enemy: Node2D)
-
-const HEALTH_COMPONENT = preload("res://combat/components/health_component.gd")
+signal defeated(enemy: CombatEnemy)
 
 enum ChargeState {
 	APPROACH,
@@ -12,10 +10,10 @@ enum ChargeState {
 }
 
 var definition: EnemyDefinition
-var target: CharacterBody2D
-var projectile_pool: Node
+var target: Ember
+var projectile_pool: ObjectPool
 var arena_rect: Rect2
-var health: Node
+var health: HealthComponent
 var _attack_timer: float = 0.0
 var _state: ChargeState = ChargeState.APPROACH
 var _state_timer: float = 0.0
@@ -25,8 +23,8 @@ var _alive: bool = true
 
 func configure(
 	enemy_definition: EnemyDefinition,
-	player_target: CharacterBody2D,
-	pool: Node,
+	player_target: Ember,
+	pool: ObjectPool,
 	bounds: Rect2
 ) -> void:
 	definition = enemy_definition
@@ -40,11 +38,11 @@ func _ready() -> void:
 	collision_layer = 2
 	collision_mask = 1
 	var shape := CircleShape2D.new()
-	shape.radius = 20.0 if definition.archetype != EnemyDefinition.Archetype.TELEGRAPHED_CHARGER else 25.0
+	shape.radius = definition.collision_radius
 	var collision := CollisionShape2D.new()
 	collision.shape = shape
 	add_child(collision)
-	health = HEALTH_COMPONENT.new()
+	health = HealthComponent.new()
 	health.name = "Health"
 	health.max_health = definition.max_health
 	add_child(health)
@@ -53,7 +51,7 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if not _alive or not is_instance_valid(target) or not target.call("is_alive"):
+	if not _alive or not is_instance_valid(target) or not target.is_alive():
 		velocity = Vector2.ZERO
 		return
 	_attack_timer = maxf(_attack_timer - delta, 0.0)
@@ -65,11 +63,11 @@ func _physics_process(delta: float) -> void:
 		EnemyDefinition.Archetype.TELEGRAPHED_CHARGER:
 			_update_charger(delta)
 	move_and_slide()
-	global_position = global_position.clamp(arena_rect.position + Vector2(30.0, 30.0), arena_rect.end - Vector2(30.0, 30.0))
-	queue_redraw()
+	var arena_inset := Vector2.ONE * definition.arena_inset
+	global_position = global_position.clamp(arena_rect.position + arena_inset, arena_rect.end - arena_inset)
 
 
-func get_health_component() -> Node:
+func get_health_component() -> HealthComponent:
 	return health
 
 
@@ -80,7 +78,7 @@ func is_alive() -> bool:
 func _update_melee() -> void:
 	var distance: float = global_position.distance_to(target.global_position)
 	velocity = global_position.direction_to(target.global_position) * definition.move_speed
-	if distance <= definition.attack_range + 30.0 and _attack_timer <= 0.0:
+	if distance <= definition.attack_range + definition.contact_range_padding and _attack_timer <= 0.0:
 		_damage_target(definition.contact_damage)
 		_attack_timer = definition.attack_cooldown
 
@@ -88,9 +86,9 @@ func _update_melee() -> void:
 func _update_ranged() -> void:
 	var to_target: Vector2 = global_position.direction_to(target.global_position)
 	var distance: float = global_position.distance_to(target.global_position)
-	if distance > definition.attack_range * 0.75:
+	if distance > definition.attack_range * definition.ranged_approach_ratio:
 		velocity = to_target * definition.move_speed
-	elif distance < definition.attack_range * 0.4:
+	elif distance < definition.attack_range * definition.ranged_retreat_ratio:
 		velocity = -to_target * definition.move_speed
 	else:
 		velocity = Vector2.ZERO
@@ -109,15 +107,17 @@ func _update_charger(delta: float) -> void:
 				_state_timer = definition.telegraph_duration
 				_charge_direction = global_position.direction_to(target.global_position)
 				velocity = Vector2.ZERO
+				queue_redraw()
 		ChargeState.TELEGRAPH:
 			velocity = Vector2.ZERO
 			_state_timer = maxf(_state_timer - delta, 0.0)
 			if _state_timer <= 0.0:
 				_state = ChargeState.CHARGE
 				_state_timer = definition.charge_duration
+				queue_redraw()
 		ChargeState.CHARGE:
 			velocity = _charge_direction * definition.charge_speed
-			if distance <= 48.0 and _attack_timer <= 0.0:
+			if distance <= definition.charge_hit_range and _attack_timer <= 0.0:
 				_damage_target(definition.contact_damage)
 				_attack_timer = definition.attack_cooldown
 			_state_timer = maxf(_state_timer - delta, 0.0)
@@ -127,24 +127,24 @@ func _update_charger(delta: float) -> void:
 
 
 func _fire_projectile(direction: Vector2) -> void:
-	var bullet: Node = projectile_pool.call("acquire")
+	var bullet: PooledBullet = projectile_pool.acquire()
 	if bullet == null:
 		return
-	bullet.call(
-		"initialize",
-		global_position + direction * 28.0,
+	bullet.initialize(
+		global_position + direction * definition.projectile_spawn_offset,
 		direction,
 		definition.projectile_speed,
 		definition.projectile_lifetime,
 		definition.contact_damage,
-		false
+		definition.projectile_collision_radius,
+		false,
 	)
 
 
 func _damage_target(amount: int) -> void:
-	var target_health: Node = target.call("get_health_component")
+	var target_health: HealthComponent = target.get_health_component()
 	if target_health != null:
-		target_health.call("take_damage", amount)
+		target_health.take_damage(amount)
 
 
 func _on_defeated() -> void:

@@ -1,18 +1,18 @@
 class_name CombatHud
 extends CanvasLayer
 
-const VIRTUAL_JOYSTICK = preload("res://combat/controls/virtual_joystick.gd")
 
-var ember: CharacterBody2D
+var ember: Ember
 var _health_bar: ProgressBar
 var _health_label: Label
 var _dash_button: Button
 var _skill_button: Button
 var _enemy_label: Label
 var _defeat_panel: ColorRect
+var _cooldown_timer: Timer
 
 
-func configure(player: CharacterBody2D) -> void:
+func configure(player: Ember) -> void:
 	ember = player
 
 
@@ -39,11 +39,13 @@ func _ready() -> void:
 	root.add_child(_health_bar)
 
 	_health_label = Label.new()
+	_health_label.name = "HealthLabel"
 	_health_label.position = Vector2(42.0, 57.0)
 	_health_label.add_theme_font_size_override("font_size", 16)
 	root.add_child(_health_label)
 
 	_enemy_label = Label.new()
+	_enemy_label.name = "EnemyLabel"
 	_enemy_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_enemy_label.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	_enemy_label.offset_left = -330.0
@@ -62,7 +64,7 @@ func _ready() -> void:
 	hint.modulate = Color(0.75, 0.88, 0.86, 0.78)
 	root.add_child(hint)
 
-	var joystick: Control = VIRTUAL_JOYSTICK.new()
+	var joystick := VirtualJoystick.new()
 	joystick.name = "VirtualJoystick"
 	joystick.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	joystick.offset_left = 28.0
@@ -79,7 +81,7 @@ func _ready() -> void:
 	_dash_button.offset_top = -178.0
 	_dash_button.offset_right = -54.0
 	_dash_button.offset_bottom = -38.0
-	_dash_button.pressed.connect(ember.call.bind("request_dash"))
+	_dash_button.pressed.connect(ember.request_dash)
 	root.add_child(_dash_button)
 
 	_skill_button = _make_action_button("EMBER BURST\nE", Color("9a6330"))
@@ -89,7 +91,7 @@ func _ready() -> void:
 	_skill_button.offset_top = -142.0
 	_skill_button.offset_right = -224.0
 	_skill_button.offset_bottom = -12.0
-	_skill_button.pressed.connect(ember.call.bind("request_active_skill"))
+	_skill_button.pressed.connect(ember.request_active_skill)
 	root.add_child(_skill_button)
 
 	_defeat_panel = ColorRect.new()
@@ -107,16 +109,31 @@ func _ready() -> void:
 	_defeat_panel.add_child(defeat_label)
 
 	ember.defeated.connect(_on_ember_defeated)
+	ember.health_changed.connect(_on_health_changed)
+	ember.enemy_count_changed.connect(_on_enemy_count_changed)
+	_cooldown_timer = Timer.new()
+	_cooldown_timer.wait_time = 0.1
+	_cooldown_timer.autostart = true
+	_cooldown_timer.timeout.connect(_update_cooldowns)
+	add_child(_cooldown_timer)
+	_on_health_changed(ember.health.current_health, ember.health.max_health)
+	_on_enemy_count_changed(ember.enemy_count())
+	_update_cooldowns()
 
 
-func _process(_delta: float) -> void:
-	if not is_instance_valid(ember) or ember.health == null:
-		return
-	_health_bar.value = ember.health.current_health
-	_health_label.text = "%d / %d" % [ember.health.current_health, ember.health.max_health]
-	_enemy_label.text = "HOSTILES  %02d" % get_tree().get_nodes_in_group("enemies").size()
-	var dash_ratio: float = ember.call("dash_cooldown_ratio")
-	var skill_ratio: float = ember.call("skill_cooldown_ratio")
+func _on_health_changed(current: int, maximum: int) -> void:
+	_health_bar.max_value = maximum
+	_health_bar.value = current
+	_health_label.text = "%d / %d" % [current, maximum]
+
+
+func _on_enemy_count_changed(count: int) -> void:
+	_enemy_label.text = "HOSTILES  %02d" % count
+
+
+func _update_cooldowns() -> void:
+	var dash_ratio: float = ember.dash_cooldown_ratio()
+	var skill_ratio: float = ember.skill_cooldown_ratio()
 	_dash_button.text = "DASH\nREADY" if dash_ratio <= 0.0 else "DASH\n%0.1fs" % ember.dash.remaining_cooldown
 	_skill_button.text = "EMBER BURST\nREADY" if skill_ratio <= 0.0 else "EMBER BURST\n%0.1fs" % (skill_ratio * ember.definition.active_skill_cooldown)
 	_dash_button.disabled = dash_ratio > 0.0
@@ -148,4 +165,4 @@ func _on_ember_defeated() -> void:
 
 
 func _on_virtual_move(direction: Vector2) -> void:
-	ember.call("set_virtual_move", direction)
+	ember.set_virtual_move(direction)

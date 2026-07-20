@@ -3,17 +3,15 @@ extends CharacterBody2D
 
 signal health_changed(current: int, maximum: int)
 signal defeated
-
-const HEALTH_COMPONENT = preload("res://combat/components/health_component.gd")
-const TARGETING_COMPONENT = preload("res://combat/components/targeting_component.gd")
-const DASH_COMPONENT = preload("res://combat/components/dash_component.gd")
+signal enemy_count_changed(count: int)
 
 var definition: CharacterDefinition
-var projectile_pool: Node
+var projectile_pool: ObjectPool
 var arena_rect: Rect2
-var health: Node
-var dash: Node
-var _targeting: Node
+var health: HealthComponent
+var dash: DashComponent
+var _targeting: TargetingComponent
+var _target_candidates: Array[Node2D] = []
 var _fire_timer: float = 0.0
 var _skill_cooldown: float = 0.0
 var _virtual_move: Vector2 = Vector2.ZERO
@@ -25,7 +23,7 @@ var _alive: bool = true
 
 func configure(
 	character_definition: CharacterDefinition,
-	pool: Node,
+	pool: ObjectPool,
 	bounds: Rect2
 ) -> void:
 	definition = character_definition
@@ -38,31 +36,32 @@ func _ready() -> void:
 	collision_layer = 1
 	collision_mask = 2
 	var shape := CapsuleShape2D.new()
-	shape.radius = 18.0
-	shape.height = 48.0
+	shape.radius = definition.collision_radius
+	shape.height = definition.collision_height
 	var collision := CollisionShape2D.new()
 	collision.shape = shape
 	add_child(collision)
 
-	health = HEALTH_COMPONENT.new()
+	health = HealthComponent.new()
 	health.name = "Health"
 	health.max_health = definition.max_health
 	add_child(health)
 	health.health_changed.connect(_on_health_changed)
 	health.died.connect(_on_defeated)
 
-	_targeting = TARGETING_COMPONENT.new()
+	_targeting = TargetingComponent.new()
 	add_child(_targeting)
-	dash = DASH_COMPONENT.new()
+	dash = DashComponent.new()
 	dash.cooldown = definition.dash_cooldown
 	dash.duration = definition.dash_duration
 	dash.health_component = health
+	dash.dash_state_changed.connect(_on_dash_state_changed)
 	add_child(dash)
 
 	var camera := Camera2D.new()
 	camera.name = "Camera"
 	camera.position_smoothing_enabled = true
-	camera.position_smoothing_speed = 8.0
+	camera.position_smoothing_speed = definition.camera_smoothing_speed
 	camera.limit_left = int(arena_rect.position.x)
 	camera.limit_top = int(arena_rect.position.y)
 	camera.limit_right = int(arena_rect.end.x)
@@ -79,8 +78,9 @@ func _physics_process(delta: float) -> void:
 	_skill_cooldown = maxf(_skill_cooldown - delta, 0.0)
 	_fire_timer = maxf(_fire_timer - delta, 0.0)
 	_move_direction = _read_move_direction()
-	if _move_direction != Vector2.ZERO:
+	if _move_direction != Vector2.ZERO and not _facing.is_equal_approx(_move_direction):
 		_facing = _move_direction
+		queue_redraw()
 
 	if Input.is_action_just_pressed("dash"):
 		request_dash()
@@ -92,9 +92,9 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity = _move_direction * definition.move_speed
 	move_and_slide()
-	global_position = global_position.clamp(arena_rect.position + Vector2(28.0, 28.0), arena_rect.end - Vector2(28.0, 28.0))
+	var arena_inset := Vector2.ONE * definition.arena_inset
+	global_position = global_position.clamp(arena_rect.position + arena_inset, arena_rect.end - arena_inset)
 	_auto_fire()
-	queue_redraw()
 
 
 func set_virtual_move(direction: Vector2) -> void:
@@ -119,7 +119,22 @@ func request_active_skill() -> void:
 		_shoot(Vector2.from_angle(angle))
 
 
-func get_health_component() -> Node:
+func register_enemy(enemy: CombatEnemy) -> void:
+	if not _target_candidates.has(enemy):
+		_target_candidates.append(enemy)
+		enemy_count_changed.emit(_target_candidates.size())
+
+
+func unregister_enemy(enemy: CombatEnemy) -> void:
+	_target_candidates.erase(enemy)
+	enemy_count_changed.emit(_target_candidates.size())
+
+
+func enemy_count() -> int:
+	return _target_candidates.size()
+
+
+func get_health_component() -> HealthComponent:
 	return health
 
 
@@ -147,13 +162,9 @@ func _read_move_direction() -> Vector2:
 func _auto_fire() -> void:
 	if _fire_timer > 0.0:
 		return
-	var candidates: Array[Node2D] = []
-	for node: Node in get_tree().get_nodes_in_group("enemies"):
-		if node is Node2D and node.has_method("is_alive") and node.call("is_alive"):
-			candidates.append(node as Node2D)
 	var target: Node2D = _targeting.find_nearest(
 		global_position,
-		candidates,
+		_target_candidates,
 		definition.starting_weapon.target_range
 	)
 	if target == null:
@@ -163,17 +174,17 @@ func _auto_fire() -> void:
 
 
 func _shoot(direction: Vector2) -> void:
-	var bullet: Node = projectile_pool.call("acquire")
+	var bullet: PooledBullet = projectile_pool.acquire()
 	if bullet == null:
 		return
-	bullet.call(
-		"initialize",
-		global_position + direction * 30.0,
+	bullet.initialize(
+		global_position + direction * definition.projectile_spawn_offset,
 		direction,
 		definition.starting_weapon.projectile_speed,
 		definition.starting_weapon.projectile_lifetime,
 		definition.starting_weapon.damage,
-		true
+		definition.starting_weapon.projectile_collision_radius,
+		true,
 	)
 
 
@@ -184,6 +195,10 @@ func _on_health_changed(current: int, maximum: int) -> void:
 func _on_defeated() -> void:
 	_alive = false
 	defeated.emit()
+	queue_redraw()
+
+
+func _on_dash_state_changed(_is_dashing: bool) -> void:
 	queue_redraw()
 
 
