@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="RoomDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/room_definition.gd" id="1_room"]
+
+[resource]
+script = ExtResource("1_room")
+id = &"forest_combat_01"
+display_name = "Forest Clearing"
+enemy_count = 6
+includes_grass = true
+includes_river = true
+includes_mud = true
+includes_trees = true

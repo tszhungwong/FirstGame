@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="UpgradeDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/upgrade_definition.gd" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+id = &"fire_rate_i"
+display_name = "Rapid Embers"
+description = "Increase rifle fire rate by 20%."
+modifier_key = &"fire_rate"
+modifier_amount = 0.2

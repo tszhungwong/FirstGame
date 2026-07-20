@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CharacterDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/character_definition.gd" id="1_character"]
+[ext_resource type="Resource" path="res://data/mock_ember_rifle.tres" id="2_weapon"]
+
+[resource]
+script = ExtResource("1_character")
+id = &"ember_vanguard"
+display_name = "Ember Vanguard"
+max_health = 100
+move_speed = 260.0
+starting_weapon = ExtResource("2_weapon")
+dash_cooldown = 1.5
+active_skill_cooldown = 7.0
