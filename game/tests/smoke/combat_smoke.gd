@@ -74,20 +74,39 @@ func _ready() -> void:
 
 	# Keep every actor live while proving each autonomous combat behavior.
 	pool.release_all()
-	_park_enemies_except(enemies, melee, room_definition.arena_size)
-	melee.global_position = ember.global_position + Vector2(180.0, 0.0)
-	var nearest_health_before: int = melee.health.current_health
+	var first_registered := sandbox.get_node_or_null("Enemy01") as CombatEnemy
+	var later_registered := sandbox.get_node_or_null("Enemy04") as CombatEnemy
+	if not _require(
+		first_registered != null and later_registered != null,
+		"ordered auto-fire candidates are missing"
+	):
+		return
+	_park_enemies_except(enemies, later_registered, room_definition.arena_size, first_registered)
+	first_registered.health.max_health = 100
+	first_registered.health.reset()
+	first_registered.global_position = ember.global_position + Vector2(-360.0, 0.0)
+	later_registered.global_position = ember.global_position + Vector2(180.0, 0.0)
+	var first_distance: float = first_registered.global_position.distance_to(ember.global_position)
+	var later_distance: float = later_registered.global_position.distance_to(ember.global_position)
+	if not _require(
+		first_distance < ember.definition.starting_weapon.target_range
+		and later_distance < ember.definition.starting_weapon.target_range
+		and later_distance < first_distance,
+		"auto-fire candidates are not ordered in range as intended"
+	):
+		return
+	var nearest_health_before: int = later_registered.health.current_health
 	var other_health_before: Dictionary[int, int] = {}
 	for enemy: CombatEnemy in enemies:
-		if enemy != melee:
+		if enemy != later_registered:
 			other_health_before[enemy.get_instance_id()] = enemy.health.current_health
 	if not _require(
-		await _wait_until_enemy_damaged(melee, nearest_health_before, 45),
-		"Ember automatic fire did not damage the nearest enemy"
+		await _wait_until_enemy_damaged(later_registered, nearest_health_before, 45),
+		"Ember automatic fire did not damage the nearer later-registered enemy"
 	):
 		return
 	for enemy: CombatEnemy in enemies:
-		if enemy == melee:
+		if enemy == later_registered:
 			continue
 		if not _require(
 			enemy.health.current_health == other_health_before[enemy.get_instance_id()],
@@ -108,11 +127,26 @@ func _ready() -> void:
 	):
 		return
 	pool.release_all()
+	shooter.health.max_health = 200
+	shooter.health.reset()
 	shooter.global_position = ember.global_position + Vector2(300.0, 0.0)
 	var health_before_ranged_attack: int = player_health.current_health
+	var enemy_projectile: PooledBullet = await _wait_for_enemy_projectile(pool, 20)
+	if not _require(enemy_projectile != null, "ranged enemy did not fire an enemy projectile"):
+		return
+	var projectile_start: Vector2 = enemy_projectile.global_position
+	var projectile_distance_before: float = projectile_start.distance_to(ember.global_position)
+	await _wait_physics_frames(4)
 	if not _require(
-		await _wait_for_enemy_projectile_or_damage(pool, player_health, health_before_ranged_attack, 20),
-		"ranged enemy did not fire an observable enemy projectile"
+		enemy_projectile.visible
+		and enemy_projectile.global_position.distance_to(projectile_start) > 1.0
+		and enemy_projectile.global_position.distance_to(ember.global_position) < projectile_distance_before,
+		"enemy projectile did not advance toward Ember"
+	):
+		return
+	if not _require(
+		await _wait_until_health_reduced(player_health, health_before_ranged_attack, 60),
+		"advancing enemy projectile did not collide with and damage Ember"
 	):
 		return
 
@@ -237,23 +271,27 @@ func _wait_until_enemy_damaged(enemy: CombatEnemy, starting_health: int, frame_l
 	return false
 
 
-func _wait_for_enemy_projectile_or_damage(
-	pool: ObjectPool,
-	health: HealthComponent,
-	starting_health: int,
-	frame_limit: int
-) -> bool:
+func _wait_for_enemy_projectile(pool: ObjectPool, frame_limit: int) -> PooledBullet:
 	for _frame: int in frame_limit:
 		await get_tree().physics_frame
-		if health.current_health < starting_health or _has_active_enemy_projectile(pool):
-			return true
-	return false
+		var projectile := _find_active_enemy_projectile(pool)
+		if projectile != null:
+			return projectile
+	return null
 
 
-func _has_active_enemy_projectile(pool: ObjectPool) -> bool:
+func _find_active_enemy_projectile(pool: ObjectPool) -> PooledBullet:
 	for child: Node in pool.get_children():
 		var bullet := child as PooledBullet
 		if bullet != null and bullet.visible and not bullet.from_player and bullet.collision_mask == 1:
+			return bullet
+	return null
+
+
+func _wait_until_health_reduced(health: HealthComponent, starting_health: int, frame_limit: int) -> bool:
+	for _frame: int in frame_limit:
+		await get_tree().physics_frame
+		if health.current_health < starting_health:
 			return true
 	return false
 
@@ -261,7 +299,8 @@ func _has_active_enemy_projectile(pool: ObjectPool) -> bool:
 func _park_enemies_except(
 	enemies: Array[CombatEnemy],
 	active_enemy: CombatEnemy,
-	arena_size: Vector2
+	arena_size: Vector2,
+	second_active_enemy: CombatEnemy = null
 ) -> void:
 	var parking_positions: Array[Vector2] = [
 		Vector2(80.0, 80.0),
@@ -271,7 +310,7 @@ func _park_enemies_except(
 	]
 	var parking_index: int = 0
 	for enemy: CombatEnemy in enemies:
-		if enemy == active_enemy:
+		if enemy == active_enemy or enemy == second_active_enemy:
 			continue
 		enemy.global_position = parking_positions[parking_index % parking_positions.size()]
 		parking_index += 1

@@ -323,3 +323,74 @@ EXIT=0
 ```
 
 Import/editor retain only the previously documented local environment message `Unable to open Android 'build-tools' directory`; no parse, runtime, or ObjectDB leak error was emitted.
+
+## Final smoke-precision remediation (2026-07-21)
+
+### Nearest-target registration-order precision
+
+The previous choreography parked every enemy except the intended target outside Ember's 900-pixel weapon range. That proved automatic fire but could not distinguish a real nearest-distance search from selecting the first valid candidate.
+
+The smoke now keeps two ordered candidates live and in range at the same time:
+
+- `Enemy01`, the first registered candidate, is 360 pixels to Ember's left.
+- `Enemy04`, a later registered candidate, is 180 pixels to Ember's right.
+- Both distances are asserted below the Resource-defined `target_range` before observation begins.
+- `Enemy01` receives additional runtime health so an intentionally broken first-candidate implementation cannot kill it and fall through to the correct target during the observation window.
+- The smoke requires `Enemy04` to lose health and every other enemy, including `Enemy01`, to retain its recorded health.
+
+Mutation RED and restored GREEN:
+
+```text
+Mutation: TargetingComponent returned the first in-range candidate instead of comparing all distances.
+EXIT=1
+COMBAT_SMOKE_FAILED: Ember automatic fire did not damage the nearer later-registered enemy
+
+Restored nearest-distance implementation.
+EXIT=0
+COMBAT_SMOKE_OK: nearest auto-fire, shooter fire, charger states, controls, damage, camera, and projectile reuse are observable
+```
+
+### Ranged-projectile trajectory and collision precision
+
+The previous smoke accepted bullet visibility as sufficient ranged-fire evidence. It now identifies the concrete active enemy-team projectile only as the start of observation, records its position and distance to Ember, waits four physics frames, and requires both nonzero displacement and reduced distance to Ember. It then waits for that projectile collision to reduce Ember's recorded health. The shooter is placed 300 pixels away and receives additional runtime health so Ember's automatic fire cannot remove it before its projectile completes the deterministic flight.
+
+Two mutation REDs prove both halves of the contract:
+
+```text
+Mutation: active enemy projectiles remained visible but skipped physics movement.
+EXIT=1
+COMBAT_SMOKE_FAILED: enemy projectile did not advance toward Ember
+
+Mutation: the advancing enemy projectile returned on body collision without applying damage.
+EXIT=1
+COMBAT_SMOKE_FAILED: advancing enemy projectile did not collide with and damage Ember
+```
+
+Both mutations were immediately restored. `git diff` confirmed no production actor, targeting, or projectile mutation remained; the final committed code change is smoke choreography and documentation only. Charger state coverage and the pooled-bullet lease regression remain unchanged and pass in the full suite.
+
+### Fresh final verification
+
+```text
+Godot --headless --import --path game
+EXIT=0
+
+Godot --headless --editor --quit --path game
+EXIT=0
+
+Godot --headless --path game --script res://tools/validate_godot_version.gd
+Godot version pin and landscape ProjectSettings verified: 4.6.3
+EXIT=0
+
+Godot --headless --path game -s res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
+13/13 passed; 54 assertions
+EXIT=0
+
+Godot --headless --path game res://tests/smoke/combat_smoke.tscn
+COMBAT_SMOKE_OK: nearest auto-fire, shooter fire, charger states, controls, damage, camera, and projectile reuse are observable
+EXIT=0
+
+Godot --headless --path game --quit-after 180
+EXIT=0
+```
+
+Import/editor retain only the known local Android build-tools environment warning; no parse, runtime, or ObjectDB leak error was emitted.
