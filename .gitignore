@@ -1,0 +1,21 @@
+.worktrees/
+.superpowers/
+.tools/
+
+# Godot generated state and builds
+game/.godot/
+game/builds/
+game/export/
+game/exported/
+
+# Platform credentials and local tooling
+*.keystore
+*.jks
+*.p12
+*.mobileprovision
+*.xcuserstate
+.idea/
+.vscode/
+*.tmp
+*.log
+
