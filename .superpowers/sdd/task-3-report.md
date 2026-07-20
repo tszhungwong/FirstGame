@@ -81,3 +81,8 @@ Commit follow-up addresses every Task 3 review finding with new RED/GREEN eviden
 - Import, editor parse, pinned-version/landscape validation: exit 0 (only existing Android `build-tools` environment warning).
 - 180-frame main-scene runtime: exit 0 with no parse/runtime/ObjectDB errors.
 - `git diff --check`: clean.
+
+### Final two findings
+
+- Ricochet mutation proof: the integration fixture now disables automatic bullet processing and invokes the actual `PooledBullet._physics_process` path exactly once. Removing the blocker return produced RED positions `520 > 376` for the tree and `1230 > 1001` for the river. Explicit returns after both rebound and despawn restore GREEN and prevent assignment of `next_position`.
+- Session finalization RED showed `finish_run` returned void and cleared active state regardless of persistence. `GameSession` now accepts a legitimate injected save-service boundary, retains `pending_finalization` plus the active snapshot on failure, emits `finalization_failed`, and retries the same prepared progress payload. The failure-then-success test proves wins increment once, best room reaches 6, and active state clears only after save success.

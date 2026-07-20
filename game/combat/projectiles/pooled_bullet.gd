@@ -102,9 +102,10 @@ func _physics_process(delta: float) -> void:
 			global_position = forest_rules.projectile_rebound_position(previous_position, next_position)
 			direction = -direction
 			rotation = direction.angle()
+			return
 		else:
 			_return_to_pool()
-		return
+			return
 	global_position = next_position
 	remaining_lifetime -= delta
 	if remaining_lifetime <= 0.0:

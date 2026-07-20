@@ -3,15 +3,20 @@ extends Node
 signal session_paused
 signal session_resumed
 signal run_state_changed(active: bool)
+signal finalization_failed
 
 var active_run_seed: int = 0
 var is_run_active: bool = false
 var active_run_snapshot: Dictionary = {}
+var pending_finalization: Dictionary = {}
+var save_service: Node
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	var loaded: Dictionary = LocalSave.load_data()
+	if save_service == null:
+		save_service = LocalSave
+	var loaded: Dictionary = save_service.load_data()
 	active_run_snapshot = loaded.get("active_run", {})
 	if not active_run_snapshot.is_empty():
 		active_run_seed = int(active_run_snapshot.get("seed", 0))
@@ -34,22 +39,34 @@ func update_run(snapshot: Dictionary) -> void:
 	persist()
 
 
-func finish_run(won: bool, reached_room: int) -> void:
-	var data: Dictionary = LocalSave.load_data()
-	data.progress.best_room = maxi(int(data.progress.get("best_room", 0)), reached_room)
-	if won:
-		data.progress.wins = int(data.progress.get("wins", 0)) + 1
-	data.active_run = {}
-	LocalSave.save_data(data)
+func finish_run(won: bool, reached_room: int) -> bool:
+	if pending_finalization.is_empty():
+		var data: Dictionary = save_service.load_data()
+		data.progress.best_room = maxi(int(data.progress.get("best_room", 0)), reached_room)
+		if won:
+			data.progress.wins = int(data.progress.get("wins", 0)) + 1
+		data.active_run = {}
+		pending_finalization = data
+	return retry_pending_finalization()
+
+
+func retry_pending_finalization() -> bool:
+	if pending_finalization.is_empty():
+		return false
+	if not save_service.save_data(pending_finalization):
+		finalization_failed.emit()
+		return false
+	pending_finalization = {}
 	active_run_snapshot = {}
 	is_run_active = false
 	run_state_changed.emit(false)
+	return true
 
 
 func persist() -> void:
-	var data: Dictionary = LocalSave.load_data()
+	var data: Dictionary = save_service.load_data()
 	data.active_run = active_run_snapshot if is_run_active else {}
-	LocalSave.save_data(data)
+	save_service.save_data(data)
 
 
 func _notification(what: int) -> void:

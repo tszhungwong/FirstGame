@@ -65,6 +65,7 @@ func test_ricochet_stays_on_near_side_of_tree_and_river() -> void:
 	pool.configure_forest_rules(rules)
 	var tree := room.tree_positions[0]
 	var bullet := pool.acquire()
+	bullet.set_physics_process(false)
 	bullet.initialize(tree - Vector2(100.0, 0.0), Vector2.RIGHT, 1000.0, 2.0, 5, 5.5, true, {"ricochet": 1})
 	bullet._physics_process(0.2)
 	assert_lt(bullet.global_position.x, tree.x - room.tree_radius)
@@ -74,6 +75,7 @@ func test_ricochet_stays_on_near_side_of_tree_and_river() -> void:
 	var river := room.river_areas[0]
 	var blocked_y := river.position.y + 140.0
 	bullet = pool.acquire()
+	bullet.set_physics_process(false)
 	bullet.initialize(Vector2(river.position.x - 80.0, blocked_y), Vector2.RIGHT, 1000.0, 2.0, 5, 5.5, true, {"ricochet": 1})
 	bullet._physics_process(0.3)
 	assert_lt(bullet.global_position.x, river.position.x - room.projectile_blocker_separation)
