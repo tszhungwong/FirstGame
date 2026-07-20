@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="UpgradeDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://data/upgrade_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"heavy_rounds"
+display_name = "Heavy Rounds"
+description = "Rounds deal 3 additional damage."
+modifier_key = &"damage"
+modifier_amount = 3.0
+max_stacks = 3

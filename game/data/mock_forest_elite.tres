@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://data/enemy_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"forest_elite"
+display_name = "Ancient Briar"
+archetype = 2
+max_health = 180
+move_speed = 108.0
+collision_radius = 34.0
+arena_inset = 42.0
+contact_damage = 20
+attack_range = 520.0
+contact_range_padding = 42.0
+attack_cooldown = 2.25
+projectile_speed = 430.0
+projectile_lifetime = 2.4
+projectile_collision_radius = 8.0
+projectile_spawn_offset = 40.0
+ranged_approach_ratio = 0.75
+ranged_retreat_ratio = 0.4
+telegraph_duration = 1.05
+charge_speed = 590.0
+charge_duration = 0.65
+charge_hit_range = 64.0

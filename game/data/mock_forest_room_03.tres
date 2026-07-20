@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="RoomDefinition" load_steps=6 format=3]
+[ext_resource type="Script" path="res://data/room_definition.gd" id="1"]
+[ext_resource type="Script" path="res://data/enemy_definition.gd" id="2"]
+[ext_resource type="Resource" path="res://data/mock_forest_chaser.tres" id="3"]
+[ext_resource type="Resource" path="res://data/mock_forest_shooter.tres" id="4"]
+[ext_resource type="Resource" path="res://data/mock_forest_charger.tres" id="5"]
+[resource]
+script = ExtResource("1")
+id = &"forest_room_03"
+display_name = "Sodden Thicket"
+kind = 0
+enemy_count = 6
+arena_size = Vector2(2200, 1200)
+projectile_pool_capacity = 56
+projectile_pool_can_grow = true
+enemy_definitions = Array[ExtResource("2")]([ExtResource("3"), ExtResource("4"), ExtResource("5"), ExtResource("3"), ExtResource("4"), ExtResource("3")])
+enemy_spawn_points = Array[Vector2]([Vector2(360, 250), Vector2(760, 250), Vector2(1760, 350), Vector2(1800, 850), Vector2(1320, 920), Vector2(430, 870)])
+includes_grass = true
+includes_river = false
+includes_mud = true
+includes_trees = true
+grass_areas = Array[Rect2]([Rect2(120, 430, 500, 300), Rect2(1580, 180, 450, 300)])
+mud_areas = Array[Rect2]([Rect2(820, 280, 520, 620)])
+mud_speed_multiplier = 0.58
+tree_positions = Array[Vector2]([Vector2(690, 620), Vector2(1450, 580), Vector2(1750, 650)])
+tree_radius = 45.0
+expected_duration_seconds = 105.0

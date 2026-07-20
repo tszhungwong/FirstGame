@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="RoomDefinition" load_steps=6 format=3]
+[ext_resource type="Script" path="res://data/room_definition.gd" id="1"]
+[ext_resource type="Script" path="res://data/enemy_definition.gd" id="2"]
+[ext_resource type="Resource" path="res://data/mock_forest_chaser.tres" id="3"]
+[ext_resource type="Resource" path="res://data/mock_forest_shooter.tres" id="4"]
+[ext_resource type="Resource" path="res://data/mock_forest_elite.tres" id="5"]
+[resource]
+script = ExtResource("1")
+id = &"forest_elite_room"
+display_name = "Ancient Briar Grove"
+kind = 1
+enemy_count = 5
+arena_size = Vector2(2200, 1200)
+projectile_pool_capacity = 64
+projectile_pool_can_grow = true
+enemy_definitions = Array[ExtResource("2")]([ExtResource("5"), ExtResource("3"), ExtResource("4"), ExtResource("3"), ExtResource("4")])
+enemy_spawn_points = Array[Vector2]([Vector2(1650, 600), Vector2(450, 260), Vector2(850, 900), Vector2(1450, 260), Vector2(1800, 900)])
+includes_grass = true
+includes_river = true
+includes_mud = true
+includes_trees = true
+grass_areas = Array[Rect2]([Rect2(120, 700, 450, 300)])
+river_areas = Array[Rect2]([Rect2(940, 0, 190, 1200)])
+bridge_areas = Array[Rect2]([Rect2(910, 470, 250, 250)])
+mud_areas = Array[Rect2]([Rect2(1350, 360, 530, 480)])
+mud_speed_multiplier = 0.6
+tree_positions = Array[Vector2]([Vector2(620, 350), Vector2(760, 750), Vector2(1550, 300)])
+tree_radius = 48.0
+expected_duration_seconds = 115.0

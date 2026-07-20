@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="UpgradeDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://data/upgrade_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"fleet_ash"
+display_name = "Fleet Ash"
+description = "Reduce dash cooldown by 16%."
+modifier_key = &"dash_cooldown"
+modifier_amount = 0.16
+max_stacks = 3

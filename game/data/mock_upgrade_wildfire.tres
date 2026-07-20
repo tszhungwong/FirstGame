@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="UpgradeDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://data/upgrade_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"wildfire"
+display_name = "Wildfire"
+description = "Hits ignite enemies for damage over time."
+modifier_key = &"burn_damage"
+modifier_amount = 2.0
+max_stacks = 3

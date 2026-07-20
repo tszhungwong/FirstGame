@@ -10,6 +10,7 @@ var _in_use: Array[PooledBullet] = []
 var _active_leases: Dictionary[PooledBullet, int] = {}
 var _next_lease_id: int = 0
 var _projectile_collision_radius: float = 0.0
+var forest_rules: ForestRoomRules
 
 
 func _ready() -> void:
@@ -64,6 +65,14 @@ func release_all() -> void:
 		release(instance)
 
 
+func configure_forest_rules(rules: ForestRoomRules) -> void:
+	forest_rules = rules
+	for instance: PooledBullet in _available:
+		instance.configure_forest_rules(rules)
+	for instance: PooledBullet in _in_use:
+		instance.configure_forest_rules(rules)
+
+
 func _initialize() -> void:
 	if pooled_scene == null or not _available.is_empty() or not _in_use.is_empty():
 		return
@@ -76,6 +85,7 @@ func _create_instance() -> PooledBullet:
 	assert(instance != null, "ObjectPool requires a PooledBullet root scene")
 	add_child(instance)
 	instance.configure_collision_radius(_projectile_collision_radius)
+	instance.configure_forest_rules(forest_rules)
 	instance.on_despawn()
 	instance.process_mode = Node.PROCESS_MODE_DISABLED
 	instance.visible = false

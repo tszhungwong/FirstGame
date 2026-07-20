@@ -6,3 +6,4 @@ extends Resource
 @export_multiline var description: String = ""
 @export var modifier_key: StringName = &""
 @export var modifier_amount: float = 0.0
+@export_range(1, 9) var max_stacks: int = 3

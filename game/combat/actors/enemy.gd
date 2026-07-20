@@ -14,23 +14,27 @@ var target: Ember
 var projectile_pool: ObjectPool
 var arena_rect: Rect2
 var health: HealthComponent
+var forest_rules: ForestRoomRules
 var _attack_timer: float = 0.0
 var _state: ChargeState = ChargeState.APPROACH
 var _state_timer: float = 0.0
 var _charge_direction: Vector2 = Vector2.ZERO
 var _alive: bool = true
+var _boss_shot_timer: float = 0.0
 
 
 func configure(
 	enemy_definition: EnemyDefinition,
 	player_target: Ember,
 	pool: ObjectPool,
-	bounds: Rect2
+	bounds: Rect2,
+	rules: ForestRoomRules = null
 ) -> void:
 	definition = enemy_definition
 	target = player_target
 	projectile_pool = pool
 	arena_rect = bounds
+	forest_rules = rules
 
 
 func _ready() -> void:
@@ -55,6 +59,7 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector2.ZERO
 		return
 	_attack_timer = maxf(_attack_timer - delta, 0.0)
+	_boss_shot_timer = maxf(_boss_shot_timer - delta, 0.0)
 	match definition.archetype:
 		EnemyDefinition.Archetype.MELEE_CHASER:
 			_update_melee()
@@ -62,7 +67,12 @@ func _physics_process(delta: float) -> void:
 			_update_ranged()
 		EnemyDefinition.Archetype.TELEGRAPHED_CHARGER:
 			_update_charger(delta)
+		EnemyDefinition.Archetype.BOSS:
+			_update_boss(delta)
+	var previous_position := global_position
 	move_and_slide()
+	if forest_rules != null:
+		global_position = forest_rules.resolve_actor_position(previous_position, global_position)
 	var arena_inset := Vector2.ONE * definition.arena_inset
 	global_position = global_position.clamp(arena_rect.position + arena_inset, arena_rect.end - arena_inset)
 
@@ -75,8 +85,12 @@ func is_alive() -> bool:
 	return _alive
 
 
+func is_telegraphing() -> bool:
+	return _state == ChargeState.TELEGRAPH
+
+
 func _update_melee() -> void:
-	var distance: float = global_position.distance_to(target.global_position)
+	var distance: float = _effective_target_distance()
 	velocity = global_position.direction_to(target.global_position) * definition.move_speed
 	if distance <= definition.attack_range + definition.contact_range_padding and _attack_timer <= 0.0:
 		_damage_target(definition.contact_damage)
@@ -85,7 +99,7 @@ func _update_melee() -> void:
 
 func _update_ranged() -> void:
 	var to_target: Vector2 = global_position.direction_to(target.global_position)
-	var distance: float = global_position.distance_to(target.global_position)
+	var distance: float = _effective_target_distance()
 	if distance > definition.attack_range * definition.ranged_approach_ratio:
 		velocity = to_target * definition.move_speed
 	elif distance < definition.attack_range * definition.ranged_retreat_ratio:
@@ -98,7 +112,7 @@ func _update_ranged() -> void:
 
 
 func _update_charger(delta: float) -> void:
-	var distance: float = global_position.distance_to(target.global_position)
+	var distance: float = _effective_target_distance()
 	match _state:
 		ChargeState.APPROACH:
 			velocity = global_position.direction_to(target.global_position) * definition.move_speed
@@ -124,6 +138,20 @@ func _update_charger(delta: float) -> void:
 			if _state_timer <= 0.0:
 				_state = ChargeState.APPROACH
 				_attack_timer = definition.attack_cooldown
+
+
+func _update_boss(delta: float) -> void:
+	if _state == ChargeState.APPROACH and _boss_shot_timer <= 0.0:
+		_fire_projectile(global_position.direction_to(target.global_position))
+		_boss_shot_timer = definition.attack_cooldown
+	_update_charger(delta)
+
+
+func _effective_target_distance() -> float:
+	var distance := global_position.distance_to(target.global_position)
+	if forest_rules != null and forest_rules.is_concealed(target.global_position):
+		return distance / 0.55
+	return distance
 
 
 func _fire_projectile(direction: Vector2) -> void:
@@ -169,3 +197,8 @@ func _draw() -> void:
 			if _state == ChargeState.TELEGRAPH:
 				draw_line(Vector2.ZERO, _charge_direction * definition.attack_range, Color(1.0, 0.35, 0.22, 0.75), 6.0)
 				draw_arc(Vector2.ZERO, 34.0, 0.0, TAU, 32, Color("ff5d42"), 5.0)
+		EnemyDefinition.Archetype.BOSS:
+			draw_circle(Vector2.ZERO, 48.0, Color("7d3f65"))
+			draw_arc(Vector2.ZERO, 58.0, 0.0, TAU, 40, Color("f6c85f"), 7.0)
+			if _state == ChargeState.TELEGRAPH:
+				draw_line(Vector2.ZERO, _charge_direction * definition.attack_range, Color(1.0, 0.22, 0.12, 0.9), 10.0)

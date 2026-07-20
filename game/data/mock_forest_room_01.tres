@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="RoomDefinition" load_steps=5 format=3]
+[ext_resource type="Script" path="res://data/room_definition.gd" id="1"]
+[ext_resource type="Script" path="res://data/enemy_definition.gd" id="2"]
+[ext_resource type="Resource" path="res://data/mock_forest_chaser.tres" id="3"]
+[ext_resource type="Resource" path="res://data/mock_forest_shooter.tres" id="4"]
+[resource]
+script = ExtResource("1")
+id = &"forest_room_01"
+display_name = "Mosslight Approach"
+kind = 0
+enemy_count = 4
+arena_size = Vector2(2200, 1200)
+projectile_pool_capacity = 48
+projectile_pool_can_grow = true
+enemy_definitions = Array[ExtResource("2")]([ExtResource("3"), ExtResource("3"), ExtResource("4"), ExtResource("3")])
+enemy_spawn_points = Array[Vector2]([Vector2(420, 260), Vector2(1700, 260), Vector2(1700, 900), Vector2(420, 900)])
+includes_grass = true
+includes_river = false
+includes_mud = true
+includes_trees = true
+grass_areas = Array[Rect2]([Rect2(120, 130, 500, 300), Rect2(1580, 730, 480, 300)])
+mud_areas = Array[Rect2]([Rect2(830, 760, 460, 260)])
+mud_speed_multiplier = 0.64
+tree_positions = Array[Vector2]([Vector2(690, 280), Vector2(1500, 850)])
+tree_radius = 44.0
+expected_duration_seconds = 90.0

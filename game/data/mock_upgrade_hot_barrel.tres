@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="UpgradeDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://data/upgrade_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"hot_barrel"
+display_name = "Hot Barrel"
+description = "Increase rifle fire rate by 10%."
+modifier_key = &"fire_rate"
+modifier_amount = 0.1
+max_stacks = 3

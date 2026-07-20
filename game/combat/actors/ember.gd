@@ -10,6 +10,8 @@ var projectile_pool: ObjectPool
 var arena_rect: Rect2
 var health: HealthComponent
 var dash: DashComponent
+var combat_stats: RuntimeCombatStats
+var forest_rules: ForestRoomRules
 var _targeting: TargetingComponent
 var _target_candidates: Array[Node2D] = []
 var _fire_timer: float = 0.0
@@ -24,14 +26,20 @@ var _alive: bool = true
 func configure(
 	character_definition: CharacterDefinition,
 	pool: ObjectPool,
-	bounds: Rect2
+	bounds: Rect2,
+	runtime_stats: RuntimeCombatStats = null,
+	rules: ForestRoomRules = null
 ) -> void:
 	definition = character_definition
 	projectile_pool = pool
 	arena_rect = bounds
+	combat_stats = runtime_stats
+	forest_rules = rules
 
 
 func _ready() -> void:
+	if combat_stats == null:
+		combat_stats = RuntimeCombatStats.from_definitions(definition)
 	add_to_group("player")
 	collision_layer = 1
 	collision_mask = 2
@@ -52,7 +60,7 @@ func _ready() -> void:
 	_targeting = TargetingComponent.new()
 	add_child(_targeting)
 	dash = DashComponent.new()
-	dash.cooldown = definition.dash_cooldown
+	dash.cooldown = combat_stats.dash_cooldown
 	dash.duration = definition.dash_duration
 	dash.health_component = health
 	dash.dash_state_changed.connect(_on_dash_state_changed)
@@ -87,11 +95,15 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("active_skill"):
 		request_active_skill()
 
+	var speed_multiplier := forest_rules.speed_multiplier_at(global_position) if forest_rules != null else 1.0
 	if dash.is_dashing():
-		velocity = _dash_direction * definition.move_speed * definition.dash_speed_multiplier
+		velocity = _dash_direction * definition.move_speed * definition.dash_speed_multiplier * speed_multiplier
 	else:
-		velocity = _move_direction * definition.move_speed
+		velocity = _move_direction * definition.move_speed * speed_multiplier
+	var previous_position := global_position
 	move_and_slide()
+	if forest_rules != null:
+		global_position = forest_rules.resolve_actor_position(previous_position, global_position)
 	var arena_inset := Vector2.ONE * definition.arena_inset
 	global_position = global_position.clamp(arena_rect.position + arena_inset, arena_rect.end - arena_inset)
 	_auto_fire()
@@ -139,9 +151,9 @@ func get_health_component() -> HealthComponent:
 
 
 func dash_cooldown_ratio() -> float:
-	if definition.dash_cooldown <= 0.0:
+	if combat_stats.dash_cooldown <= 0.0:
 		return 0.0
-	return dash.remaining_cooldown / definition.dash_cooldown
+	return dash.remaining_cooldown / combat_stats.dash_cooldown
 
 
 func skill_cooldown_ratio() -> float:
@@ -152,6 +164,15 @@ func skill_cooldown_ratio() -> float:
 
 func is_alive() -> bool:
 	return _alive
+
+
+func is_concealed() -> bool:
+	return forest_rules != null and forest_rules.is_concealed(global_position)
+
+
+func apply_upgrade(upgrade: UpgradeDefinition) -> void:
+	combat_stats.apply_upgrade(upgrade)
+	dash.cooldown = combat_stats.dash_cooldown
 
 
 func _read_move_direction() -> Vector2:
@@ -170,22 +191,32 @@ func _auto_fire() -> void:
 	if target == null:
 		return
 	_shoot(global_position.direction_to(target.global_position))
-	_fire_timer = 1.0 / maxf(definition.starting_weapon.fire_rate, 0.01)
+	_fire_timer = 1.0 / maxf(combat_stats.fire_rate, 0.01)
 
 
 func _shoot(direction: Vector2) -> void:
-	var bullet: PooledBullet = projectile_pool.acquire()
-	if bullet == null:
-		return
-	bullet.initialize(
-		global_position + direction * definition.projectile_spawn_offset,
-		direction,
-		definition.starting_weapon.projectile_speed,
-		definition.starting_weapon.projectile_lifetime,
-		definition.starting_weapon.damage,
-		definition.starting_weapon.projectile_collision_radius,
-		true,
-	)
+	var shot_count := maxi(combat_stats.multishot, 1)
+	for shot_index: int in shot_count:
+		var offset := (float(shot_index) - float(shot_count - 1) * 0.5) * 0.14
+		var shot_direction := direction.rotated(offset)
+		var bullet: PooledBullet = projectile_pool.acquire()
+		if bullet == null:
+			return
+		bullet.initialize(
+			global_position + shot_direction * definition.projectile_spawn_offset,
+			shot_direction,
+			combat_stats.projectile_speed,
+			combat_stats.projectile_lifetime,
+			combat_stats.damage,
+			combat_stats.projectile_collision_radius,
+			true,
+			{
+				"penetration": combat_stats.penetration,
+				"ricochet": combat_stats.ricochet,
+				"burn_damage": combat_stats.burn_damage,
+				"burn_duration": combat_stats.burn_duration,
+			},
+		)
 
 
 func _on_health_changed(current: int, maximum: int) -> void:
@@ -204,6 +235,8 @@ func _on_dash_state_changed(_is_dashing: bool) -> void:
 
 func _draw() -> void:
 	var body_color := Color("68e0d1") if _alive else Color("52636a")
+	if is_concealed():
+		body_color.a = 0.48
 	draw_circle(Vector2.ZERO, 22.0, Color("17333a"))
 	draw_circle(Vector2.ZERO, 17.0, body_color)
 	draw_circle(Vector2(-6.0, -5.0), 3.0, Color("eafff9"))

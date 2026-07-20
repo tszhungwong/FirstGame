@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://data/enemy_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"forest_warden"
+display_name = "The Hollow Warden"
+archetype = 3
+max_health = 520
+move_speed = 90.0
+collision_radius = 48.0
+arena_inset = 58.0
+contact_damage = 24
+attack_range = 610.0
+contact_range_padding = 58.0
+attack_cooldown = 1.8
+projectile_speed = 470.0
+projectile_lifetime = 2.8
+projectile_collision_radius = 10.0
+projectile_spawn_offset = 56.0
+ranged_approach_ratio = 0.78
+ranged_retreat_ratio = 0.38
+telegraph_duration = 1.2
+charge_speed = 650.0
+charge_duration = 0.75
+charge_hit_range = 86.0

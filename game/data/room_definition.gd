@@ -20,3 +20,11 @@ enum Kind {
 @export var includes_river: bool = false
 @export var includes_mud: bool = false
 @export var includes_trees: bool = false
+@export var grass_areas: Array[Rect2] = []
+@export var river_areas: Array[Rect2] = []
+@export var bridge_areas: Array[Rect2] = []
+@export var mud_areas: Array[Rect2] = []
+@export_range(0.1, 1.0) var mud_speed_multiplier: float = 0.62
+@export var tree_positions: Array[Vector2] = []
+@export var tree_radius: float = 42.0
+@export var expected_duration_seconds: float = 100.0

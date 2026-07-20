@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="RoomDefinition" load_steps=4 format=3]
+[ext_resource type="Script" path="res://data/room_definition.gd" id="1"]
+[ext_resource type="Script" path="res://data/enemy_definition.gd" id="2"]
+[ext_resource type="Resource" path="res://data/mock_forest_boss.tres" id="3"]
+[resource]
+script = ExtResource("1")
+id = &"forest_boss_room"
+display_name = "Heartwood Sanctum"
+kind = 2
+enemy_count = 1
+arena_size = Vector2(2200, 1200)
+projectile_pool_capacity = 72
+projectile_pool_can_grow = true
+enemy_definitions = Array[ExtResource("2")]([ExtResource("3")])
+enemy_spawn_points = Array[Vector2]([Vector2(1680, 600)])
+includes_grass = true
+includes_river = false
+includes_mud = true
+includes_trees = true
+grass_areas = Array[Rect2]([Rect2(100, 150, 420, 260), Rect2(100, 790, 420, 260)])
+mud_areas = Array[Rect2]([Rect2(1280, 300, 620, 600)])
+mud_speed_multiplier = 0.6
+tree_positions = Array[Vector2]([Vector2(720, 250), Vector2(720, 950), Vector2(1400, 180), Vector2(1400, 1020)])
+tree_radius = 50.0
+expected_duration_seconds = 150.0

@@ -8,6 +8,11 @@ var speed: float = 0.0
 var remaining_lifetime: float = 0.0
 var from_player: bool = true
 var collision_radius: float = 0.0
+var penetration_remaining: int = 0
+var ricochet_remaining: int = 0
+var burn_damage: int = 0
+var burn_duration: float = 0.0
+var forest_rules: ForestRoomRules
 var _active: bool = false
 var _damage: DamageComponent
 var _collision_shape: CircleShape2D
@@ -44,7 +49,8 @@ func initialize(
 	lifetime: float,
 	damage_amount: int,
 	projectile_radius: float,
-	is_player_projectile: bool
+	is_player_projectile: bool,
+	combat_properties: Dictionary = {}
 ) -> void:
 	var team_changed: bool = from_player != is_player_projectile
 	global_position = spawn_position
@@ -56,6 +62,10 @@ func initialize(
 	from_player = is_player_projectile
 	collision_mask = 2 if from_player else 1
 	_damage.amount = damage_amount
+	penetration_remaining = int(combat_properties.get("penetration", 0))
+	ricochet_remaining = int(combat_properties.get("ricochet", 0))
+	burn_damage = int(combat_properties.get("burn_damage", 0))
+	burn_duration = float(combat_properties.get("burn_duration", 0.0))
 	_active = true
 	if team_changed:
 		queue_redraw()
@@ -71,12 +81,30 @@ func on_despawn() -> void:
 	direction = Vector2.ZERO
 	remaining_lifetime = 0.0
 	collision_mask = 0
+	penetration_remaining = 0
+	ricochet_remaining = 0
+	burn_damage = 0
+	burn_duration = 0.0
+
+
+func configure_forest_rules(rules: ForestRoomRules) -> void:
+	forest_rules = rules
 
 
 func _physics_process(delta: float) -> void:
 	if not _active:
 		return
-	global_position += direction * speed * delta
+	var previous_position := global_position
+	var next_position := global_position + direction * speed * delta
+	if forest_rules != null and forest_rules.blocks_projectile_segment(previous_position, next_position):
+		if ricochet_remaining > 0:
+			ricochet_remaining -= 1
+			direction = -direction
+			rotation = direction.angle()
+		else:
+			_return_to_pool()
+		return
+	global_position = next_position
 	remaining_lifetime -= delta
 	if remaining_lifetime <= 0.0:
 		_return_to_pool()
@@ -88,6 +116,11 @@ func _on_body_entered(body: Node2D) -> void:
 	var health := body.get_node_or_null("Health") as HealthComponent
 	if health != null:
 		_damage.apply_to(health)
+		if from_player and burn_damage > 0:
+			health.apply_burn(burn_damage, burn_duration)
+		if from_player and penetration_remaining > 0:
+			penetration_remaining -= 1
+			return
 	_return_to_pool()
 
 
