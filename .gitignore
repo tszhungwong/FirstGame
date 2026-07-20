@@ -18,4 +18,6 @@ game/exported/
 .vscode/
 *.tmp
 *.log
+__pycache__/
+*.pyc
 
