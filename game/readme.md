@@ -12,11 +12,11 @@ Game Ghost is a landscape, offline, mobile-first top-down roguelite vertical sli
 - `data/` contains typed, data-only Resource contracts and seed `mock_*.tres` data.
 - `services/` contains the three permitted autoloads: session, local save, and audio.
 - `assets/runtime/` is reserved for runtime-ready game assets.
-- `source_art/concepts/` holds concept references that are never loaded as runtime sprites.
+- Repository-level `../source_art/concepts/` holds concept references outside Godot's `res://` boundary.
 - `tests/` contains deterministic GUT coverage.
 - `tools/validate_godot_version.gd` enforces the version in `godot_version.txt` and the landscape ProjectSettings value.
 
-The existing repository-level `assets/` reference images remain untouched. New concept art belongs under `source_art/concepts/`; it is reference material and must not be treated as runtime sprites.
+The archived repository concept images live under `../source_art/concepts/`; they remain Git LFS files and must not be treated as runtime sprites. Runtime-ready derivatives belong under `assets/runtime/` and require an asset-register entry.
 
 All project paths use lowercase ASCII snake_case. Vendored third-party paths, including `addons/gut/`, retain their upstream names and are exempt from this project naming rule.
 
@@ -36,3 +36,14 @@ godot --headless -s res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
 ```
 
 `export_presets.cfg` includes Android and iOS. Android requires local SDK/JDK configuration before export. The iOS preset is intentionally unverified until macOS, Xcode, signing credentials, and an iPhone are available.
+
+Repository-level delivery checks also include:
+
+```powershell
+py -3 tools/validate_assets.py
+godot --headless --path game res://tests/smoke/combat_smoke.tscn
+godot --headless --path game res://tests/smoke/run_loop_smoke.tscn
+godot --headless --path game res://tests/smoke/mobile_ui_smoke.tscn
+```
+
+See `docs/release/mobile-release.md` for the verified-versus-configured platform matrix and guarded export scripts.
