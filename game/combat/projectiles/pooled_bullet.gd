@@ -1,7 +1,7 @@
 class_name PooledBullet
 extends Area2D
 
-signal returned_to_pool(bullet: PooledBullet)
+signal returned_to_pool(bullet: PooledBullet, lease_id: int)
 
 var direction: Vector2 = Vector2.RIGHT
 var speed: float = 0.0
@@ -11,6 +11,7 @@ var collision_radius: float = 0.0
 var _active: bool = false
 var _damage: DamageComponent
 var _collision_shape: CircleShape2D
+var _lease_id: int = 0
 
 
 func _ready() -> void:
@@ -60,7 +61,8 @@ func initialize(
 		queue_redraw()
 
 
-func on_spawn() -> void:
+func on_spawn(lease_id: int) -> void:
+	_lease_id = lease_id
 	_active = true
 
 
@@ -93,11 +95,11 @@ func _return_to_pool() -> void:
 	if not _active:
 		return
 	_active = false
-	call_deferred("_emit_returned_to_pool")
+	_emit_returned_to_pool.call_deferred(_lease_id)
 
 
-func _emit_returned_to_pool() -> void:
-	returned_to_pool.emit(self)
+func _emit_returned_to_pool(lease_id: int) -> void:
+	returned_to_pool.emit(self, lease_id)
 
 
 func _draw() -> void:

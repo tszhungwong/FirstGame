@@ -236,3 +236,90 @@ Import/editor retain only the previously documented environment message `Unable 
 - Confirmed gameplay source has no `Node.call`, string-based gameplay signal connection, `has_method`, or `has_signal` boundary.
 - Confirmed auto-fire reuses a registered target buffer, HUD has no frame `_process`, group queries are absent from gameplay hot paths, and redraws are state-driven.
 - Confirmed newly added attributes remain owned by their correct models: character geometry/camera values on `CharacterDefinition`, projectile geometry on weapon/enemy definitions, enemy movement/attack geometry on `EnemyDefinition`, and pool capacity/growth on `RoomDefinition`.
+
+## Second reviewer-finding remediation (2026-07-21)
+
+### Deferred-return lease regression: RED/GREEN
+
+Root cause: `PooledBullet._return_to_pool()` deferred a signal containing only the bullet instance. A manual `ObjectPool.release()` followed by immediate reacquisition in the same frame put the same instance back in `_in_use`; when the old deferred signal ran, `release()` mistakenly despawned the new shot.
+
+The real regression test acquires and initializes the scene-backed bullet, expires it through `_physics_process()` to schedule the production deferred callback, manually releases it, immediately reacquires and initializes the same instance, then yields until the stale callback runs.
+
+```text
+Godot --headless --path game -s res://addons/gut/gut_cmdln.gd -gtest=res://tests/test_object_pool.gd -gexit
+
+RED: 2/3 passed; 14/19 assertions. The reacquired bullet was removed from use, returned to available, hidden, disabled, and reset to collision_mask 0.
+GREEN: 3/3 passed; 19 assertions.
+```
+
+`ObjectPool` now assigns a monotonically increasing lease ID at every acquisition and records the active lease for each bullet. `PooledBullet` captures that lease in its deferred typed return signal. The pool ignores a return whose lease no longer matches, so an old callback cannot affect a current shot.
+
+### Behavioral smoke mutation evidence
+
+The new autonomous-combat checks run while all actors remain physics-enabled. Enemies are repositioned deterministically but not disabled until all three behaviors have been observed.
+
+- Ember: the smoke places one valid enemy nearest, records every enemy's health, and waits for automatic projectile damage. It requires the nearest enemy to lose health and every farther enemy to retain its starting health.
+- Ranged shooter: the smoke requires the shooter to move closer from outside its preferred approach distance, then requires either an active enemy-team projectile or resulting Ember damage after it is placed in firing range.
+- Charger: the smoke requires a stationary telegraph interval followed by more than 10 pixels of locked forward movement toward Ember after the Resource-defined telegraph duration.
+
+Each behavior was temporarily made inert, tested, and immediately restored with no mutation retained in the diff:
+
+```text
+Auto-fire inert: EXIT=1
+COMBAT_SMOKE_FAILED: Ember automatic fire did not damage the nearest enemy
+
+Ranged movement inert: EXIT=1
+COMBAT_SMOKE_FAILED: ranged enemy did not approach from outside its preferred range
+
+Ranged projectile fire inert: EXIT=1
+COMBAT_SMOKE_FAILED: ranged enemy did not fire an observable enemy projectile
+
+Charger update inert: EXIT=1
+COMBAT_SMOKE_FAILED: charger did not transition from telegraph into forward charge movement
+```
+
+Restored smoke result:
+
+```text
+COMBAT_SMOKE_OK: nearest auto-fire, shooter fire, charger states, controls, damage, camera, and projectile reuse are observable
+EXIT=0
+```
+
+### Test-quality correction
+
+Removed the source-file substring assertions from `test_damage_component.gd` and `test_targeting_component.gd`. Typed component use is now checked by GDScript compilation and the tests exercise real behavior: configured damage application, nearest in-range target selection, fully despawned preallocation, instance reuse, and the deferred-return lease regression. No test-only production API, comment scan, or static-string contract remains.
+
+Focused results after the correction:
+
+```text
+test_damage_component.gd: 1/1 passed; 2 assertions
+test_targeting_component.gd: 1/1 passed; 2 assertions
+test_object_pool.gd: 3/3 passed; 19 assertions
+```
+
+### Fresh final verification
+
+```text
+Godot --headless --import --path game
+EXIT=0
+
+Godot --headless --editor --quit --path game
+EXIT=0
+
+Godot --headless --path game --script res://tools/validate_godot_version.gd
+Godot version pin and landscape ProjectSettings verified: 4.6.3
+EXIT=0
+
+Godot --headless --path game -s res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
+13/13 passed; 54 assertions
+EXIT=0
+
+Godot --headless --path game res://tests/smoke/combat_smoke.tscn
+COMBAT_SMOKE_OK: nearest auto-fire, shooter fire, charger states, controls, damage, camera, and projectile reuse are observable
+EXIT=0
+
+Godot --headless --path game --quit-after 180
+EXIT=0
+```
+
+Import/editor retain only the previously documented local environment message `Unable to open Android 'build-tools' directory`; no parse, runtime, or ObjectDB leak error was emitted.

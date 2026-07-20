@@ -64,16 +64,81 @@ func _ready() -> void:
 	var melee := _enemy_of_type(enemies, EnemyDefinition.Archetype.MELEE_CHASER)
 	if not _require(melee != null, "melee enemy is missing"):
 		return
-	var melee_start: Vector2 = melee.global_position
+	var shooter := _enemy_of_type(enemies, EnemyDefinition.Archetype.RANGED_SHOOTER)
+	if not _require(shooter != null, "ranged enemy is missing"):
+		return
+	var charger := _enemy_of_type(enemies, EnemyDefinition.Archetype.TELEGRAPHED_CHARGER)
+	if not _require(charger != null, "charger enemy is missing"):
+		return
+	var player_health: HealthComponent = ember.get_health_component()
+
+	# Keep every actor live while proving each autonomous combat behavior.
+	pool.release_all()
+	_park_enemies_except(enemies, melee, room_definition.arena_size)
+	melee.global_position = ember.global_position + Vector2(180.0, 0.0)
+	var nearest_health_before: int = melee.health.current_health
+	var other_health_before: Dictionary[int, int] = {}
+	for enemy: CombatEnemy in enemies:
+		if enemy != melee:
+			other_health_before[enemy.get_instance_id()] = enemy.health.current_health
+	if not _require(
+		await _wait_until_enemy_damaged(melee, nearest_health_before, 45),
+		"Ember automatic fire did not damage the nearest enemy"
+	):
+		return
+	for enemy: CombatEnemy in enemies:
+		if enemy == melee:
+			continue
+		if not _require(
+			enemy.health.current_health == other_health_before[enemy.get_instance_id()],
+			"Ember automatic fire targeted a farther enemy"
+		):
+			return
+
+	pool.release_all()
+	_park_enemies_except(enemies, shooter, room_definition.arena_size)
+	shooter.global_position = ember.global_position + Vector2(700.0, 0.0)
+	var shooter_start: Vector2 = shooter.global_position
+	var shooter_distance_before: float = shooter.global_position.distance_to(ember.global_position)
 	await _wait_physics_frames(8)
-	if not _require(melee.global_position.distance_to(melee_start) > 1.0, "enemy movement is inert"):
+	if not _require(
+		shooter.global_position.distance_to(shooter_start) > 1.0
+		and shooter.global_position.distance_to(ember.global_position) < shooter_distance_before,
+		"ranged enemy did not approach from outside its preferred range"
+	):
+		return
+	pool.release_all()
+	shooter.global_position = ember.global_position + Vector2(300.0, 0.0)
+	var health_before_ranged_attack: int = player_health.current_health
+	if not _require(
+		await _wait_for_enemy_projectile_or_damage(pool, player_health, health_before_ranged_attack, 20),
+		"ranged enemy did not fire an observable enemy projectile"
+	):
+		return
+
+	pool.release_all()
+	_park_enemies_except(enemies, charger, room_definition.arena_size)
+	charger.global_position = ember.global_position + Vector2(300.0, 0.0)
+	var charger_start: Vector2 = charger.global_position
+	var charger_distance_before: float = charger.global_position.distance_to(ember.global_position)
+	await _wait_physics_frames(6)
+	if not _require(
+		charger.global_position.distance_to(charger_start) < 1.0,
+		"charger did not hold position during its telegraph"
+	):
+		return
+	await _wait_physics_frames(ceili(charger.definition.telegraph_duration * 60.0) + 3)
+	if not _require(
+		charger.global_position.distance_to(charger_start) > 10.0
+		and charger.global_position.distance_to(ember.global_position) < charger_distance_before,
+		"charger did not transition from telegraph into forward charge movement"
+	):
 		return
 
 	for enemy: CombatEnemy in enemies:
 		if enemy != melee:
 			enemy.set_physics_process(false)
 	pool.release_all()
-	var player_health: HealthComponent = ember.get_health_component()
 	var player_health_before: int = player_health.current_health
 	melee.global_position = ember.global_position + Vector2(
 		melee.definition.attack_range + melee.definition.contact_range_padding - 1.0,
@@ -148,7 +213,7 @@ func _ready() -> void:
 		return
 	if not _require(is_instance_valid(ember) and ember.is_alive(), "Ember did not survive behavioral smoke"):
 		return
-	print("COMBAT_SMOKE_OK: controls, cooldowns, damage, enemy AI, camera, and projectile reuse are observable")
+	print("COMBAT_SMOKE_OK: nearest auto-fire, shooter fire, charger states, controls, damage, camera, and projectile reuse are observable")
 	get_tree().quit(0)
 
 
@@ -162,6 +227,54 @@ func _enemy_of_type(enemies: Array[CombatEnemy], archetype: EnemyDefinition.Arch
 func _wait_physics_frames(frame_count: int) -> void:
 	for _frame: int in frame_count:
 		await get_tree().physics_frame
+
+
+func _wait_until_enemy_damaged(enemy: CombatEnemy, starting_health: int, frame_limit: int) -> bool:
+	for _frame: int in frame_limit:
+		await get_tree().physics_frame
+		if enemy.health.current_health < starting_health:
+			return true
+	return false
+
+
+func _wait_for_enemy_projectile_or_damage(
+	pool: ObjectPool,
+	health: HealthComponent,
+	starting_health: int,
+	frame_limit: int
+) -> bool:
+	for _frame: int in frame_limit:
+		await get_tree().physics_frame
+		if health.current_health < starting_health or _has_active_enemy_projectile(pool):
+			return true
+	return false
+
+
+func _has_active_enemy_projectile(pool: ObjectPool) -> bool:
+	for child: Node in pool.get_children():
+		var bullet := child as PooledBullet
+		if bullet != null and bullet.visible and not bullet.from_player and bullet.collision_mask == 1:
+			return true
+	return false
+
+
+func _park_enemies_except(
+	enemies: Array[CombatEnemy],
+	active_enemy: CombatEnemy,
+	arena_size: Vector2
+) -> void:
+	var parking_positions: Array[Vector2] = [
+		Vector2(80.0, 80.0),
+		Vector2(arena_size.x - 80.0, 80.0),
+		Vector2(80.0, arena_size.y - 80.0),
+		arena_size - Vector2(80.0, 80.0),
+	]
+	var parking_index: int = 0
+	for enemy: CombatEnemy in enemies:
+		if enemy == active_enemy:
+			continue
+		enemy.global_position = parking_positions[parking_index % parking_positions.size()]
+		parking_index += 1
 
 
 func _touch_joystick(joystick: VirtualJoystick, direction: Vector2, touch_index: int) -> void:
