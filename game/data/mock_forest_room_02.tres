@@ -24,4 +24,5 @@ river_areas = Array[Rect2]([Rect2(980, 0, 210, 1200)])
 bridge_areas = Array[Rect2]([Rect2(950, 480, 270, 210)])
 tree_positions = Array[Vector2]([Vector2(620, 330), Vector2(1580, 800)])
 tree_radius = 46.0
+projectile_blocker_separation = 9.0
 expected_duration_seconds = 95.0

@@ -56,3 +56,28 @@ All commands ran from `game/` using `%TEMP%\godot-4.6.3\Godot_v4.6.3-stable_win6
 
 - The 665-second duration is data-authored and structurally within target, but final enemy health/count tuning still benefits from a human mobile playtest.
 - Android SDK `build-tools` is unavailable on this machine; this is an existing environment warning and Android export verification belongs to Task 4.
+
+## Review remediation
+
+Commit follow-up addresses every Task 3 review finding with new RED/GREEN evidence.
+
+### Additional RED/GREEN chronology
+
+1. Save durability/corruption tests first failed because `LocalSaveBackend` did not exist. After adding the injectable filesystem boundary, the focused suite exposed the old fixed backup-path expectation; the updated durability suite reached GREEN at 8/8.
+2. Failure injection proved a forced temporary-file promotion failure restores the prior valid primary. A separate crash-window test proves `load_data` promotes `.previous` when the primary is absent.
+3. Repeated corruption, backup-write failure, and parseable bad-schema tests were RED against the original implementation. GREEN behavior now creates unique evidence files, verifies exact bytes before reset, blocks subsequent writes when evidence preservation fails, and validates current and legacy nested schemas.
+4. A non-UTF-8 evidence test was RED because String conversion replaced bytes. Recovery now carries `PackedByteArray` end-to-end and validates UTF-8 before JSON parsing; focused save suite is GREEN at 10/10 with no Unicode warning.
+5. Run scene behavior was RED: reward state left Ember processing, health vulnerable, and the projectile pool active. The scene now freezes Ember/enemies, grants reward-state invulnerability, releases/disables the pool, and keeps the reward panel `PROCESS_MODE_ALWAYS`; actual clear → reward → next room is GREEN.
+6. Checkpoint test was RED because `set_room_entry_health` did not exist. The boundary checkpoint now serializes exact entry health. Cold resume reconstructs the same room and restores precisely that value. The policy is documented in `game/readme.md`.
+7. Restored duplicate/maxed/stale reward IDs and failed application cases were RED. Restore now accepts only exactly three unique, known, non-maxed IDs or deterministically regenerates; failed application leaves state and choices unchanged.
+8. Ricochet and real-enemy mud tests were RED. Rebound now places bullets on the near side using per-room `.tres` separation, and all enemy velocity—including charge movement—uses the mud multiplier. Both tree/river ricochet and normal-vs-mud displacement are GREEN.
+9. Run-loop smoke now clears every room by damaging the actual spawned `CombatEnemy` nodes and wins only after the actual boss health reaches zero; direct `complete_room` calls were removed from the smoke path.
+
+### Final review verification
+
+- Full GUT: 42/42 tests, 171 assertions, no failures or orphans.
+- Run-loop smoke: exit 0, actual spawned-enemy clears and actual boss death observed.
+- Combat regression smoke: exit 0.
+- Import, editor parse, pinned-version/landscape validation: exit 0 (only existing Android `build-tools` environment warning).
+- 180-frame main-scene runtime: exit 0 with no parse/runtime/ObjectDB errors.
+- `git diff --check`: clean.

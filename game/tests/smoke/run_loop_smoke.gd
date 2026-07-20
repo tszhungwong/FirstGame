@@ -5,9 +5,12 @@ const LocalSaveScript = preload("res://services/local_save.gd")
 
 
 func _ready() -> void:
-	var run = RunControllerScript.new()
-	add_child(run)
-	run.start_run(314159)
+	GameSession.is_run_active = false
+	GameSession.active_run_snapshot = {}
+	var game := preload("res://scenes/run_game.tscn").instantiate() as RunGame
+	add_child(game)
+	await get_tree().process_frame
+	var run := game.controller
 	if not _require(run.room_count() == 6, "run did not load exactly six rooms"):
 		return
 	var base_rate: float = run.combat_stats.fire_rate
@@ -21,7 +24,8 @@ func _ready() -> void:
 	if not _require(run.combat_stats.fire_rate > base_rate and run.combat_stats.multishot == 2 and run.combat_stats.dash_cooldown < base_dash, "upgrades did not change runtime combat stats"):
 		return
 
-	run.complete_room()
+	if not await _kill_current_room(game):
+		return
 	if not _require(run.state == RunControllerScript.State.REWARD and run.current_reward_choices.size() == 3, "room clear did not open a three-choice reward"):
 		return
 	if not _require(run.choose_upgrade(run.current_reward_choices[0].id) and run.current_room_index == 1, "reward selection did not start the next room"):
@@ -40,12 +44,22 @@ func _ready() -> void:
 		return
 
 	while run.current_room_index < 5:
-		run.complete_room()
+		if not await _kill_current_room(game):
+			return
 		if not _require(run.choose_upgrade(run.current_reward_choices[0].id), "intermediate reward could not be chosen"):
 			return
+		await get_tree().process_frame
 	if not _require(run.current_room().kind == RoomDefinition.Kind.BOSS, "final room was not the boss"):
 		return
-	run.complete_room()
+	var boss_enemies := _current_enemies(game)
+	if not _require(not boss_enemies.is_empty(), "boss room spawned no actual boss"):
+		return
+	var boss := boss_enemies[0] as CombatEnemy
+	if not _require(boss.definition.archetype == EnemyDefinition.Archetype.BOSS, "spawned final enemy was not the boss"):
+		return
+	boss.health.take_damage(100000)
+	await get_tree().process_frame
+	await get_tree().process_frame
 	if not _require(run.state == RunControllerScript.State.WON, "boss clear did not win the run"):
 		return
 
@@ -61,6 +75,25 @@ func _ready() -> void:
 	get_tree().quit(0)
 
 
+func _kill_current_room(game: RunGame) -> bool:
+	var enemies := _current_enemies(game)
+	if not _require(not enemies.is_empty(), "room spawned no actual enemies"):
+		return false
+	for node: Node in enemies:
+		(node as CombatEnemy).health.take_damage(100000)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	return _require(game.controller.state == RunController.State.REWARD, "actual enemy deaths did not clear room into reward")
+
+
+func _current_enemies(game: RunGame) -> Array[Node]:
+	var result: Array[Node] = []
+	for node: Node in get_tree().get_nodes_in_group("enemies"):
+		if is_instance_valid(game._room_root) and game._room_root.is_ancestor_of(node):
+			result.append(node)
+	return result
+
+
 func _require(condition: bool, message: String) -> bool:
 	if condition:
 		return true
@@ -71,8 +104,7 @@ func _require(condition: bool, message: String) -> bool:
 
 func _smoke_save_recovery() -> bool:
 	var path := "user://mock_run_loop_smoke_corrupt.json"
-	var backup_path := path + ".corrupt.bak"
-	for cleanup_path: String in [path, backup_path]:
+	for cleanup_path: String in [path, path + ".previous", path + ".tmp"]:
 		if FileAccess.file_exists(cleanup_path):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(cleanup_path))
 	var corrupt_file := FileAccess.open(path, FileAccess.WRITE)
@@ -82,8 +114,9 @@ func _smoke_save_recovery() -> bool:
 	add_child(save)
 	save.save_path = path
 	var recovered: Dictionary = save.load_data()
+	var backup_path: String = save.last_corrupt_backup_path
 	var succeeded := recovered == save.default_data() and FileAccess.file_exists(backup_path)
-	for cleanup_path: String in [path, backup_path]:
+	for cleanup_path: String in [path, path + ".previous", path + ".tmp", backup_path]:
 		if FileAccess.file_exists(cleanup_path):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(cleanup_path))
 	save.queue_free()

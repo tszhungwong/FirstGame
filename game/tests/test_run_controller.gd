@@ -111,3 +111,52 @@ func test_pause_and_resume_preserve_combat_state() -> void:
 	run.set_paused(false)
 	assert_eq(run.state, RunControllerScript.State.COMBAT)
 	assert_false(get_tree().paused)
+
+
+func test_restore_rejects_duplicate_stale_and_maxed_reward_choices() -> void:
+	var run = RunControllerScript.new()
+	add_child_autofree(run)
+	var snapshot := {
+		"seed": 404,
+		"room_index": 2,
+		"state": RunControllerScript.State.REWARD,
+		"upgrade_stacks": {"wildfire": 3},
+		"reward_choices": ["wildfire", "wildfire", "removed_upgrade"],
+	}
+	run.restore_run(snapshot)
+	var choices: Array[StringName] = run.reward_choice_ids()
+	var unique_choices: Dictionary = {}
+	for id: StringName in choices:
+		unique_choices[id] = true
+
+	assert_eq(choices.size(), 3)
+	assert_eq(unique_choices.size(), 3)
+	assert_false(choices.has(&"wildfire"))
+	assert_false(choices.has(&"removed_upgrade"))
+
+
+func test_failed_reward_application_keeps_reward_state_and_choices() -> void:
+	var run = RunControllerScript.new()
+	add_child_autofree(run)
+	run.start_run(303)
+	for _stack: int in 3:
+		run.grant_upgrade_for_test(&"wildfire")
+	run.state = RunControllerScript.State.REWARD
+	var forced_choices: Array[UpgradeDefinition] = [load("res://data/mock_upgrade_wildfire.tres") as UpgradeDefinition]
+	run.current_reward_choices = forced_choices
+
+	assert_false(run.choose_upgrade(&"wildfire"))
+	assert_eq(run.state, RunControllerScript.State.REWARD)
+	assert_eq(run.reward_choice_ids(), [&"wildfire"])
+
+
+func test_room_entry_health_checkpoint_round_trips_exactly() -> void:
+	var original = RunControllerScript.new()
+	var restored = RunControllerScript.new()
+	add_child_autofree(original)
+	add_child_autofree(restored)
+	original.start_run(808)
+	original.set_room_entry_health(63)
+	restored.restore_run(original.serialize_active_run())
+
+	assert_eq(restored.room_entry_health, 63)

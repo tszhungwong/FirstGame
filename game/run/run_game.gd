@@ -58,11 +58,15 @@ func _start_room(index: int, room: RoomDefinition) -> void:
 	var character := load(EMBER_PATH) as CharacterDefinition
 	projectile_pool.configure(BULLET_SCENE, room.projectile_pool_capacity, room.projectile_pool_can_grow, character.starting_weapon.projectile_collision_radius)
 	projectile_pool.configure_forest_rules(forest_rules)
+	projectile_pool.process_mode = Node.PROCESS_MODE_INHERIT
 	ember = Ember.new()
 	ember.name = "Ember"
 	ember.configure(character, projectile_pool, Rect2(Vector2.ZERO, room.arena_size), controller.combat_stats, forest_rules)
 	ember.global_position = Vector2(260.0, room.arena_size.y * 0.5)
 	_room_root.add_child(ember)
+	if controller.room_entry_health >= 0:
+		ember.health.restore_current_health(controller.room_entry_health)
+	controller.set_room_entry_health(ember.health.current_health)
 	ember.defeated.connect(controller.player_defeated)
 	_spawn_enemies(room)
 	var hud := CombatHud.new()
@@ -90,10 +94,12 @@ func _spawn_enemies(room: RoomDefinition) -> void:
 func _on_enemy_defeated(enemy: CombatEnemy) -> void:
 	ember.unregister_enemy(enemy)
 	if ember.enemy_count() == 0:
+		controller.set_room_entry_health(ember.health.current_health)
 		controller.complete_room.call_deferred()
 
 
 func _show_rewards(choices: Array[UpgradeDefinition]) -> void:
+	_freeze_combat()
 	_reward_panel.visible = true
 	var list := _reward_panel.get_node("Choices") as VBoxContainer
 	for child: Node in list.get_children():
@@ -117,6 +123,7 @@ func _choose_reward(id: StringName) -> void:
 
 func _finish_run(won: bool) -> void:
 	get_tree().paused = false
+	_freeze_combat()
 	GameSession.finish_run(won, controller.current_room_index + 1)
 	_end_panel.visible = true
 	_end_label.text = "FOREST RESTORED" if won else "EMBER EXTINGUISHED"
@@ -131,6 +138,20 @@ func _toggle_pause() -> void:
 func _clear_room() -> void:
 	if is_instance_valid(_room_root):
 		_room_root.queue_free()
+
+
+func _freeze_combat() -> void:
+	if is_instance_valid(ember):
+		ember.set_physics_process(false)
+		if ember.health != null:
+			ember.health.invulnerable = true
+	if is_instance_valid(_room_root):
+		for node: Node in get_tree().get_nodes_in_group("enemies"):
+			if _room_root.is_ancestor_of(node):
+				node.process_mode = Node.PROCESS_MODE_DISABLED
+	if is_instance_valid(projectile_pool):
+		projectile_pool.release_all()
+		projectile_pool.process_mode = Node.PROCESS_MODE_DISABLED
 
 
 func _build_ui() -> void:

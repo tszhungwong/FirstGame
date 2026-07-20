@@ -20,6 +20,10 @@ The existing repository-level `assets/` reference images remain untouched. New c
 
 All project paths use lowercase ASCII snake_case. Vendored third-party paths, including `addons/gut/`, retain their upstream names and are exempt from this project naming rule.
 
+## Run checkpoint policy
+
+The local checkpoint is written at each room boundary. It stores Ember's exact health on entry to the current room. A cold resume restarts that room with all enemies reset and restores precisely that entry health—never the mid-room health and never a free full heal. Reward screens freeze combat and carry the just-cleared health forward as the next room's entry checkpoint.
+
 ## Verification
 
 From this directory, import and validate the project headlessly:

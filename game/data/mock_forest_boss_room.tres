@@ -22,4 +22,5 @@ mud_areas = Array[Rect2]([Rect2(1280, 300, 620, 600)])
 mud_speed_multiplier = 0.6
 tree_positions = Array[Vector2]([Vector2(720, 250), Vector2(720, 950), Vector2(1400, 180), Vector2(1400, 1020)])
 tree_radius = 50.0
+projectile_blocker_separation = 11.0
 expected_duration_seconds = 150.0

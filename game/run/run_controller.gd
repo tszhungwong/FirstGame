@@ -39,6 +39,7 @@ var upgrades: Array[UpgradeDefinition] = []
 var current_reward_choices: Array[UpgradeDefinition] = []
 var upgrade_stacks: Dictionary = {}
 var combat_stats: RuntimeCombatStats
+var room_entry_health: int = -1
 var _rng := RandomNumberGenerator.new()
 var _state_before_pause: State = State.IDLE
 
@@ -55,6 +56,7 @@ func start_run(seed_value: int) -> void:
 	current_room_index = 0
 	upgrade_stacks.clear()
 	current_reward_choices.clear()
+	room_entry_health = -1
 	combat_stats = RuntimeCombatStats.from_definitions(load(CHARACTER_PATH) as CharacterDefinition)
 	_set_state(State.COMBAT)
 	room_started.emit(current_room_index, current_room())
@@ -70,6 +72,7 @@ func restore_run(snapshot: Dictionary) -> bool:
 	upgrade_stacks.clear()
 	current_reward_choices.clear()
 	combat_stats = RuntimeCombatStats.from_definitions(load(CHARACTER_PATH) as CharacterDefinition)
+	room_entry_health = int(snapshot.get("room_entry_health", -1))
 	var saved_stacks: Dictionary = snapshot.get("upgrade_stacks", {})
 	for upgrade: UpgradeDefinition in upgrades:
 		var saved_count := int(saved_stacks.get(upgrade.id, saved_stacks.get(String(upgrade.id), 0)))
@@ -77,14 +80,15 @@ func restore_run(snapshot: Dictionary) -> bool:
 			_apply_upgrade(upgrade)
 	var saved_state := int(snapshot.get("state", State.COMBAT)) as State
 	if saved_state == State.REWARD:
-		for raw_id: Variant in snapshot.get("reward_choices", []):
-			var upgrade := _find_upgrade(StringName(str(raw_id)))
-			if upgrade != null:
-				current_reward_choices.append(upgrade)
-		if current_reward_choices.size() != 3:
+		current_reward_choices = _validated_reward_choices(snapshot.get("reward_choices", []))
+		if current_reward_choices.size() != 3 and current_room_index < rooms.size() - 1:
 			current_reward_choices = _draw_reward_choices()
-		_set_state(State.REWARD)
-		reward_offered.emit(current_reward_choices)
+		if current_reward_choices.size() == 3:
+			_set_state(State.REWARD)
+			reward_offered.emit(current_reward_choices)
+		else:
+			_set_state(State.COMBAT)
+			room_started.emit(current_room_index, current_room())
 	else:
 		_set_state(State.COMBAT)
 		room_started.emit(current_room_index, current_room())
@@ -122,7 +126,8 @@ func choose_upgrade(id: StringName) -> bool:
 		return false
 	for upgrade: UpgradeDefinition in current_reward_choices:
 		if upgrade.id == id:
-			_apply_upgrade(upgrade)
+			if not _apply_upgrade(upgrade):
+				return false
 			current_reward_choices.clear()
 			current_room_index += 1
 			_set_state(State.COMBAT)
@@ -152,6 +157,10 @@ func player_defeated() -> void:
 		run_finished.emit(false)
 
 
+func set_room_entry_health(value: int) -> void:
+	room_entry_health = maxi(value, 0)
+
+
 func set_paused(paused: bool) -> void:
 	if paused and state in [State.COMBAT, State.REWARD]:
 		_state_before_pause = state
@@ -172,6 +181,7 @@ func serialize_active_run() -> Dictionary:
 		"upgrade_stacks": upgrade_stacks.duplicate(true),
 		"state": active_state,
 		"reward_choices": reward_choice_ids(),
+		"room_entry_health": room_entry_health,
 	}
 
 
@@ -202,6 +212,25 @@ func _find_upgrade(id: StringName) -> UpgradeDefinition:
 		if upgrade.id == id:
 			return upgrade
 	return null
+
+
+func _validated_reward_choices(raw_choices: Variant) -> Array[UpgradeDefinition]:
+	var result: Array[UpgradeDefinition] = []
+	if not raw_choices is Array or (raw_choices as Array).size() != 3:
+		return result
+	var seen: Dictionary = {}
+	for raw_id: Variant in raw_choices:
+		if not raw_id is String:
+			return []
+		var id := StringName(raw_id)
+		if seen.has(id):
+			return []
+		var upgrade := _find_upgrade(id)
+		if upgrade == null or int(upgrade_stacks.get(id, 0)) >= upgrade.max_stacks:
+			return []
+		seen[id] = true
+		result.append(upgrade)
+	return result
 
 
 func _apply_upgrade(upgrade: UpgradeDefinition) -> bool:

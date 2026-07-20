@@ -50,6 +50,21 @@ func resolve_actor_position(from: Vector2, requested: Vector2) -> Vector2:
 	return from if blocks_actor_at(requested) else requested
 
 
+func projectile_rebound_position(from: Vector2, requested: Vector2) -> Vector2:
+	if definition == null:
+		return from
+	var distance := from.distance_to(requested)
+	var sample_count := maxi(1, ceili(distance / 8.0))
+	var last_clear := from
+	for sample_index: int in range(1, sample_count + 1):
+		var point := from.lerp(requested, float(sample_index) / float(sample_count))
+		if blocks_actor_at(point):
+			var away := requested.direction_to(from)
+			return last_clear + away * definition.projectile_blocker_separation
+		last_clear = point
+	return from
+
+
 func _inside_any(point: Vector2, areas: Array[Rect2]) -> bool:
 	for area: Rect2 in areas:
 		if area.has_point(point):

@@ -69,6 +69,8 @@ func _physics_process(delta: float) -> void:
 			_update_charger(delta)
 		EnemyDefinition.Archetype.BOSS:
 			_update_boss(delta)
+	if forest_rules != null:
+		velocity *= forest_rules.speed_multiplier_at(global_position)
 	var previous_position := global_position
 	move_and_slide()
 	if forest_rules != null:

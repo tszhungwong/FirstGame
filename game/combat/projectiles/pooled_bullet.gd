@@ -99,6 +99,7 @@ func _physics_process(delta: float) -> void:
 	if forest_rules != null and forest_rules.blocks_projectile_segment(previous_position, next_position):
 		if ricochet_remaining > 0:
 			ricochet_remaining -= 1
+			global_position = forest_rules.projectile_rebound_position(previous_position, next_position)
 			direction = -direction
 			rotation = direction.angle()
 		else:
