@@ -49,29 +49,45 @@ def _restore_snapshot(path: Path, snapshot: tuple[bool, bytes]) -> None:
         path.unlink()
 
 
-def run_smoke(
+def _write_process_output(output: str) -> None:
+    console_encoding = sys.stdout.encoding or "utf-8"
+    safe_output = output.encode(console_encoding, errors="replace").decode(
+        console_encoding
+    )
+    sys.stdout.write(safe_output)
+
+
+def run_isolated_godot(
     root: Path,
     godot: str,
-    scene: str,
+    godot_arguments: list[str],
     expect_marker: str,
     forbidden_output: list[str],
 ) -> int:
     production_path = _production_save_path(_project_name(root / "game/project.godot"))
     before = _snapshot(production_path)
+    output = ""
+    return_code = 1
+    launch_error = ""
     with tempfile.TemporaryDirectory(prefix="game_ghost_smoke_") as storage_root:
         environment = os.environ.copy()
         environment[STORAGE_ROOT_ENVIRONMENT] = storage_root
-        result = subprocess.run(
-            [godot, "--headless", "--path", "game", scene],
-            cwd=root,
-            env=environment,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            check=False,
-        )
-        output = result.stdout
-        sys.stdout.write(output)
+        try:
+            result = subprocess.run(
+                [godot, *godot_arguments],
+                cwd=root,
+                env=environment,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                errors="replace",
+                check=False,
+            )
+            output = result.stdout
+            return_code = result.returncode
+            _write_process_output(output)
+        except OSError as error:
+            launch_error = str(error)
     after = _snapshot(production_path)
     if after != before:
         _restore_snapshot(production_path, before)
@@ -81,8 +97,14 @@ def run_smoke(
             file=sys.stderr,
         )
         return 1
-    if result.returncode != 0:
-        return result.returncode
+    if launch_error:
+        print(
+            f"SMOKE_SAVE_ISOLATION_ERROR: failed to start process: {launch_error}",
+            file=sys.stderr,
+        )
+        return 1
+    if return_code != 0:
+        return return_code
     if expect_marker and expect_marker not in output:
         print(
             f"SMOKE_SAVE_ISOLATION_ERROR: missing success marker {expect_marker}",
@@ -102,10 +124,9 @@ def run_smoke(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Run a Godot scene smoke with an isolated disposable save root."
+        description="Run Godot arguments with an isolated disposable save root."
     )
     parser.add_argument("--godot", required=True, help="Godot console executable")
-    parser.add_argument("--scene", required=True, help="res:// smoke scene path")
     parser.add_argument("--expect-marker", default="", help="required output marker")
     parser.add_argument(
         "--forbid-output",
@@ -113,12 +134,22 @@ def main(argv: list[str] | None = None) -> int:
         default=[],
         help="output text that makes the smoke fail",
     )
+    parser.add_argument(
+        "--godot-args",
+        dest="godot_arguments",
+        nargs=argparse.REMAINDER,
+        required=True,
+        help="all remaining arguments are passed to Godot",
+    )
     args = parser.parse_args(argv)
+    godot_arguments = list(args.godot_arguments)
+    if not godot_arguments:
+        parser.error("Godot arguments are required after --godot-args")
     root = Path(__file__).resolve().parents[1]
-    return run_smoke(
+    return run_isolated_godot(
         root,
         args.godot,
-        args.scene,
+        godot_arguments,
         args.expect_marker,
         args.forbid_output,
     )

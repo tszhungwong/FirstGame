@@ -32,17 +32,17 @@ jobs:
           python tools/validate_assets.py
       - name: Import and validate resources
         run: |
-          godot --headless --import --path game
-          godot --headless --editor --quit --path game
-          godot --headless --path game --script res://tools/validate_godot_version.gd
+          python tools/run_scene_smoke.py --godot godot --godot-args --headless --import --path game
+          python tools/run_scene_smoke.py --godot godot --godot-args --headless --editor --quit --path game
+          python tools/run_scene_smoke.py --godot godot --expect-marker "Godot version pin and landscape ProjectSettings verified: 4.6.3" --godot-args --headless --path game --script res://tools/validate_godot_version.gd
       - name: Run GUT
-        run: godot --headless --path game --script res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
+        run: python tools/run_scene_smoke.py --godot godot --expect-marker "All tests passed!" --godot-args --headless --path game --script res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
       - name: Run scene smokes
         run: |
-          godot --headless --path game res://tests/smoke/combat_smoke.tscn
-          python tools/run_scene_smoke.py --godot godot --scene res://tests/smoke/run_loop_smoke.tscn --expect-marker RUN_LOOP_SMOKE_OK
-          python tools/run_scene_smoke.py --godot godot --scene res://tests/smoke/mobile_ui_smoke.tscn --expect-marker MOBILE_UI_SMOKE_OK
-          python tools/run_scene_smoke.py --godot godot --scene res://tests/smoke/runtime_shutdown_smoke.tscn --expect-marker RUNTIME_SHUTDOWN_SMOKE_OK --forbid-output "ObjectDB instances leaked"
+          python tools/run_scene_smoke.py --godot godot --expect-marker COMBAT_SMOKE_OK --godot-args --headless --path game res://tests/smoke/combat_smoke.tscn
+          python tools/run_scene_smoke.py --godot godot --expect-marker RUN_LOOP_SMOKE_OK --godot-args --headless --path game res://tests/smoke/run_loop_smoke.tscn
+          python tools/run_scene_smoke.py --godot godot --expect-marker MOBILE_UI_SMOKE_OK --godot-args --headless --path game res://tests/smoke/mobile_ui_smoke.tscn
+          python tools/run_scene_smoke.py --godot godot --expect-marker RUNTIME_SHUTDOWN_SMOKE_OK --forbid-output "ObjectDB instances leaked" --godot-args --headless --path game res://tests/smoke/runtime_shutdown_smoke.tscn
 
   android-debug-export:
     needs: headless-tests
@@ -83,7 +83,7 @@ jobs:
         run: |
           cp "$HOME/.android/debug.keystore" "$GODOT_ANDROID_KEYSTORE_DEBUG_PATH"
           mkdir -p game/builds/android
-          godot --headless --path game --export-debug "Android" game/builds/android/game_ghost.apk
+          python tools/run_scene_smoke.py --godot godot --godot-args --headless --path game --export-debug "Android" game/builds/android/game_ghost.apk
           test -s game/builds/android/game_ghost.apk
           python tools/validate_export_contents.py game/builds/android/game_ghost.apk
 
@@ -109,6 +109,6 @@ jobs:
         shell: bash
         run: |
           mkdir -p game/builds/ios
-          godot --headless --path game --export-debug "iOS" game/builds/ios/game_ghost.zip
+          python tools/run_scene_smoke.py --godot godot --godot-args --headless --path game --export-debug "iOS" game/builds/ios/game_ghost.zip
           test -s game/builds/ios/game_ghost.zip
           python tools/validate_export_contents.py game/builds/ios/game_ghost.zip

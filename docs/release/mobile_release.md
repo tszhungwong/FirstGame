@@ -21,17 +21,17 @@ From the repository root on Windows, using the pinned Godot console executable w
 py -3 -m unittest discover -s tools/tests -p "test_*.py" -v
 py -3 tools/validate_paths.py
 py -3 tools/validate_assets.py
-godot --headless --import --path game
-godot --headless --editor --quit --path game
-godot --headless --path game --script res://tools/validate_godot_version.gd
-godot --headless --path game --script res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
-godot --headless --path game res://tests/smoke/combat_smoke.tscn
-py -3 tools/run_scene_smoke.py --godot godot --scene res://tests/smoke/run_loop_smoke.tscn --expect-marker RUN_LOOP_SMOKE_OK
-py -3 tools/run_scene_smoke.py --godot godot --scene res://tests/smoke/mobile_ui_smoke.tscn --expect-marker MOBILE_UI_SMOKE_OK
-py -3 tools/run_scene_smoke.py --godot godot --scene res://tests/smoke/runtime_shutdown_smoke.tscn --expect-marker RUNTIME_SHUTDOWN_SMOKE_OK --forbid-output "ObjectDB instances leaked"
+py -3 tools/run_scene_smoke.py --godot godot --godot-args --headless --import --path game
+py -3 tools/run_scene_smoke.py --godot godot --godot-args --headless --editor --quit --path game
+py -3 tools/run_scene_smoke.py --godot godot --expect-marker "Godot version pin and landscape ProjectSettings verified: 4.6.3" --godot-args --headless --path game --script res://tools/validate_godot_version.gd
+py -3 tools/run_scene_smoke.py --godot godot --expect-marker "All tests passed!" --godot-args --headless --path game --script res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
+py -3 tools/run_scene_smoke.py --godot godot --expect-marker COMBAT_SMOKE_OK --godot-args --headless --path game res://tests/smoke/combat_smoke.tscn
+py -3 tools/run_scene_smoke.py --godot godot --expect-marker RUN_LOOP_SMOKE_OK --godot-args --headless --path game res://tests/smoke/run_loop_smoke.tscn
+py -3 tools/run_scene_smoke.py --godot godot --expect-marker MOBILE_UI_SMOKE_OK --godot-args --headless --path game res://tests/smoke/mobile_ui_smoke.tscn
+py -3 tools/run_scene_smoke.py --godot godot --expect-marker RUNTIME_SHUTDOWN_SMOKE_OK --forbid-output "ObjectDB instances leaked" --godot-args --headless --path game res://tests/smoke/runtime_shutdown_smoke.tscn
 ```
 
-The saving scene smokes run through `run_scene_smoke.py`, which snapshots the production save, starts Godot with a unique process-level disposable storage root before autoload initialization, verifies the production bytes are unchanged, and removes the disposable directory on normal exit. An interrupted smoke can leave only disposable temporary data and cannot target the production path. The runtime acceptance result emits the production root `close_requested` signal, waits for the audio server to drain, and must exit without `ObjectDB instances leaked`. A warning-producing forced `--quit-after` run is diagnostic only and must not be counted as a clean runtime pass.
+Every project-loading Godot check runs through `run_scene_smoke.py`, which accepts arbitrary Godot arguments after `--godot-args`, snapshots the production save, starts the process with a unique disposable storage root before autoload initialization, verifies the production bytes are unchanged, and removes the disposable directory on exit. If the production save changes, the wrapper restores the byte-exact snapshot and fails the check. The runtime acceptance result emits the production root `close_requested` signal, waits for the audio server to drain, and must exit without `ObjectDB instances leaked`. A warning-producing forced `--quit-after` run is diagnostic only and must not be counted as a clean runtime pass.
 
 ## Tracked-path and release-export policy
 

@@ -67,21 +67,32 @@ The user explicitly approved preserving upstream file names under `game/addons/g
 - GREEN: the smoke temporarily disables automatic quit, emits the production root `close_requested` signal, restores the setting, verifies audio is stopped and rejects later cues, drains the scene, and quits deterministically.
 - Actual GREEN marker: `RUNTIME_SHUTDOWN_SMOKE_OK: production root close signal shut audio down and the audio server drained`; no `ObjectDB instances leaked` output.
 
+### 8. Whole-boundary Godot process isolation
+
+- Root cause: the isolation wrapper hard-coded a scene launch, while import, editor validation, version validation, full GUT, combat smoke, and mobile export CI still invoked Godot directly. Autoload-capable verification therefore had no uniform pre-start storage override or production-save invariant.
+- Initial RED command: `py -3 -m unittest tools.tests.test_smoke_save_isolation -v`.
+- Initial RED result: `4/5` tests failed. The CLI still required `--scene`; arbitrary forwarded arguments were rejected; CI and both local acceptance guides contained raw project-loading Godot commands.
+- GREEN: `run_scene_smoke.py` now accepts every remaining process argument after `--godot-args`, snapshots production existence and bytes before launch, sets a unique `GAME_GHOST_STORAGE_ROOT` in the child environment before process start, captures exit/output, fails closed on launch or invariant failure, restores the byte-exact snapshot on violation, and removes its disposable root. Marker and forbidden-output behavior are unchanged.
+- Focused invariant coverage runs an arbitrary Python child through the same process boundary with a byte sentinel, verifies the reported disposable root no longer exists afterward, then runs a deliberate production-save mutation. The first remains byte-identical and succeeds; the second returns nonzero, emits `production save changed and was restored`, and restores the sentinel exactly.
+- CI and both acceptance guides now route import, editor, version, full GUT, combat, run-loop, mobile UI, and runtime shutdown through the wrapper. Android and iOS CI export invocations use the same boundary, leaving no raw project-loading Godot command in the workflow.
+- Windows acceptance found two additional interface defects. A narrow-console RED reproduced `UnicodeEncodeError` when replacement characters were re-emitted; terminal output is now encoded fail-safely without changing captured marker matching. A PowerShell argv probe proved that a bare `--` split later `res://tests`; the explicit `--godot-args` remainder option avoids that host-shell transformation.
+- Final focused GREEN: `7/7` tests. Every final wrapped Godot gate printed `SMOKE_SAVE_ISOLATION_OK` for `C:\Users\user\AppData\Roaming\Godot\app_userdata\Game Ghost\game_ghost_save.json`.
+
 ## Fresh full acceptance evidence
 
 Pinned binary: `C:\Users\user\OneDrive\Documents\Project\Game_Ghost\.tools\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe`.
 
 | Gate | Exact result |
 | --- | --- |
-| `py -3 -m unittest discover -s tools/tests -p "test_*.py" -v` | `23` passed; `1` expected skip because Windows could not create a symlink (`24` run total). |
+| `py -3 -m unittest discover -s tools/tests -p "test_*.py" -v` | `26` passed; `1` expected skip because Windows could not create a symlink (`27` run total). |
 | `py -3 tools/validate_paths.py` | `PATH_VALIDATION_OK`. |
 | `py -3 tools/validate_assets.py` | `ASSET_VALIDATION_OK`. |
 | Pinned Godot `--version` | `4.6.3.stable.official.7d41c59c4`. |
-| Pinned Godot `--headless --import --path game` | Exit `0`; expected local Android build-tools warning only. |
-| Pinned Godot `--headless --editor --quit --path game` | Exit `0`; expected local Android build-tools warning only. |
-| Pinned version/project validator | `Godot version pin and landscape ProjectSettings verified: 4.6.3`. |
-| Full GUT | `16` scripts, `68/68` tests, `354` asserts passed. |
-| Combat smoke | `COMBAT_SMOKE_OK`. |
+| Wrapped pinned Godot `--headless --import --path game` | Exit `0`; expected local Android build-tools warning only; production save unchanged. |
+| Wrapped pinned Godot `--headless --editor --quit --path game` | Exit `0`; expected local Android build-tools warning only; production save unchanged. |
+| Wrapped version/project validator | `Godot version pin and landscape ProjectSettings verified: 4.6.3`; production save unchanged. |
+| Wrapped full GUT | `16` scripts, `68/68` tests, `354` asserts passed; production save unchanged. |
+| Isolated combat smoke | `COMBAT_SMOKE_OK` and production save unchanged. |
 | Isolated run-loop smoke | `RUN_LOOP_SMOKE_OK` and production save unchanged. |
 | Isolated mobile UI smoke | `MOBILE_UI_SMOKE_OK` and production save unchanged. |
 | Isolated runtime shutdown smoke | Real root close signal marker, production save unchanged, and no ObjectDB leak text. |
@@ -89,6 +100,6 @@ Pinned binary: `C:\Users\user\OneDrive\Documents\Project\Game_Ghost\.tools\godot
 | `git lfs fsck` | `Git LFS fsck OK`. |
 | Android export guard | Correctly stopped before Godot: `ANDROID_SDK_ROOT or ANDROID_HOME is not set`. |
 | iOS export guard | Static inspection confirms Darwin and `xcodebuild` preconditions; local execution is unavailable because `bash`, macOS, Xcode, signing, and an iPhone are absent. |
-| Export configuration/CI inspection | Python tests confirm both preset exclusions, both artifact validators, all three isolated saving-smoke invocations, and the real close-signal source boundary. |
+| Export configuration/CI inspection | Python tests confirm both preset exclusions, both artifact validators, every project-loading CI/local acceptance invocation uses the isolation wrapper, sentinel restoration is fail-closed, and the real close-signal source boundary remains intact. |
 
 Android remains configured but not locally exported because the SDK/build-tools are absent. iOS remains configured but not locally exported because this host is Windows without bash/macOS/Xcode/signing/device access. Signed/device verification remains unverified by design.

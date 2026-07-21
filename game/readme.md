@@ -26,13 +26,13 @@ The local checkpoint is written at each room boundary. It stores Ember's exact h
 
 ## Verification
 
-From this directory, import and validate the project headlessly:
+From the repository root, import and validate the project headlessly:
 
 ```powershell
-godot --headless --import --path .
-godot --headless --editor --quit --path .
-godot --headless --path . --script res://tools/validate_godot_version.gd
-godot --headless -s res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
+py -3 tools/run_scene_smoke.py --godot godot --godot-args --headless --import --path game
+py -3 tools/run_scene_smoke.py --godot godot --godot-args --headless --editor --quit --path game
+py -3 tools/run_scene_smoke.py --godot godot --expect-marker "Godot version pin and landscape ProjectSettings verified: 4.6.3" --godot-args --headless --path game --script res://tools/validate_godot_version.gd
+py -3 tools/run_scene_smoke.py --godot godot --expect-marker "All tests passed!" --godot-args --headless --path game --script res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
 ```
 
 `export_presets.cfg` includes Android and iOS. Android requires local SDK/JDK configuration before export. The iOS preset is intentionally unverified until macOS, Xcode, signing credentials, and an iPhone are available.
@@ -42,10 +42,12 @@ Repository-level delivery checks also include:
 ```powershell
 py -3 tools/validate_paths.py
 py -3 tools/validate_assets.py
-godot --headless --path game res://tests/smoke/combat_smoke.tscn
-py -3 tools/run_scene_smoke.py --godot godot --scene res://tests/smoke/run_loop_smoke.tscn --expect-marker RUN_LOOP_SMOKE_OK
-py -3 tools/run_scene_smoke.py --godot godot --scene res://tests/smoke/mobile_ui_smoke.tscn --expect-marker MOBILE_UI_SMOKE_OK
-py -3 tools/run_scene_smoke.py --godot godot --scene res://tests/smoke/runtime_shutdown_smoke.tscn --expect-marker RUNTIME_SHUTDOWN_SMOKE_OK --forbid-output "ObjectDB instances leaked"
+py -3 tools/run_scene_smoke.py --godot godot --expect-marker COMBAT_SMOKE_OK --godot-args --headless --path game res://tests/smoke/combat_smoke.tscn
+py -3 tools/run_scene_smoke.py --godot godot --expect-marker RUN_LOOP_SMOKE_OK --godot-args --headless --path game res://tests/smoke/run_loop_smoke.tscn
+py -3 tools/run_scene_smoke.py --godot godot --expect-marker MOBILE_UI_SMOKE_OK --godot-args --headless --path game res://tests/smoke/mobile_ui_smoke.tscn
+py -3 tools/run_scene_smoke.py --godot godot --expect-marker RUNTIME_SHUTDOWN_SMOKE_OK --forbid-output "ObjectDB instances leaked" --godot-args --headless --path game res://tests/smoke/runtime_shutdown_smoke.tscn
 ```
+
+All project-loading Godot commands use the wrapper so autoload initialization receives a unique disposable storage root and the production save is verified byte-for-byte afterward.
 
 See `docs/release/mobile_release.md` for the verified-versus-configured platform matrix and guarded export scripts.
