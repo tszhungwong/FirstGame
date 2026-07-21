@@ -1,6 +1,7 @@
 extends GutTest
 
 const AUDIO_SERVICE_SCRIPT = preload("res://services/audio_service.gd")
+const AUDIO_TUNING_PATH := "res://data/mock_audio_tuning.tres"
 
 
 func test_procedural_cues_are_cached_and_routable_without_external_files() -> void:
@@ -68,3 +69,31 @@ func test_begin_shutdown_stops_audio_and_rejects_new_cues() -> void:
 
 	assert_eq(service.active_voice_count(), 0)
 	assert_false(service.play_cue(&"dash"))
+
+
+func test_runtime_close_request_triggers_the_production_shutdown_lifecycle() -> void:
+	var service = add_child_autofree(AUDIO_SERVICE_SCRIPT.new())
+	service._ready()
+	assert_true(service.play_cue(&"ember_shot"))
+	assert_true(service.play_cue(&"enemy_telegraph"))
+
+	assert_true(get_tree().root.close_requested.is_connected(service._on_root_close_requested))
+	service._on_root_close_requested()
+
+	assert_eq(service.active_voice_count(), 0)
+	assert_false(service.play_cue(&"dash"))
+
+
+func test_audio_tuning_is_loaded_from_the_typed_resource_data() -> void:
+	var service = add_child_autofree(AUDIO_SERVICE_SCRIPT.new())
+	service._ready()
+	var tuning := service.get("audio_tuning") as Resource
+
+	assert_true(ResourceLoader.exists(AUDIO_TUNING_PATH))
+	assert_not_null(tuning)
+	if tuning == null:
+		return
+	assert_eq(tuning.get("sample_rate"), 22050)
+	assert_eq(tuning.get("sfx_voice_count"), 6)
+	assert_eq(tuning.get("telegraph_volume_db"), 2.0)
+	assert_eq(tuning.get("cue_definitions").size(), 7)

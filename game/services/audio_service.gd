@@ -2,22 +2,14 @@ extends Node
 
 signal cue_played(cue_id: StringName)
 
-const SAMPLE_RATE := 22050
-const SFX_VOICE_COUNT := 6
-const CUE_DEFINITIONS := {
-	&"ember_shot": {"frequency": 520.0, "duration": 0.07, "volume": 0.22, "wave": &"square", "channel": &"sfx"},
-	&"dash": {"frequency": 220.0, "duration": 0.16, "volume": 0.26, "wave": &"sine", "channel": &"sfx"},
-	&"ember_burst": {"frequency": 330.0, "duration": 0.24, "volume": 0.28, "wave": &"sine", "channel": &"sfx"},
-	&"enemy_telegraph": {"frequency": 150.0, "duration": 0.28, "volume": 0.24, "wave": &"square", "channel": &"telegraph"},
-	&"player_hit": {"frequency": 105.0, "duration": 0.13, "volume": 0.27, "wave": &"square", "channel": &"sfx"},
-	&"room_clear": {"frequency": 660.0, "duration": 0.34, "volume": 0.22, "wave": &"sine", "channel": &"ui"},
-	&"reward_select": {"frequency": 880.0, "duration": 0.12, "volume": 0.20, "wave": &"sine", "channel": &"ui"},
-}
+const AUDIO_TUNING_PATH := "res://data/mock_audio_tuning.tres"
 
+@export var audio_tuning: AudioTuningDefinition = preload(AUDIO_TUNING_PATH)
 var master_volume_db: float = 0.0
 var _master_volume_linear: float = 1.0
 var _muted: bool = false
 var _streams: Dictionary = {}
+var _cue_definitions: Dictionary = {}
 var _sfx_players: Array[AudioStreamPlayer] = []
 var _telegraph_player: AudioStreamPlayer
 var _ui_player: AudioStreamPlayer
@@ -25,23 +17,38 @@ var _voice_cues: Dictionary[int, StringName] = {}
 var _next_sfx_voice: int = 0
 var _initialized: bool = false
 var _shutting_down: bool = false
+var _root_window: Window
 
 
 func _ready() -> void:
 	if _initialized:
 		return
 	_initialized = true
-	_ensure_bus(&"SFX")
-	_ensure_bus(&"UI")
-	for cue_id: StringName in CUE_DEFINITIONS:
-		var definition: Dictionary = CUE_DEFINITIONS[cue_id]
-		_streams[cue_id] = _make_procedural_stream(definition)
-	for voice_index: int in SFX_VOICE_COUNT:
-		_sfx_players.append(_create_player("SfxVoice%02d" % (voice_index + 1), &"SFX"))
-	_telegraph_player = _create_player("TelegraphPlayer", &"SFX")
-	_telegraph_player.volume_db = 2.0
-	_ui_player = _create_player("UiPlayer", &"UI")
+	_root_window = get_tree().root
+	if is_instance_valid(_root_window):
+		_root_window.close_requested.connect(_on_root_close_requested)
+	if audio_tuning == null:
+		push_error("AudioService requires an AudioTuningDefinition resource")
+		return
+	_ensure_bus(audio_tuning.sfx_bus)
+	_ensure_bus(audio_tuning.ui_bus)
+	for definition: AudioCueDefinition in audio_tuning.cue_definitions:
+		if definition == null or definition.id.is_empty():
+			continue
+		_cue_definitions[definition.id] = definition
+		_streams[definition.id] = _make_procedural_stream(definition)
+	for voice_index: int in audio_tuning.sfx_voice_count:
+		_sfx_players.append(_create_player("SfxVoice%02d" % (voice_index + 1), audio_tuning.sfx_bus))
+	_telegraph_player = _create_player("TelegraphPlayer", audio_tuning.sfx_bus)
+	_telegraph_player.volume_db = audio_tuning.telegraph_volume_db
+	_ui_player = _create_player("UiPlayer", audio_tuning.ui_bus)
 	_apply_master_state()
+
+
+func _exit_tree() -> void:
+	if is_instance_valid(_root_window) and _root_window.close_requested.is_connected(_on_root_close_requested):
+		_root_window.close_requested.disconnect(_on_root_close_requested)
+	begin_shutdown()
 
 
 func has_cue(cue_id: StringName) -> bool:
@@ -56,13 +63,14 @@ func cue_duration_seconds(cue_id: StringName) -> float:
 func play_cue(cue_id: StringName) -> bool:
 	if _shutting_down or not _streams.has(cue_id):
 		return false
-	var definition: Dictionary = CUE_DEFINITIONS[cue_id]
-	var channel := StringName(definition["channel"])
+	var definition := _cue_definitions.get(cue_id) as AudioCueDefinition
+	if definition == null:
+		return false
 	var player: AudioStreamPlayer
-	match channel:
-		&"telegraph":
+	match definition.channel:
+		AudioCueDefinition.Channel.TELEGRAPH:
 			player = _telegraph_player
-		&"ui":
+		AudioCueDefinition.Channel.UI:
 			player = _ui_player
 		_:
 			player = _acquire_sfx_voice()
@@ -83,9 +91,12 @@ func stop_all() -> void:
 
 
 func begin_shutdown() -> void:
+	if _shutting_down:
+		return
 	_shutting_down = true
 	stop_all()
 	_streams.clear()
+	_cue_definitions.clear()
 
 
 func active_cue_count(cue_id: StringName) -> int:
@@ -173,25 +184,25 @@ func _on_player_finished(player: AudioStreamPlayer) -> void:
 	_voice_cues.erase(player.get_instance_id())
 
 
-func _make_procedural_stream(definition: Dictionary) -> AudioStreamWAV:
-	var duration := float(definition["duration"])
-	var frame_count := maxi(1, roundi(duration * SAMPLE_RATE))
+func _on_root_close_requested() -> void:
+	begin_shutdown()
+
+
+func _make_procedural_stream(definition: AudioCueDefinition) -> AudioStreamWAV:
+	var frame_count := maxi(1, roundi(definition.duration * audio_tuning.sample_rate))
 	var data := PackedByteArray()
 	data.resize(frame_count * 2)
-	var frequency := float(definition["frequency"])
-	var volume := float(definition["volume"])
-	var wave := StringName(definition["wave"])
 	for frame: int in frame_count:
 		var progress := float(frame) / float(frame_count)
-		var phase := TAU * frequency * float(frame) / float(SAMPLE_RATE)
+		var phase := TAU * definition.frequency * float(frame) / float(audio_tuning.sample_rate)
 		var oscillator := sin(phase)
-		if wave == &"square":
+		if definition.waveform == "square":
 			oscillator = 1.0 if oscillator >= 0.0 else -1.0
 		var envelope := (1.0 - progress) * minf(progress * 20.0, 1.0)
-		data.encode_s16(frame * 2, int(clampf(oscillator * envelope * volume, -1.0, 1.0) * 32767.0))
+		data.encode_s16(frame * 2, int(clampf(oscillator * envelope * definition.volume, -1.0, 1.0) * 32767.0))
 	var stream := AudioStreamWAV.new()
 	stream.format = AudioStreamWAV.FORMAT_16_BITS
-	stream.mix_rate = SAMPLE_RATE
+	stream.mix_rate = audio_tuning.sample_rate
 	stream.stereo = false
 	stream.data = data
 	return stream

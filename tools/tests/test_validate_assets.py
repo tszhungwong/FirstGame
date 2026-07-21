@@ -42,15 +42,15 @@ class ValidateAssetsTests(unittest.TestCase):
         (self.root / "game/assets/runtime").mkdir(parents=True)
         (self.root / "docs/assets/licenses").mkdir(parents=True)
         (self.root / "docs/assets").mkdir(parents=True, exist_ok=True)
-        (self.root / "docs/assets/licenses/project-owned.md").write_text("owned", encoding="utf-8")
-        (self.root / "docs/assets/ai-prompts.md").write_text("# Prompt\n", encoding="utf-8")
+        (self.root / "docs/assets/licenses/project_owned.md").write_text("owned", encoding="utf-8")
+        (self.root / "docs/assets/ai_prompts.md").write_text("# Prompt\n", encoding="utf-8")
         (self.root / "source_art/concepts/characters/ember.png").write_bytes(b"not-decoded-in-source")
 
     def tearDown(self) -> None:
         self.temp.cleanup()
 
     def write_registry(self, rows: list[dict[str, str]]) -> Path:
-        path = self.root / "docs/assets/asset-register.csv"
+        path = self.root / "docs/assets/asset_register.csv"
         with path.open("w", newline="", encoding="utf-8") as handle:
             writer = csv.DictWriter(handle, fieldnames=load_validator().REQUIRED_FIELDS)
             writer.writeheader()
@@ -67,11 +67,11 @@ class ValidateAssetsTests(unittest.TestCase):
             "source_url": "n/a",
             "license_id": "PROPRIETARY-PROJECT",
             "license_status": "approved",
-            "license_ref": "docs/assets/licenses/project-owned.md",
+            "license_ref": "docs/assets/licenses/project_owned.md",
             "attribution": "Game Ghost team; AI-assisted concept",
             "ai_generated": "yes",
             "ai_tool": "OpenAI image generation",
-            "ai_prompt_ref": "docs/assets/ai-prompts.md#prompt",
+            "ai_prompt_ref": "docs/assets/ai_prompts.md#prompt",
             "notes": "Reference only; never loaded at runtime",
         }
 

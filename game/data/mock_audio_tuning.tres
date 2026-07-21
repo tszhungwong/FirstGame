@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="AudioTuningDefinition" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://data/audio_tuning_definition.gd" id="1_tuning"]
+[ext_resource type="Script" path="res://data/audio_cue_definition.gd" id="2_cue"]
+
+[sub_resource type="Resource" id="AudioCueDefinition_ember_shot"]
+script = ExtResource("2_cue")
+id = &"ember_shot"
+frequency = 520.0
+duration = 0.07
+volume = 0.22
+waveform = &"square"
+
+[sub_resource type="Resource" id="AudioCueDefinition_dash"]
+script = ExtResource("2_cue")
+id = &"dash"
+frequency = 220.0
+duration = 0.16
+volume = 0.26
+
+[sub_resource type="Resource" id="AudioCueDefinition_ember_burst"]
+script = ExtResource("2_cue")
+id = &"ember_burst"
+frequency = 330.0
+duration = 0.24
+volume = 0.28
+
+[sub_resource type="Resource" id="AudioCueDefinition_enemy_telegraph"]
+script = ExtResource("2_cue")
+id = &"enemy_telegraph"
+frequency = 150.0
+duration = 0.28
+volume = 0.24
+waveform = &"square"
+channel = 1
+
+[sub_resource type="Resource" id="AudioCueDefinition_player_hit"]
+script = ExtResource("2_cue")
+id = &"player_hit"
+frequency = 105.0
+duration = 0.13
+volume = 0.27
+waveform = &"square"
+
+[sub_resource type="Resource" id="AudioCueDefinition_room_clear"]
+script = ExtResource("2_cue")
+id = &"room_clear"
+frequency = 660.0
+duration = 0.34
+volume = 0.22
+channel = 2
+
+[sub_resource type="Resource" id="AudioCueDefinition_reward_select"]
+script = ExtResource("2_cue")
+id = &"reward_select"
+frequency = 880.0
+duration = 0.12
+volume = 0.2
+channel = 2
+
+[resource]
+script = ExtResource("1_tuning")
+cue_definitions = Array[ExtResource("2_cue")]([SubResource("AudioCueDefinition_ember_shot"), SubResource("AudioCueDefinition_dash"), SubResource("AudioCueDefinition_ember_burst"), SubResource("AudioCueDefinition_enemy_telegraph"), SubResource("AudioCueDefinition_player_hit"), SubResource("AudioCueDefinition_room_clear"), SubResource("AudioCueDefinition_reward_select")])

@@ -19,6 +19,7 @@ From the repository root on Windows, using the pinned Godot console executable w
 
 ```powershell
 py -3 -m unittest discover -s tools/tests -p "test_*.py" -v
+py -3 tools/validate_task4_paths.py
 py -3 tools/validate_assets.py
 godot --headless --import --path game
 godot --headless --editor --quit --path game
@@ -30,7 +31,7 @@ godot --headless --path game res://tests/smoke/mobile_ui_smoke.tscn
 godot --headless --path game res://tests/smoke/runtime_shutdown_smoke.tscn
 ```
 
-The runtime acceptance result is the deterministic shutdown smoke above. It runs the main scene, invokes `AudioService.begin_shutdown()`, waits for the audio server to drain, and must exit without `ObjectDB instances leaked`. A warning-producing forced `--quit-after` run is diagnostic only and must not be counted as a clean runtime pass.
+The runtime acceptance result is the deterministic shutdown smoke above. It runs the main scene, emits the production root close request, waits for the audio server to drain, and must exit without `ObjectDB instances leaked`. A warning-producing forced `--quit-after` run is diagnostic only and must not be counted as a clean runtime pass.
 
 Android debug export is guarded so missing SDK components are reported before Godot is invoked:
 

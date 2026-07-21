@@ -28,6 +28,7 @@ jobs:
       - name: Validate assets
         run: |
           python -m unittest discover -s tools/tests -p "test_*.py" -v
+          python tools/validate_task4_paths.py
           python tools/validate_assets.py
       - name: Import and validate resources
         run: |

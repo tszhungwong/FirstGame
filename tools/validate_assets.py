@@ -253,9 +253,9 @@ def validate_repository(root: Path) -> list[str]:
         root = root.resolve(strict=True)
     except OSError as error:
         return [f"repository root could not be resolved: {error}"]
-    registry_path, registry_error = _resolve_strict_reference(root, "docs/assets/asset-register.csv")
+    registry_path, registry_error = _resolve_strict_reference(root, "docs/assets/asset_register.csv")
     if registry_path is None:
-        return ["missing asset registry: docs/assets/asset-register.csv"]
+        return ["missing asset registry: docs/assets/asset_register.csv"]
     errors: list[str] = []
     with registry_path.open(newline="", encoding="utf-8-sig") as handle:
         reader = csv.DictReader(handle)

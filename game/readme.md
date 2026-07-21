@@ -40,6 +40,7 @@ godot --headless -s res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
 Repository-level delivery checks also include:
 
 ```powershell
+py -3 tools/validate_task4_paths.py
 py -3 tools/validate_assets.py
 godot --headless --path game res://tests/smoke/combat_smoke.tscn
 godot --headless --path game res://tests/smoke/run_loop_smoke.tscn
@@ -47,4 +48,4 @@ godot --headless --path game res://tests/smoke/mobile_ui_smoke.tscn
 godot --headless --path game res://tests/smoke/runtime_shutdown_smoke.tscn
 ```
 
-See `docs/release/mobile-release.md` for the verified-versus-configured platform matrix and guarded export scripts.
+See `docs/release/mobile_release.md` for the verified-versus-configured platform matrix and guarded export scripts.
