@@ -11,11 +11,21 @@ TASK4_PATH_ROOTS = (
     Path("docs/release"),
     Path("source_art/concepts"),
 )
+TASK4_TRACKED_DELIVERABLES = (Path(".superpowers/sdd/task_4_report.md"),)
 LOWERCASE_ASCII_SNAKE_CASE = re.compile(r"^[a-z0-9_]+(?:\.[a-z0-9_]+)*$")
 
 
 def validate_task4_paths(root: Path) -> list[str]:
     errors: list[str] = []
+    for relative_path in TASK4_TRACKED_DELIVERABLES:
+        path = root / relative_path
+        if not path.is_file():
+            errors.append(f"missing Task 4 tracked deliverable: {relative_path.as_posix()}")
+        elif not LOWERCASE_ASCII_SNAKE_CASE.fullmatch(path.name):
+            errors.append(
+                "Task 4 path is not lowercase ASCII snake_case: "
+                f"{relative_path.as_posix()}"
+            )
     for relative_root in TASK4_PATH_ROOTS:
         directory = root / relative_root
         if not directory.is_dir():

@@ -30,7 +30,11 @@ func _ready() -> void:
 	if audio_tuning == null:
 		push_error("AudioService requires an AudioTuningDefinition resource")
 		return
+	if not _has_valid_tuning():
+		push_error("AudioService requires explicitly authored audio tuning values")
+		return
 	_ensure_bus(audio_tuning.sfx_bus)
+	_ensure_bus(audio_tuning.telegraph_bus)
 	_ensure_bus(audio_tuning.ui_bus)
 	for definition: AudioCueDefinition in audio_tuning.cue_definitions:
 		if definition == null or definition.id.is_empty():
@@ -39,8 +43,8 @@ func _ready() -> void:
 		_streams[definition.id] = _make_procedural_stream(definition)
 	for voice_index: int in audio_tuning.sfx_voice_count:
 		_sfx_players.append(_create_player("SfxVoice%02d" % (voice_index + 1), audio_tuning.sfx_bus))
-	_telegraph_player = _create_player("TelegraphPlayer", audio_tuning.sfx_bus)
-	_telegraph_player.volume_db = audio_tuning.telegraph_volume_db
+	_telegraph_player = _create_player("TelegraphPlayer", audio_tuning.telegraph_bus)
+	_telegraph_player.volume_db = audio_tuning.telegraph_gain_db
 	_ui_player = _create_player("UiPlayer", audio_tuning.ui_bus)
 	_apply_master_state()
 
@@ -144,6 +148,14 @@ func _apply_master_state() -> void:
 		return
 	AudioServer.set_bus_volume_db(master_index, master_volume_db)
 	AudioServer.set_bus_mute(master_index, _muted)
+
+
+func _has_valid_tuning() -> bool:
+	return audio_tuning.sample_rate > 0 \
+		and audio_tuning.sfx_voice_count > 0 \
+		and not audio_tuning.sfx_bus.is_empty() \
+		and not audio_tuning.telegraph_bus.is_empty() \
+		and not audio_tuning.ui_bus.is_empty()
 
 
 func _ensure_bus(bus_name: StringName) -> void:

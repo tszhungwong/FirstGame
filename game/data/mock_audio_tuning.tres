@@ -60,4 +60,10 @@ channel = 2
 
 [resource]
 script = ExtResource("1_tuning")
+sample_rate = 22050
+sfx_voice_count = 6
+sfx_bus = &"SFX"
+telegraph_bus = &"SFX"
+ui_bus = &"UI"
+telegraph_gain_db = 2.0
 cue_definitions = Array[ExtResource("2_cue")]([SubResource("AudioCueDefinition_ember_shot"), SubResource("AudioCueDefinition_dash"), SubResource("AudioCueDefinition_ember_burst"), SubResource("AudioCueDefinition_enemy_telegraph"), SubResource("AudioCueDefinition_player_hit"), SubResource("AudioCueDefinition_room_clear"), SubResource("AudioCueDefinition_reward_select")])

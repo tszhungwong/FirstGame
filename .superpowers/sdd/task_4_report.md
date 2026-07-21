@@ -12,6 +12,8 @@ Commits:
 
 - `b7bbf84` — `fix: close task 4 review findings`
 - `8a9f229` — `fix: close second task 4 review findings`
+- `07e0180` — `docs: record second task 4 verification`
+- `HEAD (this report)` — `fix: close third task 4 review findings`
 
 ## Delivered
 
@@ -50,7 +52,7 @@ Commits:
 - Main runtime for 180 frames: exit 0.
 - Git LFS fsck: OK.
 - `git diff --check`: exit 0.
-- Worktree: clean after all three commits.
+- Worktree: clean after the initial implementation commits.
 
 ## Platform verification boundary and concerns
 
@@ -106,3 +108,18 @@ Commits:
 - Full GUT: 56/56 tests passed with 275 assertions. Scene smokes passed: `COMBAT_SMOKE_OK`, `RUN_LOOP_SMOKE_OK`, `MOBILE_UI_SMOKE_OK`, and `RUNTIME_SHUTDOWN_SMOKE_OK`; the smoke wrapper rejects any `ObjectDB instances leaked` warning and none was emitted.
 - `git diff --check` passed, `git lfs fsck` reported `Git LFS fsck OK`, and `.github/workflows/godot_ci.yml` received a full manual syntax inspection. Python PyYAML and Ruby YAML parsers remain unavailable locally.
 - Android remains unverified locally because `ANDROID_SDK_ROOT`/`ANDROID_HOME` are unset and build-tools are unavailable. iOS remains unverified on this Windows host because macOS/Xcode are required.
+
+## Third-Review Fix Verification
+
+### RED-to-GREEN evidence
+
+- New `tools/tests/test_audio_tuning_resource.py` was RED for all six required authored top-level tuning fields: `sample_rate`, `sfx_voice_count`, `sfx_bus`, `telegraph_bus`, `ui_bus`, and `telegraph_gain_db`. `game/tests/test_audio_service.gd` was also RED because the schema supplied production defaults and lacked the dedicated telegraph bus/gain properties.
+- The GREEN resource explicitly serializes all six values in `mock_audio_tuning.tres`; `AudioTuningDefinition` now has neutral zero/empty schema defaults, and `AudioService` rejects an incomplete tuning resource before it creates routing/voices.
+- `tools/tests/test_task4_path_naming.py` was RED because the tracked report filename was hyphenated. It is GREEN after the rename to `.superpowers/sdd/task_4_report.md`; `tools/validate_task4_paths.py` now requires that exact tracked Task 4 deliverable while leaving pre-existing plan and skill scratch files outside its scope.
+
+### Exact third-review verification
+
+- Focused checks: `py -3 -m unittest tools.tests.test_audio_tuning_resource tools.tests.test_task4_path_naming -v` passed 3/3; `py -3 tools/validate_task4_paths.py` reported `TASK4_PATH_VALIDATION_OK`; focused audio GUT passed 8/8 tests with 56 assertions.
+- Pinned Godot 4.6.3 completed `--headless --import --path game`, `--headless --editor --quit --path game`, and the version/orientation script. Python discovery passed 13 tests with one Windows symlink-creation skip; `py -3 tools/validate_assets.py` reported `ASSET_VALIDATION_OK`.
+- Full GUT passed 57/57 tests with 282 assertions. All scene smokes passed: `COMBAT_SMOKE_OK`, `RUN_LOOP_SMOKE_OK`, `MOBILE_UI_SMOKE_OK`, and `RUNTIME_SHUTDOWN_SMOKE_OK`; no `ObjectDB instances leaked` warning was emitted.
+- `git diff --check` and `git lfs fsck` passed. `.github/workflows/godot_ci.yml` was manually syntax-inspected because PyYAML and Ruby YAML are unavailable locally. Android and iOS remain unverified locally for the existing SDK and host-platform limitations.

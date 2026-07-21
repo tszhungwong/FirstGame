@@ -21,6 +21,10 @@ class Task4PathNamingTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_tracked_task4_report_uses_snake_case_name(self) -> None:
+        self.assertTrue((ROOT / ".superpowers/sdd/task_4_report.md").is_file())
+        self.assertFalse((ROOT / ".superpowers/sdd/task-4-report.md").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -2,6 +2,7 @@ extends GutTest
 
 const AUDIO_SERVICE_SCRIPT = preload("res://services/audio_service.gd")
 const AUDIO_TUNING_PATH := "res://data/mock_audio_tuning.tres"
+const AUDIO_TUNING_SCHEMA_SCRIPT = preload("res://data/audio_tuning_definition.gd")
 
 
 func test_procedural_cues_are_cached_and_routable_without_external_files() -> void:
@@ -95,5 +96,17 @@ func test_audio_tuning_is_loaded_from_the_typed_resource_data() -> void:
 		return
 	assert_eq(tuning.get("sample_rate"), 22050)
 	assert_eq(tuning.get("sfx_voice_count"), 6)
-	assert_eq(tuning.get("telegraph_volume_db"), 2.0)
+	assert_eq(tuning.get("telegraph_bus"), &"SFX")
+	assert_eq(tuning.get("telegraph_gain_db"), 2.0)
 	assert_eq(tuning.get("cue_definitions").size(), 7)
+
+
+func test_audio_tuning_schema_uses_neutral_defaults() -> void:
+	var schema := AUDIO_TUNING_SCHEMA_SCRIPT.new() as Resource
+
+	assert_eq(schema.get("sample_rate"), 0)
+	assert_eq(schema.get("sfx_voice_count"), 0)
+	assert_eq(schema.get("sfx_bus"), &"")
+	assert_eq(schema.get("telegraph_bus"), &"")
+	assert_eq(schema.get("ui_bus"), &"")
+	assert_eq(schema.get("telegraph_gain_db"), 0.0)
