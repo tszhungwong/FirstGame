@@ -12,6 +12,7 @@ var ricochet: int = 0
 var burn_damage: int = 0
 var burn_duration: float = 0.0
 var dash_cooldown: float = 0.0
+var minimum_dash_cooldown: float = 0.0
 
 
 static func from_definitions(character: CharacterDefinition) -> RuntimeCombatStats:
@@ -23,6 +24,7 @@ static func from_definitions(character: CharacterDefinition) -> RuntimeCombatSta
 	stats.projectile_lifetime = weapon.projectile_lifetime
 	stats.projectile_collision_radius = weapon.projectile_collision_radius
 	stats.dash_cooldown = character.dash_cooldown
+	stats.minimum_dash_cooldown = character.minimum_dash_cooldown
 	return stats
 
 
@@ -40,10 +42,10 @@ func apply_upgrade(upgrade: UpgradeDefinition) -> void:
 			ricochet += roundi(upgrade.modifier_amount)
 		&"burn_damage":
 			burn_damage += roundi(upgrade.modifier_amount)
-			burn_duration = maxf(burn_duration, 2.0)
+			burn_duration = maxf(burn_duration, upgrade.minimum_burn_duration)
 		&"burn_duration":
 			burn_duration += upgrade.modifier_amount
 		&"dash_cooldown":
-			dash_cooldown = maxf(0.35, dash_cooldown * (1.0 - upgrade.modifier_amount))
+			dash_cooldown = maxf(minimum_dash_cooldown, dash_cooldown * (1.0 - upgrade.modifier_amount))
 		&"projectile_speed":
 			projectile_speed *= 1.0 + upgrade.modifier_amount

@@ -24,7 +24,7 @@ Commits:
 - Added a 0.5-second timer-based performance overlay for FPS, static memory, active enemies, and active projectiles; it does not process or allocate metrics text every render frame.
 - Expanded `AudioService` with cached, deterministic, self-authored `AudioStreamWAV` PCM cues routed through `SFX` and `UI` buses. Ember fire/dash/burst/hit, enemy telegraph, room clear, and reward selection use the service. No external audio files were added.
 - Safely moved all nine root concept images with `git mv` to `source_art/concepts/{characters,items,maps}`. `git lfs ls-files` and `git lfs fsck` confirm they remain LFS objects.
-- Added `docs/assets/asset-register.csv`, AI prompt records, project-owned license notice, third-party license template, and workflow documentation.
+- Added `docs/assets/asset_register.csv`, AI prompt records, project-owned license notice, third-party license template, and workflow documentation.
 - Added `tools/validate_assets.py` with failures for required-field/missing-file errors, duplicate IDs/paths, unknown or missing license records, missing attribution, incomplete AI provenance, unregistered assets, source/runtime boundary violations, concept references from Godot resources, unreadable runtime PNGs, and runtime PNGs above 2048×2048.
 - Expanded Android ARM64/iOS ARM64 presets, added guarded Windows Android and macOS iOS export scripts, and documented configured-versus-verified status.
 - Added GitHub Actions jobs for pinned Godot headless validation, Python asset tests, resource import/editor/version checks, GUT, three scene smokes, Android debug APK export, and macOS iOS Xcode-project export smoke.

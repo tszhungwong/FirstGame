@@ -7,4 +7,5 @@ display_name = "Wildfire"
 description = "Hits ignite enemies for damage over time."
 modifier_key = &"burn_damage"
 modifier_amount = 2.0
+minimum_burn_duration = 2.0
 max_stacks = 3

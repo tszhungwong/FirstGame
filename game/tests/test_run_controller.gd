@@ -82,6 +82,24 @@ func test_distinct_upgrade_builds_change_runtime_combat_stats() -> void:
 	assert_lt(run.combat_stats.dash_cooldown, base_dash_cooldown)
 
 
+func test_wildfire_minimum_burn_duration_is_authored_by_its_definition() -> void:
+	var wildfire := load("res://data/mock_upgrade_wildfire.tres") as UpgradeDefinition
+	var property_names: Array[StringName] = []
+	for property: Dictionary in wildfire.get_property_list():
+		property_names.append(property.name)
+
+	assert_true(property_names.has(&"minimum_burn_duration"))
+
+
+func test_character_minimum_dash_cooldown_is_authored_by_its_definition() -> void:
+	var character := load("res://data/mock_ember_vanguard.tres") as CharacterDefinition
+	var property_names: Array[StringName] = []
+	for property: Dictionary in character.get_property_list():
+		property_names.append(property.name)
+
+	assert_true(property_names.has(&"minimum_dash_cooldown"))
+
+
 func test_active_run_snapshot_restores_reward_room_and_upgrade_stacks() -> void:
 	var original = RunControllerScript.new()
 	var restored = RunControllerScript.new()
