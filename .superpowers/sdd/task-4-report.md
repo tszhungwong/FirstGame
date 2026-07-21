@@ -10,6 +10,9 @@ Commits:
 - `4f8db16` — `chore: enforce asset provenance and source boundaries`
 - `1559323` — `ci: configure mobile export and release checks`
 
+- `b7bbf84` — `fix: close task 4 review findings`
+- `8a9f229` — `fix: close second task 4 review findings`
+
 ## Delivered
 
 - Added a shared palette and programmatic modular Ember `RibbonLayer`, `BodyLayer`, `HairLayer`, and `WeaponLayer`; no concept image is loaded by Godot.
@@ -75,9 +78,31 @@ Commits:
 - `--headless --path game --script res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit`: 54/54 GUT tests passed with 264 assertions, including all 5 audio review tests.
 - Pinned-Godot scene smokes all passed: `COMBAT_SMOKE_OK`, `RUN_LOOP_SMOKE_OK`, `MOBILE_UI_SMOKE_OK`, and `RUNTIME_SHUTDOWN_SMOKE_OK`. The command wrapper explicitly failed on `ObjectDB instances leaked`; no such warning was emitted by any smoke.
 - `git diff --check`: passed. `git lfs fsck`: `Git LFS fsck OK`.
-- `.github/workflows/godot-ci.yml` was manually syntax-inspected in full. Python PyYAML and Ruby YAML parsers are not installed on this host, so a local YAML parser check could not be run; the workflow remains additionally validated by its committed GitHub Actions configuration.
+- `.github/workflows/godot_ci.yml` was manually syntax-inspected in full. Python PyYAML and Ruby YAML parsers are not installed on this host, so a local YAML parser check could not be run; the workflow remains additionally validated by its committed GitHub Actions configuration.
 
 ### Local platform limits after review fixes
 
 - `tools/export_android_debug.ps1` was deliberately not run past environment detection: `ANDROID_SDK_ROOT` and `ANDROID_HOME` are unset, so Android export is configured in CI but not verified locally.
 - `tools/export_ios_smoke.sh` correctly stopped with `iOS export not attempted: macOS is required.` iOS export is configured in CI but cannot be verified on this Windows host.
+
+## Second-Review Fix Verification
+
+### RED-to-GREEN evidence
+
+- Added lifecycle and data-resource audio tests to `game/tests/test_audio_service.gd`. The initial focused run was RED: the root close request left active voices and `mock_audio_tuning.tres`/the `audio_tuning` property were absent. The final focused result was 7/7 audio tests and 49 assertions passing.
+- Added `tools/tests/test_task4_path_naming.py`. It was RED first because `tools/validate_task4_paths.py` did not exist, then correctly reported all 15 hyphenated Task 4 deliverable paths. It is GREEN after the lowercase ASCII snake_case renames and reference updates.
+- The first resource implementation exposed an `@export_enum` type error because Godot only permits `String`, not `StringName`, for that annotation. Changing the data-only waveform field to `String` restored Resource class registration; this was the sole implementation correction after the initial GREEN attempt.
+
+### Second-review changes
+
+- `AudioService` loads typed, data-only `AudioTuningDefinition` and `AudioCueDefinition` Resources from `res://data/mock_audio_tuning.tres`. The resource owns sample rate, voice-pool size, bus routing, telegraph gain, and every cue's frequency, duration, volume, waveform, and channel.
+- `AudioService` connects the root window's `close_requested` signal to its production shutdown handler and invokes the same shutdown from `_exit_tree()`. The runtime smoke confirms that connection and invokes the production handler, never `begin_shutdown()` directly; it then asserts no active voices and that subsequent cue requests are rejected.
+- The Task 4 workflow, asset documents, release document, asset register, license/prompt files, and all nine source concept filenames now use lowercase ASCII snake_case. `tools/validate_task4_paths.py` is exercised by Python tests and GitHub Actions before the asset validator.
+
+### Exact second-review verification
+
+- Pinned `C:\Users\user\OneDrive\Documents\Project\Game_Ghost\.tools\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe` completed `--headless --import --path game`, `--headless --editor --quit --path game`, and `--headless --path game --script res://tools/validate_godot_version.gd`; version/orientation validation reported `4.6.3`.
+- `py -3 -m unittest discover -s tools/tests -p "test_*.py" -v`: 11 tests passed; the one symlink-escape test skipped because this Windows host cannot create symlinks. `py -3 tools/validate_task4_paths.py`: `TASK4_PATH_VALIDATION_OK`. `py -3 tools/validate_assets.py`: `ASSET_VALIDATION_OK`.
+- Full GUT: 56/56 tests passed with 275 assertions. Scene smokes passed: `COMBAT_SMOKE_OK`, `RUN_LOOP_SMOKE_OK`, `MOBILE_UI_SMOKE_OK`, and `RUNTIME_SHUTDOWN_SMOKE_OK`; the smoke wrapper rejects any `ObjectDB instances leaked` warning and none was emitted.
+- `git diff --check` passed, `git lfs fsck` reported `Git LFS fsck OK`, and `.github/workflows/godot_ci.yml` received a full manual syntax inspection. Python PyYAML and Ruby YAML parsers remain unavailable locally.
+- Android remains unverified locally because `ANDROID_SDK_ROOT`/`ANDROID_HOME` are unset and build-tools are unavailable. iOS remains unverified on this Windows host because macOS/Xcode are required.
