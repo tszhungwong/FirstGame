@@ -27,7 +27,10 @@ godot --headless --path game --script res://addons/gut/gut_cmdln.gd -gdir=res://
 godot --headless --path game res://tests/smoke/combat_smoke.tscn
 godot --headless --path game res://tests/smoke/run_loop_smoke.tscn
 godot --headless --path game res://tests/smoke/mobile_ui_smoke.tscn
+godot --headless --path game res://tests/smoke/runtime_shutdown_smoke.tscn
 ```
+
+The runtime acceptance result is the deterministic shutdown smoke above. It runs the main scene, invokes `AudioService.begin_shutdown()`, waits for the audio server to drain, and must exit without `ObjectDB instances leaked`. A warning-producing forced `--quit-after` run is diagnostic only and must not be counted as a clean runtime pass.
 
 Android debug export is guarded so missing SDK components are reported before Godot is invoked:
 
@@ -45,7 +48,7 @@ GODOT_BIN=/path/to/godot ./tools/export_ios_smoke.sh
 
 - Concept art is outside `res://` at `source_art/concepts/` and is never shipped as a sprite.
 - Runtime media belongs only under `game/assets/runtime/` and must be registered.
-- The current sounds are deterministic PCM placeholders synthesized by `AudioService`; there are no externally licensed runtime audio files.
+- The current sounds are deterministic PCM placeholders synthesized by `AudioService`; there are no externally licensed runtime audio files. Routine SFX use a six-voice pool, charge telegraphs have a dedicated priority player, and UI cues remain on their own bus/player.
 - Replace a procedural cue only after its recorded source, license, attribution, and runtime dimensions/format pass validation.
 
 ## Mobile review

@@ -166,6 +166,7 @@ func _build_ui() -> void:
 	_room_label.add_theme_font_size_override("font_size", 22)
 	layer.add_child(_room_label)
 	_pause_button = Button.new()
+	_pause_button.name = "PauseButton"
 	_pause_button.text = "PAUSE"
 	_pause_button.size = Vector2(100.0, 42.0)
 	_pause_button.pressed.connect(_toggle_pause)
@@ -181,9 +182,11 @@ func _build_ui() -> void:
 	_reward_panel.visible = false
 	layer.add_child(_reward_panel)
 	_end_panel = PanelContainer.new()
+	_end_panel.name = "EndPanel"
 	_end_panel.size = Vector2(600.0, 280.0)
 	_end_panel.process_mode = Node.PROCESS_MODE_ALWAYS
 	_end_label = Label.new()
+	_end_label.name = "EndLabel"
 	_end_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_end_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_end_label.add_theme_font_size_override("font_size", 38)
@@ -198,6 +201,10 @@ func _layout_run_ui() -> void:
 	if not is_instance_valid(_room_label):
 		return
 	var content := SafeAreaLayout.current_content_rect(get_viewport().get_visible_rect().size, 16.0)
+	apply_content_rect(content)
+
+
+func apply_content_rect(content: Rect2) -> void:
 	_room_label.position = Vector2(content.get_center().x - 220.0, content.position.y)
 	_room_label.size = Vector2(440.0, 42.0)
 	_pause_button.position = Vector2(content.end.x - _pause_button.size.x, content.position.y)

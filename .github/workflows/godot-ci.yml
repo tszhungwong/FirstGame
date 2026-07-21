@@ -41,6 +41,13 @@ jobs:
           godot --headless --path game res://tests/smoke/combat_smoke.tscn
           godot --headless --path game res://tests/smoke/run_loop_smoke.tscn
           godot --headless --path game res://tests/smoke/mobile_ui_smoke.tscn
+          runtime_output="$(mktemp)"
+          godot --headless --path game res://tests/smoke/runtime_shutdown_smoke.tscn 2>&1 | tee "$runtime_output"
+          grep -q "RUNTIME_SHUTDOWN_SMOKE_OK" "$runtime_output"
+          if grep -q "ObjectDB instances leaked" "$runtime_output"; then
+            echo "Runtime shutdown leaked ObjectDB instances" >&2
+            exit 1
+          fi
 
   android-debug-export:
     needs: headless-tests

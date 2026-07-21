@@ -3,22 +3,28 @@ extends Node
 signal cue_played(cue_id: StringName)
 
 const SAMPLE_RATE := 22050
+const SFX_VOICE_COUNT := 6
 const CUE_DEFINITIONS := {
-	&"ember_shot": {"frequency": 520.0, "duration": 0.07, "volume": 0.22, "wave": &"square", "bus": &"SFX"},
-	&"dash": {"frequency": 220.0, "duration": 0.16, "volume": 0.26, "wave": &"sine", "bus": &"SFX"},
-	&"ember_burst": {"frequency": 330.0, "duration": 0.24, "volume": 0.28, "wave": &"sine", "bus": &"SFX"},
-	&"enemy_telegraph": {"frequency": 150.0, "duration": 0.28, "volume": 0.24, "wave": &"square", "bus": &"SFX"},
-	&"player_hit": {"frequency": 105.0, "duration": 0.13, "volume": 0.27, "wave": &"square", "bus": &"SFX"},
-	&"room_clear": {"frequency": 660.0, "duration": 0.34, "volume": 0.22, "wave": &"sine", "bus": &"UI"},
-	&"reward_select": {"frequency": 880.0, "duration": 0.12, "volume": 0.20, "wave": &"sine", "bus": &"UI"},
+	&"ember_shot": {"frequency": 520.0, "duration": 0.07, "volume": 0.22, "wave": &"square", "channel": &"sfx"},
+	&"dash": {"frequency": 220.0, "duration": 0.16, "volume": 0.26, "wave": &"sine", "channel": &"sfx"},
+	&"ember_burst": {"frequency": 330.0, "duration": 0.24, "volume": 0.28, "wave": &"sine", "channel": &"sfx"},
+	&"enemy_telegraph": {"frequency": 150.0, "duration": 0.28, "volume": 0.24, "wave": &"square", "channel": &"telegraph"},
+	&"player_hit": {"frequency": 105.0, "duration": 0.13, "volume": 0.27, "wave": &"square", "channel": &"sfx"},
+	&"room_clear": {"frequency": 660.0, "duration": 0.34, "volume": 0.22, "wave": &"sine", "channel": &"ui"},
+	&"reward_select": {"frequency": 880.0, "duration": 0.12, "volume": 0.20, "wave": &"sine", "channel": &"ui"},
 }
 
 var master_volume_db: float = 0.0
 var _master_volume_linear: float = 1.0
 var _muted: bool = false
 var _streams: Dictionary = {}
-var _players: Dictionary = {}
+var _sfx_players: Array[AudioStreamPlayer] = []
+var _telegraph_player: AudioStreamPlayer
+var _ui_player: AudioStreamPlayer
+var _voice_cues: Dictionary[int, StringName] = {}
+var _next_sfx_voice: int = 0
 var _initialized: bool = false
+var _shutting_down: bool = false
 
 
 func _ready() -> void:
@@ -30,12 +36,11 @@ func _ready() -> void:
 	for cue_id: StringName in CUE_DEFINITIONS:
 		var definition: Dictionary = CUE_DEFINITIONS[cue_id]
 		_streams[cue_id] = _make_procedural_stream(definition)
-	for bus_name: StringName in [&"SFX", &"UI"]:
-		var player := AudioStreamPlayer.new()
-		player.name = "%sPlayer" % bus_name
-		player.bus = bus_name
-		add_child(player)
-		_players[bus_name] = player
+	for voice_index: int in SFX_VOICE_COUNT:
+		_sfx_players.append(_create_player("SfxVoice%02d" % (voice_index + 1), &"SFX"))
+	_telegraph_player = _create_player("TelegraphPlayer", &"SFX")
+	_telegraph_player.volume_db = 2.0
+	_ui_player = _create_player("UiPlayer", &"UI")
 	_apply_master_state()
 
 
@@ -49,25 +54,58 @@ func cue_duration_seconds(cue_id: StringName) -> float:
 
 
 func play_cue(cue_id: StringName) -> bool:
-	if not _streams.has(cue_id):
+	if _shutting_down or not _streams.has(cue_id):
 		return false
 	var definition: Dictionary = CUE_DEFINITIONS[cue_id]
-	var bus_name := StringName(definition["bus"])
-	var player := _players.get(bus_name) as AudioStreamPlayer
+	var channel := StringName(definition["channel"])
+	var player: AudioStreamPlayer
+	match channel:
+		&"telegraph":
+			player = _telegraph_player
+		&"ui":
+			player = _ui_player
+		_:
+			player = _acquire_sfx_voice()
 	if player == null:
 		return false
 	player.stream = _streams[cue_id]
+	_voice_cues[player.get_instance_id()] = cue_id
 	player.play()
 	cue_played.emit(cue_id)
 	return true
 
 
 func stop_all() -> void:
-	for player_value: Variant in _players.values():
-		var player := player_value as AudioStreamPlayer
-		if player != null:
-			player.stop()
-			player.stream = null
+	for player: AudioStreamPlayer in _all_players():
+		player.stop()
+		player.stream = null
+	_voice_cues.clear()
+
+
+func begin_shutdown() -> void:
+	_shutting_down = true
+	stop_all()
+	_streams.clear()
+
+
+func active_cue_count(cue_id: StringName) -> int:
+	var count := 0
+	for player: AudioStreamPlayer in _all_players():
+		if player.playing and _voice_cues.get(player.get_instance_id(), &"") == cue_id:
+			count += 1
+	return count
+
+
+func active_voice_count() -> int:
+	var count := 0
+	for player: AudioStreamPlayer in _all_players():
+		if player.playing:
+			count += 1
+	return count
+
+
+func is_telegraph_playing() -> bool:
+	return is_instance_valid(_telegraph_player) and _telegraph_player.playing
 
 
 func set_master_volume_linear(value: float) -> void:
@@ -102,6 +140,37 @@ func _ensure_bus(bus_name: StringName) -> void:
 		return
 	AudioServer.add_bus()
 	AudioServer.set_bus_name(AudioServer.bus_count - 1, bus_name)
+
+
+func _create_player(player_name: String, bus_name: StringName) -> AudioStreamPlayer:
+	var player := AudioStreamPlayer.new()
+	player.name = player_name
+	player.bus = bus_name
+	player.finished.connect(_on_player_finished.bind(player))
+	add_child(player)
+	return player
+
+
+func _acquire_sfx_voice() -> AudioStreamPlayer:
+	for player: AudioStreamPlayer in _sfx_players:
+		if not player.playing:
+			return player
+	var player := _sfx_players[_next_sfx_voice]
+	_next_sfx_voice = (_next_sfx_voice + 1) % _sfx_players.size()
+	return player
+
+
+func _all_players() -> Array[AudioStreamPlayer]:
+	var result: Array[AudioStreamPlayer] = _sfx_players.duplicate()
+	if is_instance_valid(_telegraph_player):
+		result.append(_telegraph_player)
+	if is_instance_valid(_ui_player):
+		result.append(_ui_player)
+	return result
+
+
+func _on_player_finished(player: AudioStreamPlayer) -> void:
+	_voice_cues.erase(player.get_instance_id())
 
 
 func _make_procedural_stream(definition: Dictionary) -> AudioStreamWAV:

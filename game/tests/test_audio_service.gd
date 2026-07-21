@@ -33,8 +33,38 @@ func test_stop_all_releases_active_procedural_playback() -> void:
 	var service = add_child_autofree(AUDIO_SERVICE_SCRIPT.new())
 	service._ready()
 	assert_true(service.play_cue(&"ember_burst"))
+	assert_true(service.play_cue(&"dash"))
 
 	service.stop_all()
 
-	assert_false((service.get_node("SFXPlayer") as AudioStreamPlayer).playing)
-	assert_null((service.get_node("SFXPlayer") as AudioStreamPlayer).stream)
+	assert_eq(service.active_cue_count(&"ember_burst"), 0)
+	assert_eq(service.active_cue_count(&"dash"), 0)
+	assert_false(service.is_telegraph_playing())
+
+
+func test_sfx_voices_overlap_without_interrupting_priority_telegraph() -> void:
+	var service = add_child_autofree(AUDIO_SERVICE_SCRIPT.new())
+	service._ready()
+
+	assert_true(service.play_cue(&"ember_shot"))
+	assert_true(service.play_cue(&"dash"))
+	assert_eq(service.active_cue_count(&"ember_shot"), 1)
+	assert_eq(service.active_cue_count(&"dash"), 1)
+	assert_true(service.play_cue(&"enemy_telegraph"))
+	for _index: int in 12:
+		assert_true(service.play_cue(&"ember_shot"))
+
+	assert_true(service.is_telegraph_playing())
+	assert_eq(service.active_cue_count(&"enemy_telegraph"), 1)
+
+
+func test_begin_shutdown_stops_audio_and_rejects_new_cues() -> void:
+	var service = add_child_autofree(AUDIO_SERVICE_SCRIPT.new())
+	service._ready()
+	assert_true(service.play_cue(&"ember_shot"))
+	assert_true(service.play_cue(&"enemy_telegraph"))
+
+	service.begin_shutdown()
+
+	assert_eq(service.active_voice_count(), 0)
+	assert_false(service.play_cue(&"dash"))

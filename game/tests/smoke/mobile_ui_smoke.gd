@@ -42,6 +42,85 @@ func _ready() -> void:
 	)
 	if not _require(notched_content.position.x > 16.0 and notched_content.end.x < 1280.0, "notch insets were not consumed"):
 		return
+	hud.apply_content_rect(notched_content)
+	game.apply_content_rect(notched_content)
+	var interactive_controls: Array[Control] = [
+		safe_root.get_node("VirtualJoystick") as Control,
+		safe_root.get_node("DashButton") as Control,
+		safe_root.get_node("SkillButton") as Control,
+		game.get_node("RunUi/PauseButton") as Control,
+	]
+	for control: Control in interactive_controls:
+		if not _require(notched_content.encloses(control.get_global_rect()), "%s escaped the applied notch safe area" % control.name):
+			return
+		if not _require(control.visible and control.mouse_filter != Control.MOUSE_FILTER_IGNORE, "%s is not usable" % control.name):
+			return
+
+	var joystick := safe_root.get_node("VirtualJoystick") as VirtualJoystick
+	var ember_start := game.ember.global_position
+	var touch := InputEventScreenTouch.new()
+	touch.index = 41
+	touch.position = joystick.size * 0.5 + Vector2.RIGHT * joystick.radius * 0.75
+	touch.pressed = true
+	joystick._gui_input(touch)
+	for _frame: int in 5:
+		await get_tree().physics_frame
+	touch.pressed = false
+	joystick._gui_input(touch)
+	if not _require(game.ember.global_position.x > ember_start.x, "notched joystick did not receive input"):
+		return
+
+	var dash_button := safe_root.get_node("DashButton") as Button
+	dash_button.pressed.emit()
+	await get_tree().process_frame
+	if not _require(game.ember.dash.remaining_cooldown > 0.0, "notched dash control did not receive input"):
+		return
+	var skill_button := safe_root.get_node("SkillButton") as Button
+	skill_button.pressed.emit()
+	await get_tree().process_frame
+	if not _require(game.ember.skill_cooldown_ratio() > 0.0, "notched skill control did not receive input"):
+		return
+
+	var pause_button := game.get_node("RunUi/PauseButton") as Button
+	pause_button.pressed.emit()
+	if not _require(game.controller.state == RunController.State.PAUSED, "notched pause control did not pause"):
+		return
+	pause_button.pressed.emit()
+	if not _require(game.controller.state == RunController.State.COMBAT, "notched pause control did not resume"):
+		return
+
+	for enemy_node: Node in get_tree().get_nodes_in_group("enemies"):
+		if game._room_root.is_ancestor_of(enemy_node):
+			(enemy_node as CombatEnemy).health.take_damage(100000)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if not _require(game.controller.state == RunController.State.REWARD, "room clear did not expose reward controls"):
+		return
+	game.apply_content_rect(notched_content)
+	var reward_panel := game.get_node("RunUi/RewardPanel") as Control
+	if not _require(notched_content.encloses(reward_panel.get_global_rect()), "reward panel escaped notch safe area"):
+		return
+	var reward_buttons: Array[Button] = []
+	for child: Node in reward_panel.get_node("Choices").get_children():
+		if child is Button:
+			reward_buttons.append(child as Button)
+	if not _require(reward_buttons.size() == 3, "reward controls are incomplete"):
+		return
+	for reward_button: Button in reward_buttons:
+		if not _require(notched_content.encloses(reward_button.get_global_rect()), "reward choice escaped notch safe area"):
+			return
+		if not _require(not reward_button.disabled and reward_button.mouse_filter != Control.MOUSE_FILTER_IGNORE, "reward choice is not usable"):
+			return
+	reward_buttons[0].pressed.emit()
+	await get_tree().process_frame
+	if not _require(game.controller.state == RunController.State.COMBAT and game.controller.current_room_index == 1, "reward control did not receive input"):
+		return
+
+	game._finish_run(false)
+	game.apply_content_rect(notched_content)
+	var end_panel := game.get_node("RunUi/EndPanel") as Control
+	if not _require(end_panel.visible and notched_content.encloses(end_panel.get_global_rect()), "end-state panel escaped notch safe area"):
+		return
 	game.queue_free()
 	await get_tree().process_frame
 	AudioService.stop_all()
