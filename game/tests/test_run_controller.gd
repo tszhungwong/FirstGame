@@ -82,22 +82,39 @@ func test_distinct_upgrade_builds_change_runtime_combat_stats() -> void:
 	assert_lt(run.combat_stats.dash_cooldown, base_dash_cooldown)
 
 
-func test_wildfire_minimum_burn_duration_is_authored_by_its_definition() -> void:
-	var wildfire := load("res://data/mock_upgrade_wildfire.tres") as UpgradeDefinition
-	var property_names: Array[StringName] = []
-	for property: Dictionary in wildfire.get_property_list():
-		property_names.append(property.name)
-
-	assert_true(property_names.has(&"minimum_burn_duration"))
-
-
-func test_character_minimum_dash_cooldown_is_authored_by_its_definition() -> void:
+func test_wildfire_applies_the_authored_minimum_burn_duration() -> void:
 	var character := load("res://data/mock_ember_vanguard.tres") as CharacterDefinition
-	var property_names: Array[StringName] = []
-	for property: Dictionary in character.get_property_list():
-		property_names.append(property.name)
+	var wildfire := load("res://data/mock_upgrade_wildfire.tres") as UpgradeDefinition
+	assert_gt(wildfire.minimum_burn_duration, 0.0)
 
-	assert_true(property_names.has(&"minimum_dash_cooldown"))
+	var stats := RuntimeCombatStats.from_definitions(character)
+	stats.apply_upgrade(wildfire)
+	assert_eq(stats.burn_duration, wildfire.minimum_burn_duration)
+
+	var altered_wildfire := wildfire.duplicate(true) as UpgradeDefinition
+	altered_wildfire.minimum_burn_duration = wildfire.minimum_burn_duration + 0.5
+	var altered_stats := RuntimeCombatStats.from_definitions(character)
+	altered_stats.apply_upgrade(altered_wildfire)
+	assert_eq(altered_stats.burn_duration, altered_wildfire.minimum_burn_duration)
+
+
+func test_repeated_dash_upgrades_reach_but_never_cross_the_authored_minimum() -> void:
+	var character := load("res://data/mock_ember_vanguard.tres") as CharacterDefinition
+	var fleet_ash := load("res://data/mock_upgrade_fleet_ash.tres") as UpgradeDefinition
+	assert_gt(character.minimum_dash_cooldown, 0.0)
+
+	var stats := RuntimeCombatStats.from_definitions(character)
+	for _stack: int in 20:
+		stats.apply_upgrade(fleet_ash)
+		assert_gte(stats.dash_cooldown, character.minimum_dash_cooldown)
+	assert_eq(stats.dash_cooldown, character.minimum_dash_cooldown)
+
+	var altered_character := character.duplicate(true) as CharacterDefinition
+	altered_character.minimum_dash_cooldown = character.minimum_dash_cooldown + 0.2
+	var altered_stats := RuntimeCombatStats.from_definitions(altered_character)
+	for _stack: int in 20:
+		altered_stats.apply_upgrade(fleet_ash)
+	assert_eq(altered_stats.dash_cooldown, altered_character.minimum_dash_cooldown)
 
 
 func test_active_run_snapshot_restores_reward_room_and_upgrade_stacks() -> void:

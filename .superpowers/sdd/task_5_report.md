@@ -9,8 +9,10 @@ Worktree and starting HEAD: `C:\Users\user\OneDrive\Documents\Project\Game_Ghost
 1. Corrected the carry-forward documentation typo in `task_4_report.md`: `docs/assets/asset-register.csv` is now the actual tracked path, `docs/assets/asset_register.csv`.
 2. Found a data-driven-runtime violation during direct review. `RuntimeCombatStats.apply_upgrade` hard-coded both Wildfire's minimum burn duration (`2.0`) and the dash cooldown floor (`0.35`). Neither value could be authored by the relevant Resource schema.
    - Root cause: `UpgradeDefinition` lacked `minimum_burn_duration`, and `CharacterDefinition` lacked `minimum_dash_cooldown`; the stat layer therefore owned gameplay tuning that belongs in data.
-   - Red: added focused GUT contract tests and ran the full suite. Result: 57/59 passed; the two new tests failed at `test_run_controller.gd:91` and `:100` because neither property existed.
-   - Green: added the two typed Resource properties, authored the existing values in `mock_upgrade_wildfire.tres` and `mock_ember_vanguard.tres`, and made `RuntimeCombatStats` consume them. The post-fix suite passed 59/59.
+   - First red: added focused GUT contract tests and ran the full suite. Result: 57/59 passed; the two new tests failed at `test_run_controller.gd:91` and `:100` because neither property existed.
+   - First green: added the two typed Resource properties, authored the existing values in `mock_upgrade_wildfire.tres` and `mock_ember_vanguard.tres`, and made `RuntimeCombatStats` consume them.
+   - Review-gap red: replaced the original property-existence checks with end-to-end tests that load the real `.tres` values, run `RuntimeCombatStats.from_definitions` plus `apply_upgrade`, and use altered Resource copies to prove the runtime cannot substitute matching literals. Temporarily restoring the old literals in the stat layer, then running `Godot_v4.6.3-stable_win64_console.exe --headless --path game --script res://addons/gut/gut_cmdln.gd -gdir=res://tests -gselect=test_run_controller -gexit`, produced 10/12 passing tests. Wildfire failed with `[2.0] expected to equal [2.5]` at line 98 and the dash floor failed with `[0.35] expected to equal [0.55]` at line 117.
+   - Review-gap green: restored Resource consumption and reran the same focused command: 12/12 passed with 75 asserts. The coverage verifies that Wildfire applies its loaded `minimum_burn_duration`; repeated Fleet Ash applications reach but never cross the loaded character floor; removing the authored values makes the positive `.tres` assertions fail; and replacing consumption with literals makes the altered-copy assertions fail.
 
 No other code, resource, license, path, lifecycle, or spec-compliance defect was found in this review.
 
@@ -31,7 +33,7 @@ Pinned binary used throughout:
 | `Godot_v4.6.3-stable_win64_console.exe --headless --import --path game` | Exit 0. Godot reported missing local Android build-tools, then completed import. |
 | `Godot_v4.6.3-stable_win64_console.exe --headless --editor --quit --path game` | Exit 0. Same non-fatal local Android build-tools warning. |
 | `Godot_v4.6.3-stable_win64_console.exe --headless --path game --script res://tools/validate_godot_version.gd` | `Godot version pin and landscape ProjectSettings verified: 4.6.3`. |
-| `Godot_v4.6.3-stable_win64_console.exe --headless --path game --script res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit` | 16 scripts, 59/59 tests, 284 asserts passed. |
+| `Godot_v4.6.3-stable_win64_console.exe --headless --path game --script res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit` | 16 scripts, 59/59 tests, 308 asserts passed. |
 | `Godot_v4.6.3-stable_win64_console.exe --headless --path game res://tests/smoke/combat_smoke.tscn` | `COMBAT_SMOKE_OK`. |
 | `Godot_v4.6.3-stable_win64_console.exe --headless --path game res://tests/smoke/run_loop_smoke.tscn` | `RUN_LOOP_SMOKE_OK`. |
 | `Godot_v4.6.3-stable_win64_console.exe --headless --path game res://tests/smoke/mobile_ui_smoke.tscn` | `MOBILE_UI_SMOKE_OK` for 16:9, 19.5:9, 4:3, and a synthetic notch. |
