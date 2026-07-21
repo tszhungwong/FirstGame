@@ -19,6 +19,7 @@ projectile_collision_radius = 8.0
 projectile_spawn_offset = 40.0
 ranged_approach_ratio = 0.75
 ranged_retreat_ratio = 0.4
+concealment_detection_factor = 0.55
 telegraph_duration = 1.05
 charge_speed = 590.0
 charge_duration = 0.65

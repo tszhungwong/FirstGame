@@ -32,6 +32,55 @@ func test_upgrade_build_changes_projectiles_fired_by_ember() -> void:
 			assert_gt(bullet.burn_damage, 0)
 
 
+func test_multishot_spread_consumes_the_authored_weapon_value() -> void:
+	var character := (load("res://data/mock_ember_vanguard.tres") as CharacterDefinition).duplicate(true) as CharacterDefinition
+	character.starting_weapon = character.starting_weapon.duplicate(true) as WeaponDefinition
+	assert_true(_has_property(character.starting_weapon, &"multishot_spread_radians"))
+	if not _has_property(character.starting_weapon, &"multishot_spread_radians"):
+		return
+	character.starting_weapon.set("multishot_spread_radians", 0.6)
+	var stats := RuntimeCombatStats.from_definitions(character)
+	stats.multishot = 2
+	var fixture := Node2D.new()
+	add_child_autofree(fixture)
+	var pool := ObjectPool.new()
+	fixture.add_child(pool)
+	pool.configure(BULLET_SCENE, 2, false, 5.5)
+	var ember := Ember.new()
+	ember.configure(character, pool, Rect2(Vector2.ZERO, Vector2(2200.0, 1200.0)), stats)
+	fixture.add_child(ember)
+
+	ember._shoot(Vector2.RIGHT)
+
+	var directions: Array[Vector2] = []
+	for child: Node in pool.get_children():
+		var bullet := child as PooledBullet
+		if bullet != null and bullet.visible:
+			directions.append(bullet.direction)
+	assert_eq(directions.size(), 2)
+	assert_almost_eq(absf(directions[0].angle_to(directions[1])), 0.6, 0.001)
+
+
+func test_concealment_detection_consumes_the_authored_enemy_factor() -> void:
+	var definition := (load("res://data/mock_forest_chaser.tres") as EnemyDefinition).duplicate(true) as EnemyDefinition
+	assert_true(_has_property(definition, &"concealment_detection_factor"))
+	if not _has_property(definition, &"concealment_detection_factor"):
+		return
+	var room := (load("res://data/mock_forest_combat_room.tres") as RoomDefinition).duplicate(true) as RoomDefinition
+	room.grass_areas = [Rect2(Vector2(-40.0, -40.0), Vector2(80.0, 80.0))]
+	var rules := ForestRoomRules.new(room)
+	var target := autofree(Ember.new()) as Ember
+	target.global_position = Vector2.ZERO
+	var enemy := autofree(CombatEnemy.new()) as CombatEnemy
+	enemy.configure(definition, target, null, Rect2(Vector2.ZERO, room.arena_size), rules)
+	enemy.global_position = Vector2(100.0, 0.0)
+
+	definition.set("concealment_detection_factor", 0.25)
+	assert_almost_eq(enemy._effective_target_distance(), 400.0, 0.001)
+	definition.set("concealment_detection_factor", 0.5)
+	assert_almost_eq(enemy._effective_target_distance(), 200.0, 0.001)
+
+
 func test_boss_enters_telegraph_before_charging() -> void:
 	var fixture := Node2D.new()
 	add_child_autofree(fixture)
@@ -111,3 +160,10 @@ func test_mud_slows_real_enemy_displacement() -> void:
 		await get_tree().physics_frame
 
 	assert_gt(normal_enemy.global_position.distance_to(normal_start), mud_enemy.global_position.distance_to(mud_start))
+
+
+func _has_property(resource: Resource, property_name: StringName) -> bool:
+	for property: Dictionary in resource.get_property_list():
+		if property.name == property_name:
+			return true
+	return false

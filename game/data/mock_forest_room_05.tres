@@ -11,6 +11,7 @@ display_name = "Warden's Threshold"
 kind = 0
 enemy_count = 7
 arena_size = Vector2(2200, 1200)
+player_spawn_position = Vector2(260, 600)
 projectile_pool_capacity = 68
 projectile_pool_can_grow = true
 enemy_definitions = Array[ExtResource("2")]([ExtResource("5"), ExtResource("4"), ExtResource("3"), ExtResource("5"), ExtResource("4"), ExtResource("3"), ExtResource("5")])

@@ -207,7 +207,10 @@ func _shoot(direction: Vector2) -> void:
 	AudioService.play_cue(&"ember_shot")
 	var shot_count := maxi(combat_stats.multishot, 1)
 	for shot_index: int in shot_count:
-		var offset := (float(shot_index) - float(shot_count - 1) * 0.5) * 0.14
+		var offset := (
+			(float(shot_index) - float(shot_count - 1) * 0.5)
+			* definition.starting_weapon.multishot_spread_radians
+		)
 		var shot_direction := direction.rotated(offset)
 		var bullet: PooledBullet = projectile_pool.acquire()
 		if bullet == null:

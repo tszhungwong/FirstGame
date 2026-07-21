@@ -12,8 +12,10 @@ var _room_root: Node2D
 var _reward_panel: PanelContainer
 var _end_panel: PanelContainer
 var _end_label: Label
+var _retry_save_button: Button
 var _room_label: Label
 var _pause_button: Button
+var _final_run_won: bool = false
 
 
 func _ready() -> void:
@@ -62,7 +64,7 @@ func _start_room(index: int, room: RoomDefinition) -> void:
 	ember = Ember.new()
 	ember.name = "Ember"
 	ember.configure(character, projectile_pool, Rect2(Vector2.ZERO, room.arena_size), controller.combat_stats, forest_rules)
-	ember.global_position = Vector2(260.0, room.arena_size.y * 0.5)
+	ember.global_position = room.player_spawn_position
 	_room_root.add_child(ember)
 	if controller.room_entry_health >= 0:
 		ember.health.restore_current_health(controller.room_entry_health)
@@ -126,9 +128,25 @@ func _choose_reward(id: StringName) -> void:
 func _finish_run(won: bool) -> void:
 	get_tree().paused = false
 	_freeze_combat()
-	GameSession.finish_run(won, controller.current_room_index + 1)
+	_final_run_won = won
+	var persisted := GameSession.finish_run(won, controller.current_room_index + 1)
 	_end_panel.visible = true
-	_end_label.text = "FOREST RESTORED" if won else "EMBER EXTINGUISHED"
+	_show_finalization_state(persisted)
+
+
+func _retry_pending_finalization() -> void:
+	if GameSession.pending_finalization.is_empty():
+		return
+	_show_finalization_state(GameSession.retry_pending_finalization())
+
+
+func _show_finalization_state(persisted: bool) -> void:
+	if persisted:
+		_end_label.text = "FOREST RESTORED" if _final_run_won else "EMBER EXTINGUISHED"
+		_retry_save_button.visible = false
+		return
+	_end_label.text = "RUN COMPLETE\nSAVE PENDING"
+	_retry_save_button.visible = true
 
 
 func _toggle_pause() -> void:
@@ -185,12 +203,26 @@ func _build_ui() -> void:
 	_end_panel.name = "EndPanel"
 	_end_panel.size = Vector2(600.0, 280.0)
 	_end_panel.process_mode = Node.PROCESS_MODE_ALWAYS
+	var end_content := VBoxContainer.new()
+	end_content.name = "EndContent"
+	end_content.alignment = BoxContainer.ALIGNMENT_CENTER
+	end_content.add_theme_constant_override("separation", 18)
+	_end_panel.add_child(end_content)
 	_end_label = Label.new()
 	_end_label.name = "EndLabel"
+	_end_label.custom_minimum_size = Vector2(560.0, 176.0)
 	_end_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_end_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_end_label.add_theme_font_size_override("font_size", 38)
-	_end_panel.add_child(_end_label)
+	end_content.add_child(_end_label)
+	_retry_save_button = Button.new()
+	_retry_save_button.name = "RetrySaveButton"
+	_retry_save_button.text = "RETRY SAVE"
+	_retry_save_button.custom_minimum_size = Vector2(240.0, 56.0)
+	_retry_save_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_retry_save_button.pressed.connect(_retry_pending_finalization)
+	_retry_save_button.visible = false
+	end_content.add_child(_retry_save_button)
 	_end_panel.visible = false
 	layer.add_child(_end_panel)
 	get_viewport().size_changed.connect(_layout_run_ui)

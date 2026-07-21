@@ -28,7 +28,7 @@ jobs:
       - name: Validate assets
         run: |
           python -m unittest discover -s tools/tests -p "test_*.py" -v
-          python tools/validate_task4_paths.py
+          python tools/validate_paths.py
           python tools/validate_assets.py
       - name: Import and validate resources
         run: |
@@ -40,15 +40,9 @@ jobs:
       - name: Run scene smokes
         run: |
           godot --headless --path game res://tests/smoke/combat_smoke.tscn
-          godot --headless --path game res://tests/smoke/run_loop_smoke.tscn
-          godot --headless --path game res://tests/smoke/mobile_ui_smoke.tscn
-          runtime_output="$(mktemp)"
-          godot --headless --path game res://tests/smoke/runtime_shutdown_smoke.tscn 2>&1 | tee "$runtime_output"
-          grep -q "RUNTIME_SHUTDOWN_SMOKE_OK" "$runtime_output"
-          if grep -q "ObjectDB instances leaked" "$runtime_output"; then
-            echo "Runtime shutdown leaked ObjectDB instances" >&2
-            exit 1
-          fi
+          python tools/run_scene_smoke.py --godot godot --scene res://tests/smoke/run_loop_smoke.tscn --expect-marker RUN_LOOP_SMOKE_OK
+          python tools/run_scene_smoke.py --godot godot --scene res://tests/smoke/mobile_ui_smoke.tscn --expect-marker MOBILE_UI_SMOKE_OK
+          python tools/run_scene_smoke.py --godot godot --scene res://tests/smoke/runtime_shutdown_smoke.tscn --expect-marker RUNTIME_SHUTDOWN_SMOKE_OK --forbid-output "ObjectDB instances leaked"
 
   android-debug-export:
     needs: headless-tests
@@ -91,6 +85,7 @@ jobs:
           mkdir -p game/builds/android
           godot --headless --path game --export-debug "Android" game/builds/android/game_ghost.apk
           test -s game/builds/android/game_ghost.apk
+          python tools/validate_export_contents.py game/builds/android/game_ghost.apk
 
   ios-project-export-smoke:
     needs: headless-tests
@@ -116,3 +111,4 @@ jobs:
           mkdir -p game/builds/ios
           godot --headless --path game --export-debug "iOS" game/builds/ios/game_ghost.zip
           test -s game/builds/ios/game_ghost.zip
+          python tools/validate_export_contents.py game/builds/ios/game_ghost.zip

@@ -19,19 +19,23 @@ From the repository root on Windows, using the pinned Godot console executable w
 
 ```powershell
 py -3 -m unittest discover -s tools/tests -p "test_*.py" -v
-py -3 tools/validate_task4_paths.py
+py -3 tools/validate_paths.py
 py -3 tools/validate_assets.py
 godot --headless --import --path game
 godot --headless --editor --quit --path game
 godot --headless --path game --script res://tools/validate_godot_version.gd
 godot --headless --path game --script res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
 godot --headless --path game res://tests/smoke/combat_smoke.tscn
-godot --headless --path game res://tests/smoke/run_loop_smoke.tscn
-godot --headless --path game res://tests/smoke/mobile_ui_smoke.tscn
-godot --headless --path game res://tests/smoke/runtime_shutdown_smoke.tscn
+py -3 tools/run_scene_smoke.py --godot godot --scene res://tests/smoke/run_loop_smoke.tscn --expect-marker RUN_LOOP_SMOKE_OK
+py -3 tools/run_scene_smoke.py --godot godot --scene res://tests/smoke/mobile_ui_smoke.tscn --expect-marker MOBILE_UI_SMOKE_OK
+py -3 tools/run_scene_smoke.py --godot godot --scene res://tests/smoke/runtime_shutdown_smoke.tscn --expect-marker RUNTIME_SHUTDOWN_SMOKE_OK --forbid-output "ObjectDB instances leaked"
 ```
 
-The runtime acceptance result is the deterministic shutdown smoke above. It runs the main scene, emits the production root close request, waits for the audio server to drain, and must exit without `ObjectDB instances leaked`. A warning-producing forced `--quit-after` run is diagnostic only and must not be counted as a clean runtime pass.
+The saving scene smokes run through `run_scene_smoke.py`, which snapshots the production save, starts Godot with a unique process-level disposable storage root before autoload initialization, verifies the production bytes are unchanged, and removes the disposable directory on normal exit. An interrupted smoke can leave only disposable temporary data and cannot target the production path. The runtime acceptance result emits the production root `close_requested` signal, waits for the audio server to drain, and must exit without `ObjectDB instances leaked`. A warning-producing forced `--quit-after` run is diagnostic only and must not be counted as a clean runtime pass.
+
+## Tracked-path and release-export policy
+
+Project-owned tracked paths use lowercase ASCII `snake_case`. The only naming exceptions are required repository-control metadata (`.github`, `.superpowers`, `.gitattributes`, and `.gitignore`) and `game/addons/gut/**`. The GUT subtree is vendored upstream content, so its upstream file names are preserved verbatim; the exception ends at that directory boundary and does not apply to project-owned tests or tools. Mobile presets exclude both `game/tests/**` and `game/addons/gut/**`, and CI scans the produced APK/ZIP contents for either resource namespace.
 
 Android debug export is guarded so missing SDK components are reported before Godot is invoked:
 

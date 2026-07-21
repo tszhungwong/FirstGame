@@ -153,7 +153,7 @@ func _update_boss(delta: float) -> void:
 func _effective_target_distance() -> float:
 	var distance := global_position.distance_to(target.global_position)
 	if forest_rules != null and forest_rules.is_concealed(target.global_position):
-		return distance / 0.55
+		return distance / maxf(definition.concealment_detection_factor, 0.01)
 	return distance
 
 

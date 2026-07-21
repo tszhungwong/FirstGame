@@ -21,6 +21,16 @@ class BackupFailBackend extends LocalSaveBackend:
 		return super.write_bytes_flush(path, bytes)
 
 
+class RecoveryPromotionFailBackend extends LocalSaveBackend:
+	func promote_temporary(_source_path: String, _destination_path: String) -> Error:
+		return ERR_CANT_CREATE
+
+
+class StorageDirectoryFailBackend extends LocalSaveBackend:
+	func make_directory_recursive(_path: String) -> Error:
+		return ERR_CANT_CREATE
+
+
 func before_each() -> void:
 	_save_path = "user://mock_task_3_%d.json" % Time.get_ticks_usec()
 
@@ -59,6 +69,72 @@ func test_corrupt_save_is_backed_up_before_default_reset() -> void:
 	assert_eq(backup.get_as_text(), "{definitely not json")
 	backup.close()
 	assert_true(FileAccess.file_exists(_save_path))
+
+
+func test_corrupt_primary_restores_valid_predecessor_without_rotating_over_it() -> void:
+	var valid_predecessor := {
+		"version": LocalSaveScript.CURRENT_VERSION,
+		"progress": {"best_room": 5, "wins": 1},
+		"settings": {"music_volume": 0.75, "sfx_volume": 0.5},
+		"active_run": {"seed": 812, "room_index": 3, "upgrade_stacks": {}},
+	}
+	var predecessor_bytes := JSON.stringify(valid_predecessor).to_utf8_buffer()
+	var corrupt_bytes := PackedByteArray([0xff, 0x00, 0x81, 0x7b])
+	var writer := LocalSaveBackend.new()
+	assert_true(writer.write_bytes_flush(_save_path, corrupt_bytes))
+	assert_true(writer.write_bytes_flush(_save_path + ".previous", predecessor_bytes))
+	var save = autofree(LocalSaveScript.new())
+	save.save_path = _save_path
+
+	var loaded: Dictionary = save.load_data()
+
+	assert_eq(int(loaded.progress.best_room), 5)
+	assert_eq(int(loaded.active_run.seed), 812)
+	assert_eq(writer.read_bytes(save.last_corrupt_backup_path), corrupt_bytes)
+	assert_eq(writer.read_bytes(_save_path + ".previous"), predecessor_bytes)
+	assert_eq(int(save.load_data().active_run.seed), 812)
+
+
+func test_corrupt_primary_with_invalid_predecessor_preserves_both_evidence_files() -> void:
+	var corrupt_primary := "primary corrupt evidence".to_utf8_buffer()
+	var invalid_predecessor := "predecessor corrupt evidence".to_utf8_buffer()
+	var writer := LocalSaveBackend.new()
+	assert_true(writer.write_bytes_flush(_save_path, corrupt_primary))
+	assert_true(writer.write_bytes_flush(_save_path + ".previous", invalid_predecessor))
+	var save = autofree(LocalSaveScript.new())
+	save.save_path = _save_path
+
+	var loaded: Dictionary = save.load_data()
+
+	assert_eq(loaded, save.default_data())
+	assert_eq(writer.read_bytes(save.last_corrupt_backup_path), corrupt_primary)
+	assert_eq(writer.read_bytes(_save_path + ".previous"), invalid_predecessor)
+	assert_eq(int(save.load_data().progress.best_room), 0)
+
+
+func test_failed_predecessor_restoration_keeps_recovery_evidence_and_blocks_writes() -> void:
+	var valid_predecessor := {
+		"version": LocalSaveScript.CURRENT_VERSION,
+		"progress": {"best_room": 7, "wins": 2},
+		"settings": {"music_volume": 1.0, "sfx_volume": 1.0},
+		"active_run": {},
+	}
+	var corrupt_primary := "do not discard this primary".to_utf8_buffer()
+	var predecessor_bytes := JSON.stringify(valid_predecessor).to_utf8_buffer()
+	var writer := LocalSaveBackend.new()
+	assert_true(writer.write_bytes_flush(_save_path, corrupt_primary))
+	assert_true(writer.write_bytes_flush(_save_path + ".previous", predecessor_bytes))
+	var save = autofree(LocalSaveScript.new())
+	save.save_path = _save_path
+	save.backend = RecoveryPromotionFailBackend.new()
+
+	var loaded: Dictionary = save.load_data()
+
+	assert_eq(int(loaded.progress.best_room), 7)
+	assert_eq(writer.read_bytes(save.last_corrupt_backup_path), corrupt_primary)
+	assert_eq(writer.read_bytes(_save_path), corrupt_primary)
+	assert_eq(writer.read_bytes(_save_path + ".previous"), predecessor_bytes)
+	assert_false(save.save_data(save.default_data()))
 
 
 func test_round_trip_preserves_active_run_state() -> void:
@@ -158,6 +234,39 @@ func test_legacy_schema_validates_nested_active_run_types_before_migration() -> 
 
 	assert_eq(loaded, save.default_data())
 	assert_true(not save.last_corrupt_backup_path.is_empty())
+
+
+func test_process_storage_root_override_applies_before_the_first_load() -> void:
+	var environment_name: String = "GAME_GHOST_STORAGE_ROOT"
+	var previous_value := OS.get_environment(environment_name)
+	var storage_root := "user://mock_smoke_storage_%d" % Time.get_ticks_usec()
+	OS.set_environment(environment_name, storage_root)
+	var save = autofree(LocalSaveScript.new())
+	OS.set_environment(environment_name, previous_value)
+
+	assert_eq(save.save_path, storage_root.path_join("game_ghost_save.json"))
+	assert_true(save.save_data(save.default_data()))
+	assert_true(FileAccess.file_exists(save.save_path))
+
+	for suffix: String in ["", ".tmp", ".previous"]:
+		var path: String = save.save_path + suffix
+		if FileAccess.file_exists(path):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(storage_root))
+
+
+func test_unavailable_storage_root_never_falls_back_to_the_production_path() -> void:
+	var blocker_path := "user://mock_storage_blocker_%d" % Time.get_ticks_usec()
+	var save = autofree(LocalSaveScript.new())
+	save.backend = StorageDirectoryFailBackend.new()
+
+	var configure_error: Error = save.configure_storage_root(blocker_path)
+	assert_ne(configure_error, OK)
+	if configure_error == OK:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(blocker_path))
+		return
+	assert_eq(save.save_path, blocker_path.path_join("game_ghost_save.json"))
+	assert_false(save.save_data(save.default_data()))
 
 
 func _write_raw(content: String) -> void:

@@ -25,6 +25,7 @@ enum Archetype {
 @export var projectile_spawn_offset: float = 0.0
 @export var ranged_approach_ratio: float = 0.0
 @export var ranged_retreat_ratio: float = 0.0
+@export_range(0.01, 1.0) var concealment_detection_factor: float = 1.0
 @export var telegraph_duration: float = 0.0
 @export var charge_speed: float = 0.0
 @export var charge_duration: float = 0.0

@@ -18,7 +18,10 @@ func _ready() -> void:
 		return
 	if not _require(root_window.close_requested.is_connected(AudioService._on_root_close_requested), "AudioService is not connected to the production close signal"):
 		return
-	AudioService._on_root_close_requested()
+	var previous_auto_accept_quit := get_tree().auto_accept_quit
+	get_tree().auto_accept_quit = false
+	root_window.close_requested.emit()
+	get_tree().auto_accept_quit = previous_auto_accept_quit
 	if not _require(AudioService.active_voice_count() == 0, "AudioService retained active voices during shutdown"):
 		return
 	if not _require(not AudioService.play_cue(&"dash"), "AudioService accepted a cue after the production close request"):
@@ -26,7 +29,7 @@ func _ready() -> void:
 	game.queue_free()
 	await get_tree().process_frame
 	await get_tree().create_timer(0.5).timeout
-	print("RUNTIME_SHUTDOWN_SMOKE_OK: main scene ran, audio shut down deterministically, and the audio server drained")
+	print("RUNTIME_SHUTDOWN_SMOKE_OK: production root close signal shut audio down and the audio server drained")
 	get_tree().quit(0)
 
 

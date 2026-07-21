@@ -18,4 +18,5 @@ projectile_collision_radius = 5.5
 projectile_spawn_offset = 29.0
 ranged_approach_ratio = 0.76
 ranged_retreat_ratio = 0.41
+concealment_detection_factor = 0.55
 charge_hit_range = 49.0

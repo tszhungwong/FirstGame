@@ -25,6 +25,10 @@ func write_bytes_flush(path: String, bytes: PackedByteArray) -> bool:
 	return true
 
 
+func make_directory_recursive(path: String) -> Error:
+	return DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(path))
+
+
 func remove_file(path: String) -> Error:
 	return DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 

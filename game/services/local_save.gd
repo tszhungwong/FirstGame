@@ -4,13 +4,34 @@ signal save_recovered(backup_path: String)
 signal save_failed(message: String)
 
 const CURRENT_VERSION := 2
-const SAVE_PATH := "user://game_ghost_save.json"
+const SAVE_FILE_NAME := "game_ghost_save.json"
+const SAVE_PATH := "user://" + SAVE_FILE_NAME
+const STORAGE_ROOT_ENVIRONMENT := "GAME_GHOST_STORAGE_ROOT"
 
 var save_path: String = SAVE_PATH
 var backend: LocalSaveBackend = LocalSaveBackend.new()
 var last_corrupt_backup_path: String = ""
 var _backup_sequence: int = 0
 var _writes_blocked_by_recovery: bool = false
+
+
+func _init() -> void:
+	var storage_root := OS.get_environment(STORAGE_ROOT_ENVIRONMENT).strip_edges()
+	if not storage_root.is_empty():
+		configure_storage_root(storage_root)
+
+
+func configure_storage_root(storage_root: String) -> Error:
+	var normalized_root := storage_root.strip_edges().trim_suffix("/").trim_suffix("\\")
+	if normalized_root.is_empty():
+		return ERR_INVALID_PARAMETER
+	save_path = normalized_root.path_join(SAVE_FILE_NAME)
+	var error := backend.make_directory_recursive(normalized_root)
+	if error != OK:
+		_writes_blocked_by_recovery = true
+		return error
+	_writes_blocked_by_recovery = false
+	return OK
 
 
 func default_data() -> Dictionary:
@@ -59,24 +80,14 @@ func load_data() -> Dictionary:
 		save_data(defaults)
 		return defaults
 	var raw_bytes := backend.read_bytes(save_path)
-	if raw_bytes.is_empty():
-		return _recover_corrupt_save(raw_bytes)
-	if not _is_valid_utf8(raw_bytes):
-		return _recover_corrupt_save(raw_bytes)
-	var raw := raw_bytes.get_string_from_utf8()
-	var parser := JSON.new()
-	if parser.parse(raw) != OK:
-		return _recover_corrupt_save(raw_bytes)
-	var parsed: Variant = parser.data
-	if not parsed is Dictionary:
-		return _recover_corrupt_save(raw_bytes)
-	if not _is_valid_schema(parsed as Dictionary):
+	var parsed := _decode_valid_data(raw_bytes)
+	if parsed.is_empty():
 		return _recover_corrupt_save(raw_bytes)
 	_writes_blocked_by_recovery = false
-	return _migrate(parsed as Dictionary)
+	return _migrate(parsed)
 
 
-func _migrate(source: Dictionary) -> Dictionary:
+func _migrate(source: Dictionary, persist_changes: bool = true) -> Dictionary:
 	var version := int(source.get("version", 1))
 	var migrated := source.duplicate(true)
 	if version <= 1:
@@ -91,7 +102,7 @@ func _migrate(source: Dictionary) -> Dictionary:
 		}
 	else:
 		migrated = _normalize(migrated)
-	if migrated != source:
+	if persist_changes and migrated != source:
 		save_data(migrated)
 	return migrated
 
@@ -112,12 +123,52 @@ func _recover_corrupt_save(raw_bytes: PackedByteArray) -> Dictionary:
 		_writes_blocked_by_recovery = true
 		save_failed.emit("Unable to preserve corrupt save evidence")
 		return default_data()
-	_writes_blocked_by_recovery = false
 	last_corrupt_backup_path = backup_path
-	var defaults := default_data()
-	save_data(defaults)
+	var predecessor_path := save_path + ".previous"
+	var recovered := default_data()
+	if backend.file_exists(predecessor_path):
+		var predecessor_data := _decode_valid_data(backend.read_bytes(predecessor_path))
+		if not predecessor_data.is_empty():
+			recovered = _migrate(predecessor_data, false)
+	var recovered_bytes := JSON.stringify(_normalize(recovered)).to_utf8_buffer()
+	if not _replace_primary_without_rotation(recovered_bytes, raw_bytes):
+		_writes_blocked_by_recovery = true
+		return recovered
+	_writes_blocked_by_recovery = false
 	save_recovered.emit(backup_path)
-	return defaults
+	return recovered
+
+
+func _replace_primary_without_rotation(replacement: PackedByteArray, original: PackedByteArray) -> bool:
+	var temporary_path := save_path + ".tmp"
+	if not backend.write_bytes_flush(temporary_path, replacement) or backend.read_bytes(temporary_path) != replacement:
+		save_failed.emit("Unable to stage recovered save")
+		return false
+	if backend.file_exists(save_path) and backend.remove_file(save_path) != OK:
+		backend.remove_file(temporary_path)
+		save_failed.emit("Unable to replace corrupt primary save")
+		return false
+	if backend.promote_temporary(temporary_path, save_path) == OK:
+		return true
+	backend.remove_file(temporary_path)
+	var restored := backend.write_bytes_flush(save_path, original) and backend.read_bytes(save_path) == original
+	if not restored:
+		save_failed.emit("Unable to restore corrupt primary after recovery failure")
+		return false
+	save_failed.emit("Unable to finalize recovered save")
+	return false
+
+
+func _decode_valid_data(raw_bytes: PackedByteArray) -> Dictionary:
+	if raw_bytes.is_empty() or not _is_valid_utf8(raw_bytes):
+		return {}
+	var parser := JSON.new()
+	if parser.parse(raw_bytes.get_string_from_utf8()) != OK:
+		return {}
+	var parsed: Variant = parser.data
+	if not parsed is Dictionary or not _is_valid_schema(parsed as Dictionary):
+		return {}
+	return parsed as Dictionary
 
 
 func _unique_corrupt_backup_path() -> String:

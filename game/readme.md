@@ -40,12 +40,12 @@ godot --headless -s res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
 Repository-level delivery checks also include:
 
 ```powershell
-py -3 tools/validate_task4_paths.py
+py -3 tools/validate_paths.py
 py -3 tools/validate_assets.py
 godot --headless --path game res://tests/smoke/combat_smoke.tscn
-godot --headless --path game res://tests/smoke/run_loop_smoke.tscn
-godot --headless --path game res://tests/smoke/mobile_ui_smoke.tscn
-godot --headless --path game res://tests/smoke/runtime_shutdown_smoke.tscn
+py -3 tools/run_scene_smoke.py --godot godot --scene res://tests/smoke/run_loop_smoke.tscn --expect-marker RUN_LOOP_SMOKE_OK
+py -3 tools/run_scene_smoke.py --godot godot --scene res://tests/smoke/mobile_ui_smoke.tscn --expect-marker MOBILE_UI_SMOKE_OK
+py -3 tools/run_scene_smoke.py --godot godot --scene res://tests/smoke/runtime_shutdown_smoke.tscn --expect-marker RUNTIME_SHUTDOWN_SMOKE_OK --forbid-output "ObjectDB instances leaked"
 ```
 
 See `docs/release/mobile_release.md` for the verified-versus-configured platform matrix and guarded export scripts.

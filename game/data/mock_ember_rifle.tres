@@ -12,3 +12,4 @@ projectile_speed = 760.0
 projectile_lifetime = 1.2
 projectile_collision_radius = 5.5
 target_range = 900.0
+multishot_spread_radians = 0.14

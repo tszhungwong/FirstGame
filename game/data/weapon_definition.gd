@@ -9,3 +9,4 @@ extends Resource
 @export var projectile_lifetime: float = 0.0
 @export var projectile_collision_radius: float = 0.0
 @export var target_range: float = 0.0
+@export var multishot_spread_radians: float = 0.0
