@@ -1,0 +1,196 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://levels/abandoned_maintenance/abandoned_maintenance_level.gd" id="1_level"]
+[ext_resource type="PackedScene" path="res://levels/common/graybox_platform.tscn" id="2_platform"]
+[ext_resource type="PackedScene" path="res://enemies/forgotten_worker/forgotten_worker.tscn" id="3_worker"]
+[ext_resource type="PackedScene" path="res://enemies/inspection_drone/inspection_drone.tscn" id="4_drone"]
+[ext_resource type="PackedScene" path="res://enemies/echo_foreman/echo_foreman.tscn" id="5_boss"]
+[ext_resource type="PackedScene" path="res://levels/common/checkpoint.tscn" id="6_checkpoint"]
+[ext_resource type="PackedScene" path="res://interaction/interactable.tscn" id="7_interactable"]
+[ext_resource type="PackedScene" path="res://dialogue/message_trigger.tscn" id="8_trigger"]
+[ext_resource type="Resource" path="res://dialogue/content/lamplighter.tres" id="9_lamplighter"]
+[ext_resource type="Resource" path="res://dialogue/content/skill_terminal.tres" id="10_skill"]
+[ext_resource type="Resource" path="res://dialogue/content/memory_fragment.tres" id="11_memory"]
+[ext_resource type="Resource" path="res://dialogue/content/hidden_memory.tres" id="12_hidden"]
+[ext_resource type="Resource" path="res://dialogue/content/return_control.tres" id="13_return"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gate"]
+size = Vector2(32, 180)
+
+[node name="AbandonedMaintenanceLevel" type="Node2D"]
+script = ExtResource("1_level")
+
+[node name="FloorA" parent="." instance=ExtResource("2_platform")]
+position = Vector2(400, 690)
+size = Vector2(800, 40)
+
+[node name="FloorB" parent="." instance=ExtResource("2_platform")]
+position = Vector2(1200, 690)
+size = Vector2(800, 40)
+color = Color(0.23, 0.28, 0.33, 1)
+
+[node name="FloorC" parent="." instance=ExtResource("2_platform")]
+position = Vector2(2000, 690)
+size = Vector2(800, 40)
+color = Color(0.25, 0.27, 0.31, 1)
+
+[node name="FloorD" parent="." instance=ExtResource("2_platform")]
+position = Vector2(2800, 690)
+size = Vector2(800, 40)
+color = Color(0.3, 0.23, 0.26, 1)
+
+[node name="LeftWall" parent="." instance=ExtResource("2_platform")]
+position = Vector2(-20, 360)
+size = Vector2(40, 720)
+
+[node name="RightWall" parent="." instance=ExtResource("2_platform")]
+position = Vector2(3220, 360)
+size = Vector2(40, 720)
+
+[node name="StartPlatform" parent="." instance=ExtResource("2_platform")]
+position = Vector2(350, 570)
+size = Vector2(220, 22)
+color = Color(0.22, 0.42, 0.45, 1)
+one_way = true
+
+[node name="UpperPlatformA" parent="." instance=ExtResource("2_platform")]
+position = Vector2(700, 500)
+size = Vector2(190, 22)
+color = Color(0.22, 0.42, 0.45, 1)
+one_way = true
+
+[node name="UpperPlatformB" parent="." instance=ExtResource("2_platform")]
+position = Vector2(980, 445)
+size = Vector2(170, 22)
+color = Color(0.22, 0.42, 0.45, 1)
+one_way = true
+
+[node name="GateStepA" parent="." instance=ExtResource("2_platform")]
+position = Vector2(1235, 610)
+size = Vector2(125, 20)
+one_way = true
+
+[node name="GateStepB" parent="." instance=ExtResource("2_platform")]
+position = Vector2(1355, 550)
+size = Vector2(125, 20)
+one_way = true
+
+[node name="GateStepC" parent="." instance=ExtResource("2_platform")]
+position = Vector2(1475, 482)
+size = Vector2(125, 20)
+one_way = true
+
+[node name="GateStepD" parent="." instance=ExtResource("2_platform")]
+position = Vector2(1600, 550)
+size = Vector2(125, 20)
+one_way = true
+
+[node name="GateStepE" parent="." instance=ExtResource("2_platform")]
+position = Vector2(1725, 610)
+size = Vector2(125, 20)
+one_way = true
+
+[node name="CombatPlatformA" parent="." instance=ExtResource("2_platform")]
+position = Vector2(1940, 505)
+size = Vector2(220, 22)
+color = Color(0.37, 0.34, 0.4, 1)
+one_way = true
+
+[node name="CombatPlatformB" parent="." instance=ExtResource("2_platform")]
+position = Vector2(2220, 430)
+size = Vector2(190, 22)
+color = Color(0.37, 0.34, 0.4, 1)
+one_way = true
+
+[node name="BossPlatform" parent="." instance=ExtResource("2_platform")]
+position = Vector2(2760, 520)
+size = Vector2(320, 22)
+color = Color(0.47, 0.29, 0.31, 1)
+one_way = true
+
+[node name="WallModuleShaft" parent="." instance=ExtResource("2_platform")]
+position = Vector2(455, 390)
+size = Vector2(32, 290)
+color = Color(0.25, 0.55, 0.56, 1)
+
+[node name="HiddenMemoryLedge" parent="." instance=ExtResource("2_platform")]
+position = Vector2(565, 245)
+size = Vector2(180, 22)
+color = Color(0.28, 0.59, 0.56, 1)
+one_way = true
+
+[node name="ReturnGate" type="StaticBody2D" parent="."]
+position = Vector2(1500, 580)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ReturnGate"]
+shape = SubResource("RectangleShape2D_gate")
+
+[node name="Visual" type="Polygon2D" parent="ReturnGate"]
+color = Color(0.95, 0.36, 0.24, 1)
+polygon = PackedVector2Array(-16, -90, 16, -90, 16, 90, -16, 90)
+
+[node name="WorkerA" parent="." instance=ExtResource("3_worker")]
+position = Vector2(570, 620)
+
+[node name="WorkerB" parent="." instance=ExtResource("3_worker")]
+position = Vector2(1220, 620)
+
+[node name="WorkerC" parent="." instance=ExtResource("3_worker")]
+position = Vector2(2050, 620)
+
+[node name="WorkerD" parent="." instance=ExtResource("3_worker")]
+position = Vector2(2410, 620)
+
+[node name="DroneA" parent="." instance=ExtResource("4_drone")]
+position = Vector2(1050, 350)
+
+[node name="DroneB" parent="." instance=ExtResource("4_drone")]
+position = Vector2(1970, 350)
+
+[node name="EchoForeman" parent="." instance=ExtResource("5_boss")]
+position = Vector2(2850, 610)
+
+[node name="Checkpoint" parent="." groups=["checkpoint"] instance=ExtResource("6_checkpoint")]
+position = Vector2(740, 628)
+
+[node name="Lamplighter" parent="." instance=ExtResource("7_interactable")]
+position = Vector2(880, 632)
+dialogue = ExtResource("9_lamplighter")
+interaction_id = &"lamplighter"
+display_color = Color(0.91, 0.72, 0.32, 1)
+
+[node name="SkillTerminal" parent="." instance=ExtResource("7_interactable")]
+position = Vector2(1010, 630)
+dialogue = ExtResource("10_skill")
+interaction_id = &"skill_terminal"
+display_color = Color(0.53, 0.76, 1, 1)
+display_size = Vector2(26, 38)
+one_shot = true
+
+[node name="MemoryFragment" parent="." instance=ExtResource("7_interactable")]
+position = Vector2(1160, 630)
+dialogue = ExtResource("11_memory")
+interaction_id = &"memory_fragment"
+display_color = Color(0.38, 0.88, 1, 1)
+display_size = Vector2(24, 36)
+one_shot = true
+
+[node name="HiddenMemory" parent="." instance=ExtResource("7_interactable")]
+position = Vector2(565, 205)
+dialogue = ExtResource("12_hidden")
+interaction_id = &"hidden_memory"
+display_color = Color(0.53, 1, 0.79, 1)
+display_size = Vector2(22, 32)
+one_shot = true
+
+[node name="ReturnControl" parent="." instance=ExtResource("7_interactable")]
+position = Vector2(655, 205)
+dialogue = ExtResource("13_return")
+interaction_id = &"return_control"
+display_color = Color(0.95, 0.45, 0.28, 1)
+display_size = Vector2(26, 40)
+one_shot = true
+
+[node name="SupervisorBroadcast" parent="." groups=["message_trigger"] instance=ExtResource("8_trigger")]
+position = Vector2(1820, 390)
+message_key = &"dialog.supervisor"

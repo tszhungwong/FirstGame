@@ -1,3 +1,9 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+/.capture_*.log
+/.editor_*.log
+/.smoke_*.log
+/.test_*.log
+/tests/main_scene_capture.png
+/tests/main_scene_capture.png.import

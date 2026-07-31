@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://enemies/echo_foreman/echo_foreman.gd" id="1_boss"]
+[ext_resource type="Resource" path="res://enemies/common/boss_enemy.tres" id="2_base"]
+[ext_resource type="Resource" path="res://enemies/echo_foreman/default_echo_foreman.tres" id="3_behavior"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_boss"]
+radius = 34.0
+height = 84.0
+
+[node name="EchoForeman" type="CharacterBody2D" groups=["enemy", "boss"]]
+collision_layer = 4
+collision_mask = 3
+script = ExtResource("1_boss")
+definition = ExtResource("2_base")
+behavior = ExtResource("3_behavior")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_boss")

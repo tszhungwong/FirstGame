@@ -1,0 +1,27 @@
+keys,en,zh_Hans,zh_Hant
+ui.interact,Press E to interact,按 E 互动,按 E 互動
+ui.continue,Press E to continue,按 E 继续,按 E 繼續
+ui.status,"Health %d/%d    Memory Energy %d/%d","生命 %d/%d    记忆能量 %d/%d","生命 %d/%d    記憶能量 %d/%d"
+ui.objective,Objective: %s,目标：%s,目標：%s
+ui.boss_status,Echo Foreman  %d / %d,残响监工  %d / %d,殘響監工  %d / %d
+ui.controls,A/D Move   Space Jump   S Drop   L Dash   J Attack   W/S+J Directional Attack   K Skill   E Interact,A/D 移动   Space 跳跃   S 下穿平台   L 冲刺   J 普攻   W/S+J 方向攻击   K 技能   E 互动,A/D 移動   Space 跳躍   S 下穿平台   L 衝刺   J 普攻   W/S+J 方向攻擊   K 技能   E 互動
+objective.find_exit,Find the maintenance district exit,寻找维修区出口,尋找維修區出口
+objective.use_direction_skill,Use the directional skill to cross the transport platforms,使用方向技能穿越运输平台,使用方向技能穿越運輸平台
+objective.reach_lockdown,Cross the transport platforms and reach the lockdown zone,穿越运输平台并找到封锁区,穿越運輸平台並找到封鎖區
+objective.use_wall_module,Use the magnetic cling module to return to the upper passage,使用磁力攀附模组返回高处通道,使用磁力攀附模組返回高處通道
+objective.complete,Vertical slice complete: maintenance district exit opened,垂直切片完成：维修区出口已开启,垂直切片完成：維修區出口已開啟
+dialog.respawn,Maintenance node resynchronized. Health restored; half of memory energy retained.,维修节点重新同步。生命已恢复，记忆能量保留一半。,維修節點重新同步。生命已恢復，記憶能量保留一半。
+dialog.boss_defeated,Echo Foreman: ...You still remember that day. Take the module. Do not let the Overseer seal anyone away again.,残响监工：……你还记得那天。拿走模组，别让监理者再封锁任何人。,殘響監工：……你還記得那天。拿走模組，別讓監理者再封鎖任何人。
+dialog.return_open,Magnetic control reconnected. The return gate is open.,磁力控制台重新接通。返回闸门已开启。,磁力控制台重新接通。返回閘門已開啟。
+dialog.checkpoint,Maintenance node activated. Death will restore you here.,维修节点已启用。死亡后将在此重生。,維修節點已啟用。死亡後將在此重生。
+dialog.foreman.01,Echo Foreman: Lockdown... maintenance district... awaiting the next shift.,残响监工：封锁……维修区……等待下一班。,殘響監工：封鎖……維修區……等待下一班。
+dialog.foreman.02,Echo Foreman: Cut the main gate. Do not let the Overseer see.,残响监工：切断主闸。别让监理者看见。,殘響監工：切斷主閘。別讓監理者看見。
+dialog.foreman.03,Echo Foreman: Maintenance worker... why did you come back?,残响监工：维修员……你为什么又回来？,殘響監工：維修員……你為什麼又回來？
+dialog.lamplighter.01,Lamplighter: That cutter... I thought it was sealed away with you.,守灯人：那把切割器……我以为它和你一起被封存了。,守燈人：那把切割器……我以為它和你一起被封存了。
+dialog.lamplighter.02,Lamplighter: The foreman is still executing the final lockdown order. Do not mistake his command for his will.,守灯人：监工还在执行最后一道封锁命令。别把他的口令当成意志。,守燈人：監工還在執行最後一道封鎖命令。別把他的口令當成意志。
+dialog.lamplighter.03,Lamplighter: The memory terminal to the east may still hold records from before the accident.,守灯人：东边的记忆终端或许还留着事故前的记录。,守燈人：東邊的記憶終端或許還留著事故前的記錄。
+dialog.skill_terminal,Maintenance terminal: The directional skill module of the Echo Cutter is restored. Press K with W or S to alter its effect.,维修终端：回响切割器的方向技能模组已恢复。按 K，并配合 W 或 S 改变效果。,維修終端：回響切割器的方向技能模組已恢復。按 K，並配合 W 或 S 改變效果。
+dialog.memory_fragment,"Memory fragment: ""The maintenance worker refused to recalibrate the forced extraction valve and requested the foreman's aid in shutting down the core. A detention order has been issued.""","记忆片段：“维修员拒绝重新校准强制抽取阀，并要求监工协助关闭核心。拘留命令已送出。”","記憶片段：「維修員拒絕重新校準強制抽取閥，並要求監工協助關閉核心。拘留命令已送出。」"
+dialog.hidden_memory,"Hidden memory: The foreman opened the maintenance passage for you and said, ""If you fail, at least let the next person know we tried.""","隐藏记忆：监工曾替你打开维修通道，并说：“如果你失败，至少让下一个人知道我们试过。”","隱藏記憶：監工曾替你打開維修通道，並說：「如果你失敗，至少讓下一個人知道我們試過。」"
+dialog.return_control,Magnetic control: Cling module verification complete. Press E to reopen the return gate.,磁力控制台：攀附模组验证完成。按 E 重新开启返回闸门。,磁力控制台：攀附模組驗證完成。按 E 重新開啟返回閘門。
+dialog.supervisor,Overseer: Maintenance worker. Your intervention will reduce the city's survival rate. Loss of identity remains preferable to loss of life.,监理者：维修员，你的干预将降低城邦存续率。人格损失仍优于生命损失。,監理者：維修員，你的干預將降低城邦存續率。人格損失仍優於生命損失。

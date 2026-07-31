@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="ForgottenWorkerDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://enemies/forgotten_worker/forgotten_worker_definition.gd" id="2_behavior"]
+
+[resource]
+script = ExtResource("2_behavior")

@@ -1,0 +1,111 @@
+[gd_scene format=3 uid="uid://vfuh755aowhv"]
+
+[ext_resource type="Script" uid="uid://4yt2erkp5ucm" path="res://scenes/game/game.gd" id="1_game"]
+[ext_resource type="PackedScene" path="res://player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://levels/abandoned_maintenance/abandoned_maintenance_level.tscn" id="3_level"]
+[ext_resource type="Script" path="res://core/pause/pause_controller.gd" id="4_pause"]
+[ext_resource type="Script" path="res://dialogue/dialogue_controller.gd" id="5_dialogue"]
+[ext_resource type="Script" path="res://interaction/interaction_controller.gd" id="6_interaction"]
+[ext_resource type="Script" path="res://effects/time_effects_controller.gd" id="7_effects"]
+[ext_resource type="Script" path="res://ui/hud/hud_presenter.gd" id="8_hud"]
+
+[node name="Game" type="Node2D" unique_id=1789226421]
+script = ExtResource("1_game")
+
+[node name="Systems" type="Node" parent="."]
+
+[node name="PauseController" type="Node" parent="Systems"]
+script = ExtResource("4_pause")
+
+[node name="DialogueController" type="Node" parent="Systems"]
+script = ExtResource("5_dialogue")
+
+[node name="InteractionController" type="Node" parent="Systems"]
+script = ExtResource("6_interaction")
+
+[node name="TimeEffectsController" type="Node" parent="Systems"]
+script = ExtResource("7_effects")
+
+[node name="LevelContainer" type="Node2D" parent="."]
+
+[node name="AbandonedMaintenanceLevel" parent="LevelContainer" instance=ExtResource("3_level")]
+
+[node name="Player" parent="." unique_id=1815200981 instance=ExtResource("2_player")]
+position = Vector2(120, 620)
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=64101236]
+script = ExtResource("8_hud")
+
+[node name="TopBackdrop" type="ColorRect" parent="HUD" unique_id=1260892223]
+offset_left = 16.0
+offset_top = 14.0
+offset_right = 610.0
+offset_bottom = 104.0
+color = Color(0.025, 0.045, 0.06, 0.88)
+
+[node name="Status" type="Label" parent="HUD" unique_id=2103062324]
+offset_left = 32.0
+offset_top = 26.0
+offset_right = 590.0
+offset_bottom = 52.0
+theme_override_colors/font_color = Color(0.72, 0.95, 0.96, 1)
+theme_override_font_sizes/font_size = 20
+text = "ui.status"
+
+[node name="Objective" type="Label" parent="HUD" unique_id=805061835]
+offset_left = 32.0
+offset_top = 63.0
+offset_right = 590.0
+offset_bottom = 92.0
+theme_override_colors/font_color = Color(0.98, 0.81, 0.42, 1)
+theme_override_font_sizes/font_size = 18
+text = "ui.objective"
+
+[node name="BossStatus" type="Label" parent="HUD" unique_id=1431347369]
+offset_left = 470.0
+offset_top = 26.0
+offset_right = 810.0
+offset_bottom = 60.0
+theme_override_colors/font_color = Color(1, 0.46, 0.35, 1)
+theme_override_font_sizes/font_size = 23
+text = "ui.boss_status"
+horizontal_alignment = 1
+
+[node name="Controls" type="Label" parent="HUD" unique_id=357265374]
+offset_left = 20.0
+offset_top = 680.0
+offset_right = 1260.0
+offset_bottom = 710.0
+theme_override_colors/font_color = Color(0.72, 0.78, 0.82, 1)
+theme_override_font_sizes/font_size = 16
+text = "ui.controls"
+horizontal_alignment = 1
+
+[node name="DialogPanel" type="ColorRect" parent="HUD" unique_id=2114016841]
+offset_left = 210.0
+offset_top = 565.0
+offset_right = 1070.0
+offset_bottom = 675.0
+color = Color(0.025, 0.045, 0.06, 0.94)
+
+[node name="Dialog" type="Label" parent="HUD/DialogPanel" unique_id=107091317]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 17.0
+offset_right = 836.0
+offset_bottom = 76.0
+theme_override_colors/font_color = Color(0.9, 0.94, 0.95, 1)
+theme_override_font_sizes/font_size = 20
+text = "dialog.checkpoint"
+autowrap_mode = 2
+
+[node name="ContinueHint" type="Label" parent="HUD/DialogPanel" unique_id=1375761674]
+layout_mode = 0
+offset_left = 680.0
+offset_top = 82.0
+offset_right = 836.0
+offset_bottom = 105.0
+theme_override_colors/font_color = Color(0.72, 0.78, 0.82, 1)
+theme_override_font_sizes/font_size = 14
+text = "ui.continue"
+horizontal_alignment = 2

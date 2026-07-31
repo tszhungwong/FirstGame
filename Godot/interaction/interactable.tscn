@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://interaction/interactable.gd" id="1_interactable"]
+
+[node name="Interactable" type="Area2D" groups=["interactable"]]
+collision_layer = 0
+collision_mask = 0
+script = ExtResource("1_interactable")
+
+[node name="InteractionPrompt" type="Label" parent="."]
+visible = false
+offset_left = -60.0
+offset_top = -88.0
+offset_right = 60.0
+offset_bottom = -62.0
+theme_override_colors/font_color = Color(0.95, 0.84, 0.48, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.04, 0.05, 0.95)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 15
+text = "ui.interact"
+horizontal_alignment = 1
