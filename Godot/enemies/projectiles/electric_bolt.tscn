@@ -1,14 +1,13 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://drvvfaji6cck7"]
 
-[ext_resource type="Script" path="res://enemies/projectiles/electric_bolt.gd" id="1_bolt"]
+[ext_resource type="Script" uid="uid://bpyu87uxksc2y" path="res://enemies/projectiles/electric_bolt.gd" id="1_bolt"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_bolt"]
 radius = 7.0
 
-[node name="ElectricBolt" type="Area2D"]
+[node name="ElectricBolt" type="Area2D" unique_id=1568712222]
 collision_layer = 8
-collision_mask = 1
 script = ExtResource("1_bolt")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2006997176]
 shape = SubResource("CircleShape2D_bolt")

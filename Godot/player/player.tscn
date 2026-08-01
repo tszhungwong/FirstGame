@@ -1,36 +1,36 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://3nkcxbg8xxdl"]
 
-[ext_resource type="Script" path="res://player/player.gd" id="1_player"]
-[ext_resource type="Script" path="res://player/presentation/graybox_player_visual.gd" id="2_visual"]
-[ext_resource type="Script" path="res://player/movement/player_motor.gd" id="3_motor"]
-[ext_resource type="Script" path="res://player/combat/player_combat.gd" id="4_combat"]
+[ext_resource type="Script" uid="uid://cvt1sl1pi4u8q" path="res://player/player.gd" id="1_player"]
+[ext_resource type="Script" uid="uid://kvrcknj0n34j" path="res://player/presentation/graybox_player_visual.gd" id="2_visual"]
+[ext_resource type="Script" uid="uid://c3w3kf4deulk0" path="res://player/movement/player_motor.gd" id="3_motor"]
+[ext_resource type="Script" uid="uid://d1yisfo4ilf6j" path="res://player/combat/player_combat.gd" id="4_combat"]
 [ext_resource type="Resource" path="res://player/default_player_tuning.tres" id="5_tuning"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_player"]
 radius = 14.0
 height = 44.0
 
-[node name="Player" type="CharacterBody2D" groups=["player"]]
+[node name="Player" type="CharacterBody2D" unique_id=149897214 groups=["player"]]
 collision_mask = 3
 script = ExtResource("1_player")
 tuning = ExtResource("5_tuning")
 
-[node name="Visual" type="Node2D" parent="."]
+[node name="Visual" type="Node2D" parent="." unique_id=587791569]
 script = ExtResource("2_visual")
 
-[node name="Motor" type="Node" parent="."]
+[node name="Motor" type="Node" parent="." unique_id=1117854965]
 script = ExtResource("3_motor")
 
-[node name="Combat" type="Node" parent="."]
+[node name="Combat" type="Node" parent="." unique_id=1637153714]
 script = ExtResource("4_combat")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=79177295]
 shape = SubResource("CapsuleShape2D_player")
 
-[node name="Camera2D" type="Camera2D" parent="."]
-position_smoothing_enabled = true
-position_smoothing_speed = 7.0
+[node name="Camera2D" type="Camera2D" parent="." unique_id=10719214]
 limit_left = 0
 limit_top = 0
 limit_right = 3200
 limit_bottom = 720
+position_smoothing_enabled = true
+position_smoothing_speed = 7.0

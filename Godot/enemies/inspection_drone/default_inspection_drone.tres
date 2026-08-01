@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="InspectionDroneDefinition" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="InspectionDroneDefinition" format=3 uid="uid://dgx81pvp6bx3s"]
 
-[ext_resource type="Script" path="res://enemies/inspection_drone/inspection_drone_definition.gd" id="1"]
+[ext_resource type="Script" uid="uid://cuw3ct6es4geq" path="res://enemies/inspection_drone/inspection_drone_definition.gd" id="1"]
 
 [resource]
 script = ExtResource("1")

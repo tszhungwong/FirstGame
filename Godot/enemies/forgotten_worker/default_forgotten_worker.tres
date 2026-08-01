@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="ForgottenWorkerDefinition" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="ForgottenWorkerDefinition" format=3 uid="uid://baoijsk5e12bg"]
 
-[ext_resource type="Script" path="res://enemies/forgotten_worker/forgotten_worker_definition.gd" id="2_behavior"]
+[ext_resource type="Script" uid="uid://df3oktgjug0bs" path="res://enemies/forgotten_worker/forgotten_worker_definition.gd" id="2_behavior"]
 
 [resource]
 script = ExtResource("2_behavior")

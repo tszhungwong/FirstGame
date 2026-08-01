@@ -1,34 +1,34 @@
 [gd_scene format=3 uid="uid://vfuh755aowhv"]
 
 [ext_resource type="Script" uid="uid://4yt2erkp5ucm" path="res://scenes/game/game.gd" id="1_game"]
-[ext_resource type="PackedScene" path="res://player/player.tscn" id="2_player"]
-[ext_resource type="PackedScene" path="res://levels/abandoned_maintenance/abandoned_maintenance_level.tscn" id="3_level"]
-[ext_resource type="Script" path="res://core/pause/pause_controller.gd" id="4_pause"]
-[ext_resource type="Script" path="res://dialogue/dialogue_controller.gd" id="5_dialogue"]
-[ext_resource type="Script" path="res://interaction/interaction_controller.gd" id="6_interaction"]
-[ext_resource type="Script" path="res://effects/time_effects_controller.gd" id="7_effects"]
-[ext_resource type="Script" path="res://ui/hud/hud_presenter.gd" id="8_hud"]
+[ext_resource type="PackedScene" uid="uid://3nkcxbg8xxdl" path="res://player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" uid="uid://bq518kaa3i48x" path="res://levels/abandoned_maintenance/abandoned_maintenance_level.tscn" id="3_level"]
+[ext_resource type="Script" uid="uid://c4ds57a35udnp" path="res://core/pause/pause_controller.gd" id="4_pause"]
+[ext_resource type="Script" uid="uid://c1bjs4q05n8o3" path="res://dialogue/dialogue_controller.gd" id="5_dialogue"]
+[ext_resource type="Script" uid="uid://blohpik7he6f3" path="res://interaction/interaction_controller.gd" id="6_interaction"]
+[ext_resource type="Script" uid="uid://jfedq6r3jg5c" path="res://effects/time_effects_controller.gd" id="7_effects"]
+[ext_resource type="Script" uid="uid://dv2ygna6vo5dj" path="res://ui/hud/hud_presenter.gd" id="8_hud"]
 
 [node name="Game" type="Node2D" unique_id=1789226421]
 script = ExtResource("1_game")
 
-[node name="Systems" type="Node" parent="."]
+[node name="Systems" type="Node" parent="." unique_id=177371921]
 
-[node name="PauseController" type="Node" parent="Systems"]
+[node name="PauseController" type="Node" parent="Systems" unique_id=1343407309]
 script = ExtResource("4_pause")
 
-[node name="DialogueController" type="Node" parent="Systems"]
+[node name="DialogueController" type="Node" parent="Systems" unique_id=502630347]
 script = ExtResource("5_dialogue")
 
-[node name="InteractionController" type="Node" parent="Systems"]
+[node name="InteractionController" type="Node" parent="Systems" unique_id=663512889]
 script = ExtResource("6_interaction")
 
-[node name="TimeEffectsController" type="Node" parent="Systems"]
+[node name="TimeEffectsController" type="Node" parent="Systems" unique_id=564404062]
 script = ExtResource("7_effects")
 
-[node name="LevelContainer" type="Node2D" parent="."]
+[node name="LevelContainer" type="Node2D" parent="." unique_id=1062183263]
 
-[node name="AbandonedMaintenanceLevel" parent="LevelContainer" instance=ExtResource("3_level")]
+[node name="AbandonedMaintenanceLevel" parent="LevelContainer" unique_id=1537851562 instance=ExtResource("3_level")]
 
 [node name="Player" parent="." unique_id=1815200981 instance=ExtResource("2_player")]
 position = Vector2(120, 620)

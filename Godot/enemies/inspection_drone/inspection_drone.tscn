@@ -1,18 +1,17 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://bauf0f544ib2i"]
 
-[ext_resource type="Script" path="res://enemies/inspection_drone/inspection_drone.gd" id="1_drone"]
+[ext_resource type="Script" uid="uid://c4ixuettv7b5t" path="res://enemies/inspection_drone/inspection_drone.gd" id="1_drone"]
 [ext_resource type="Resource" path="res://enemies/common/drone_enemy.tres" id="2_base"]
 [ext_resource type="Resource" path="res://enemies/inspection_drone/default_inspection_drone.tres" id="3_behavior"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_drone"]
 radius = 20.0
 
-[node name="InspectionDrone" type="CharacterBody2D" groups=["enemy", "respawnable_enemy"]]
+[node name="InspectionDrone" type="CharacterBody2D" unique_id=416361323 groups=["enemy", "respawnable_enemy"]]
 collision_layer = 4
-collision_mask = 1
 script = ExtResource("1_drone")
-definition = ExtResource("2_base")
 behavior = ExtResource("3_behavior")
+definition = ExtResource("2_base")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1100372362]
 shape = SubResource("CircleShape2D_drone")

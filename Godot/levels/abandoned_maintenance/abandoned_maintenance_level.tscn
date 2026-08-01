@@ -1,13 +1,13 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://bq518kaa3i48x"]
 
-[ext_resource type="Script" path="res://levels/abandoned_maintenance/abandoned_maintenance_level.gd" id="1_level"]
+[ext_resource type="Script" uid="uid://b07dcju6wikhd" path="res://levels/abandoned_maintenance/abandoned_maintenance_level.gd" id="1_level"]
 [ext_resource type="PackedScene" path="res://levels/common/graybox_platform.tscn" id="2_platform"]
-[ext_resource type="PackedScene" path="res://enemies/forgotten_worker/forgotten_worker.tscn" id="3_worker"]
-[ext_resource type="PackedScene" path="res://enemies/inspection_drone/inspection_drone.tscn" id="4_drone"]
-[ext_resource type="PackedScene" path="res://enemies/echo_foreman/echo_foreman.tscn" id="5_boss"]
+[ext_resource type="PackedScene" uid="uid://bn6p0ga06oqiw" path="res://enemies/forgotten_worker/forgotten_worker.tscn" id="3_worker"]
+[ext_resource type="PackedScene" uid="uid://bauf0f544ib2i" path="res://enemies/inspection_drone/inspection_drone.tscn" id="4_drone"]
+[ext_resource type="PackedScene" uid="uid://djars2k8de5dv" path="res://enemies/echo_foreman/echo_foreman.tscn" id="5_boss"]
 [ext_resource type="PackedScene" path="res://levels/common/checkpoint.tscn" id="6_checkpoint"]
-[ext_resource type="PackedScene" path="res://interaction/interactable.tscn" id="7_interactable"]
-[ext_resource type="PackedScene" path="res://dialogue/message_trigger.tscn" id="8_trigger"]
+[ext_resource type="PackedScene" uid="uid://cg3mk015xuopl" path="res://interaction/interactable.tscn" id="7_interactable"]
+[ext_resource type="PackedScene" uid="uid://owu4jvbvrjtw" path="res://dialogue/message_trigger.tscn" id="8_trigger"]
 [ext_resource type="Resource" path="res://dialogue/content/lamplighter.tres" id="9_lamplighter"]
 [ext_resource type="Resource" path="res://dialogue/content/skill_terminal.tres" id="10_skill"]
 [ext_resource type="Resource" path="res://dialogue/content/memory_fragment.tres" id="11_memory"]
@@ -17,149 +17,149 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_gate"]
 size = Vector2(32, 180)
 
-[node name="AbandonedMaintenanceLevel" type="Node2D"]
+[node name="AbandonedMaintenanceLevel" type="Node2D" unique_id=182211352]
 script = ExtResource("1_level")
 
-[node name="FloorA" parent="." instance=ExtResource("2_platform")]
+[node name="FloorA" parent="." unique_id=632988576 instance=ExtResource("2_platform")]
 position = Vector2(400, 690)
 size = Vector2(800, 40)
 
-[node name="FloorB" parent="." instance=ExtResource("2_platform")]
+[node name="FloorB" parent="." unique_id=1639064767 instance=ExtResource("2_platform")]
 position = Vector2(1200, 690)
 size = Vector2(800, 40)
 color = Color(0.23, 0.28, 0.33, 1)
 
-[node name="FloorC" parent="." instance=ExtResource("2_platform")]
+[node name="FloorC" parent="." unique_id=324607691 instance=ExtResource("2_platform")]
 position = Vector2(2000, 690)
 size = Vector2(800, 40)
 color = Color(0.25, 0.27, 0.31, 1)
 
-[node name="FloorD" parent="." instance=ExtResource("2_platform")]
+[node name="FloorD" parent="." unique_id=1858597672 instance=ExtResource("2_platform")]
 position = Vector2(2800, 690)
 size = Vector2(800, 40)
 color = Color(0.3, 0.23, 0.26, 1)
 
-[node name="LeftWall" parent="." instance=ExtResource("2_platform")]
+[node name="LeftWall" parent="." unique_id=1913942171 instance=ExtResource("2_platform")]
 position = Vector2(-20, 360)
 size = Vector2(40, 720)
 
-[node name="RightWall" parent="." instance=ExtResource("2_platform")]
+[node name="RightWall" parent="." unique_id=1890330662 instance=ExtResource("2_platform")]
 position = Vector2(3220, 360)
 size = Vector2(40, 720)
 
-[node name="StartPlatform" parent="." instance=ExtResource("2_platform")]
+[node name="StartPlatform" parent="." unique_id=1661212722 instance=ExtResource("2_platform")]
 position = Vector2(350, 570)
 size = Vector2(220, 22)
 color = Color(0.22, 0.42, 0.45, 1)
 one_way = true
 
-[node name="UpperPlatformA" parent="." instance=ExtResource("2_platform")]
+[node name="UpperPlatformA" parent="." unique_id=50961992 instance=ExtResource("2_platform")]
 position = Vector2(700, 500)
 size = Vector2(190, 22)
 color = Color(0.22, 0.42, 0.45, 1)
 one_way = true
 
-[node name="UpperPlatformB" parent="." instance=ExtResource("2_platform")]
+[node name="UpperPlatformB" parent="." unique_id=1937737172 instance=ExtResource("2_platform")]
 position = Vector2(980, 445)
 size = Vector2(170, 22)
 color = Color(0.22, 0.42, 0.45, 1)
 one_way = true
 
-[node name="GateStepA" parent="." instance=ExtResource("2_platform")]
+[node name="GateStepA" parent="." unique_id=66738214 instance=ExtResource("2_platform")]
 position = Vector2(1235, 610)
 size = Vector2(125, 20)
 one_way = true
 
-[node name="GateStepB" parent="." instance=ExtResource("2_platform")]
+[node name="GateStepB" parent="." unique_id=1849011223 instance=ExtResource("2_platform")]
 position = Vector2(1355, 550)
 size = Vector2(125, 20)
 one_way = true
 
-[node name="GateStepC" parent="." instance=ExtResource("2_platform")]
+[node name="GateStepC" parent="." unique_id=223095440 instance=ExtResource("2_platform")]
 position = Vector2(1475, 482)
 size = Vector2(125, 20)
 one_way = true
 
-[node name="GateStepD" parent="." instance=ExtResource("2_platform")]
+[node name="GateStepD" parent="." unique_id=519657027 instance=ExtResource("2_platform")]
 position = Vector2(1600, 550)
 size = Vector2(125, 20)
 one_way = true
 
-[node name="GateStepE" parent="." instance=ExtResource("2_platform")]
+[node name="GateStepE" parent="." unique_id=1610088966 instance=ExtResource("2_platform")]
 position = Vector2(1725, 610)
 size = Vector2(125, 20)
 one_way = true
 
-[node name="CombatPlatformA" parent="." instance=ExtResource("2_platform")]
+[node name="CombatPlatformA" parent="." unique_id=577292454 instance=ExtResource("2_platform")]
 position = Vector2(1940, 505)
 size = Vector2(220, 22)
 color = Color(0.37, 0.34, 0.4, 1)
 one_way = true
 
-[node name="CombatPlatformB" parent="." instance=ExtResource("2_platform")]
+[node name="CombatPlatformB" parent="." unique_id=35159085 instance=ExtResource("2_platform")]
 position = Vector2(2220, 430)
 size = Vector2(190, 22)
 color = Color(0.37, 0.34, 0.4, 1)
 one_way = true
 
-[node name="BossPlatform" parent="." instance=ExtResource("2_platform")]
+[node name="BossPlatform" parent="." unique_id=326419412 instance=ExtResource("2_platform")]
 position = Vector2(2760, 520)
 size = Vector2(320, 22)
 color = Color(0.47, 0.29, 0.31, 1)
 one_way = true
 
-[node name="WallModuleShaft" parent="." instance=ExtResource("2_platform")]
+[node name="WallModuleShaft" parent="." unique_id=87298085 instance=ExtResource("2_platform")]
 position = Vector2(455, 390)
 size = Vector2(32, 290)
 color = Color(0.25, 0.55, 0.56, 1)
 
-[node name="HiddenMemoryLedge" parent="." instance=ExtResource("2_platform")]
+[node name="HiddenMemoryLedge" parent="." unique_id=265547263 instance=ExtResource("2_platform")]
 position = Vector2(565, 245)
 size = Vector2(180, 22)
 color = Color(0.28, 0.59, 0.56, 1)
 one_way = true
 
-[node name="ReturnGate" type="StaticBody2D" parent="."]
+[node name="ReturnGate" type="StaticBody2D" parent="." unique_id=2091255224]
 position = Vector2(1500, 580)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ReturnGate"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ReturnGate" unique_id=400629695]
 shape = SubResource("RectangleShape2D_gate")
 
-[node name="Visual" type="Polygon2D" parent="ReturnGate"]
+[node name="Visual" type="Polygon2D" parent="ReturnGate" unique_id=525461566]
 color = Color(0.95, 0.36, 0.24, 1)
 polygon = PackedVector2Array(-16, -90, 16, -90, 16, 90, -16, 90)
 
-[node name="WorkerA" parent="." instance=ExtResource("3_worker")]
+[node name="WorkerA" parent="." unique_id=1281158893 instance=ExtResource("3_worker")]
 position = Vector2(570, 620)
 
-[node name="WorkerB" parent="." instance=ExtResource("3_worker")]
+[node name="WorkerB" parent="." unique_id=1512713096 instance=ExtResource("3_worker")]
 position = Vector2(1220, 620)
 
-[node name="WorkerC" parent="." instance=ExtResource("3_worker")]
+[node name="WorkerC" parent="." unique_id=2009703858 instance=ExtResource("3_worker")]
 position = Vector2(2050, 620)
 
-[node name="WorkerD" parent="." instance=ExtResource("3_worker")]
+[node name="WorkerD" parent="." unique_id=827909306 instance=ExtResource("3_worker")]
 position = Vector2(2410, 620)
 
-[node name="DroneA" parent="." instance=ExtResource("4_drone")]
+[node name="DroneA" parent="." unique_id=1954340270 instance=ExtResource("4_drone")]
 position = Vector2(1050, 350)
 
-[node name="DroneB" parent="." instance=ExtResource("4_drone")]
+[node name="DroneB" parent="." unique_id=1896758295 instance=ExtResource("4_drone")]
 position = Vector2(1970, 350)
 
-[node name="EchoForeman" parent="." instance=ExtResource("5_boss")]
+[node name="EchoForeman" parent="." unique_id=1645443883 instance=ExtResource("5_boss")]
 position = Vector2(2850, 610)
 
-[node name="Checkpoint" parent="." groups=["checkpoint"] instance=ExtResource("6_checkpoint")]
+[node name="Checkpoint" parent="." unique_id=1911775056 groups=["checkpoint"] instance=ExtResource("6_checkpoint")]
 position = Vector2(740, 628)
 
-[node name="Lamplighter" parent="." instance=ExtResource("7_interactable")]
+[node name="Lamplighter" parent="." unique_id=185887889 instance=ExtResource("7_interactable")]
 position = Vector2(880, 632)
 dialogue = ExtResource("9_lamplighter")
 interaction_id = &"lamplighter"
 display_color = Color(0.91, 0.72, 0.32, 1)
 
-[node name="SkillTerminal" parent="." instance=ExtResource("7_interactable")]
+[node name="SkillTerminal" parent="." unique_id=2066016465 instance=ExtResource("7_interactable")]
 position = Vector2(1010, 630)
 dialogue = ExtResource("10_skill")
 interaction_id = &"skill_terminal"
@@ -167,7 +167,7 @@ display_color = Color(0.53, 0.76, 1, 1)
 display_size = Vector2(26, 38)
 one_shot = true
 
-[node name="MemoryFragment" parent="." instance=ExtResource("7_interactable")]
+[node name="MemoryFragment" parent="." unique_id=728948494 instance=ExtResource("7_interactable")]
 position = Vector2(1160, 630)
 dialogue = ExtResource("11_memory")
 interaction_id = &"memory_fragment"
@@ -175,7 +175,7 @@ display_color = Color(0.38, 0.88, 1, 1)
 display_size = Vector2(24, 36)
 one_shot = true
 
-[node name="HiddenMemory" parent="." instance=ExtResource("7_interactable")]
+[node name="HiddenMemory" parent="." unique_id=501187931 instance=ExtResource("7_interactable")]
 position = Vector2(565, 205)
 dialogue = ExtResource("12_hidden")
 interaction_id = &"hidden_memory"
@@ -183,7 +183,7 @@ display_color = Color(0.53, 1, 0.79, 1)
 display_size = Vector2(22, 32)
 one_shot = true
 
-[node name="ReturnControl" parent="." instance=ExtResource("7_interactable")]
+[node name="ReturnControl" parent="." unique_id=1762264118 instance=ExtResource("7_interactable")]
 position = Vector2(655, 205)
 dialogue = ExtResource("13_return")
 interaction_id = &"return_control"
@@ -191,6 +191,6 @@ display_color = Color(0.95, 0.45, 0.28, 1)
 display_size = Vector2(26, 40)
 one_shot = true
 
-[node name="SupervisorBroadcast" parent="." groups=["message_trigger"] instance=ExtResource("8_trigger")]
+[node name="SupervisorBroadcast" parent="." unique_id=433638732 groups=["message_trigger"] instance=ExtResource("8_trigger")]
 position = Vector2(1820, 390)
 message_key = &"dialog.supervisor"

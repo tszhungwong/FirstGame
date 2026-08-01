@@ -1,14 +1,13 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://bj06cjikwshuy"]
 
-[ext_resource type="Script" path="res://enemies/projectiles/falling_debris.gd" id="1_debris"]
+[ext_resource type="Script" uid="uid://cmnvj54frj5co" path="res://enemies/projectiles/falling_debris.gd" id="1_debris"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_debris"]
 size = Vector2(26, 36)
 
-[node name="FallingDebris" type="Area2D"]
+[node name="FallingDebris" type="Area2D" unique_id=1810748634]
 collision_layer = 8
-collision_mask = 1
 script = ExtResource("1_debris")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1556316673]
 shape = SubResource("RectangleShape2D_debris")

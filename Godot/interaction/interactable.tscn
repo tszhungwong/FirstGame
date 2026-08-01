@@ -1,13 +1,13 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://cg3mk015xuopl"]
 
-[ext_resource type="Script" path="res://interaction/interactable.gd" id="1_interactable"]
+[ext_resource type="Script" uid="uid://s2rkavnkknbv" path="res://interaction/interactable.gd" id="1_interactable"]
 
-[node name="Interactable" type="Area2D" groups=["interactable"]]
+[node name="Interactable" type="Area2D" unique_id=1663348435 groups=["interactable"]]
 collision_layer = 0
 collision_mask = 0
 script = ExtResource("1_interactable")
 
-[node name="InteractionPrompt" type="Label" parent="."]
+[node name="InteractionPrompt" type="Label" parent="." unique_id=93299322]
 visible = false
 offset_left = -60.0
 offset_top = -88.0

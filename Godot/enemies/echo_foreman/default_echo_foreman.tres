@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="EchoForemanDefinition" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="EchoForemanDefinition" format=3 uid="uid://cljxcibywb7x4"]
 
-[ext_resource type="Script" path="res://enemies/echo_foreman/echo_foreman_definition.gd" id="1"]
+[ext_resource type="Script" uid="uid://direutorbhn54" path="res://enemies/echo_foreman/echo_foreman_definition.gd" id="1"]
 
 [resource]
 script = ExtResource("1")
