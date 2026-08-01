@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://30blr5x2w8hh" path="res://enemies/echo_foreman/echo_foreman.gd" id="1_boss"]
 [ext_resource type="Resource" path="res://enemies/common/boss_enemy.tres" id="2_base"]
 [ext_resource type="Resource" path="res://enemies/echo_foreman/default_echo_foreman.tres" id="3_behavior"]
+[ext_resource type="PackedScene" path="res://ui/world_identity/world_identity_label.tscn" id="4_identity"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_boss"]
 radius = 34.0
@@ -17,3 +18,8 @@ definition = ExtResource("2_base")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=505140355]
 shape = SubResource("CapsuleShape2D_boss")
+
+[node name="IdentityLabel" parent="." instance=ExtResource("4_identity")]
+position = Vector2(0, -26)
+theme_override_colors/font_color = Color(1, 0.68, 0.56, 1)
+text_key = &"identity.echo_foreman"

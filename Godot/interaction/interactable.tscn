@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cg3mk015xuopl"]
 
 [ext_resource type="Script" uid="uid://s2rkavnkknbv" path="res://interaction/interactable.gd" id="1_interactable"]
+[ext_resource type="PackedScene" path="res://ui/world_identity/world_identity_label.tscn" id="2_identity"]
 
 [node name="Interactable" type="Area2D" unique_id=1663348435 groups=["interactable"]]
 collision_layer = 0
@@ -19,3 +20,5 @@ theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 15
 text = "ui.interact"
 horizontal_alignment = 1
+
+[node name="IdentityLabel" parent="." instance=ExtResource("2_identity")]

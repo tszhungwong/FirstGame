@@ -54,6 +54,7 @@ func _run() -> void:
 	await _test_interact_dismisses_visible_dialog()
 	await _test_checkpoint_dialog_lasts_two_seconds()
 	await _test_nearest_interactable_shows_prompt()
+	await _test_named_characters_display_identity_labels_that_follow_them()
 	await _test_area_message_trigger_only_fires_once()
 	await _test_crossing_return_gate_does_not_cause_unprompted_damage()
 	await _test_distant_boss_does_not_attack_player_at_return_gate()
@@ -884,6 +885,43 @@ func _test_nearest_interactable_shows_prompt() -> void:
 	_expect(
 		prompt.visible and prompt.text == "按 E 互動",
 		"the nearest interactable shows an E interaction prompt"
+	)
+	game.queue_free()
+	await process_frame
+
+
+func _test_named_characters_display_identity_labels_that_follow_them() -> void:
+	var game_scene := load(GAME_SCENE_PATH) as PackedScene
+	if game_scene == null:
+		_fail("game scene is available for identity labels")
+		return
+	var game := game_scene.instantiate()
+	root.add_child(game)
+	await process_frame
+
+	var lamplighter := game.get_node(
+		"LevelContainer/AbandonedMaintenanceLevel/Lamplighter"
+	) as Area2D
+	var boss: CharacterBody2D = game.get_boss()
+	var lamplighter_label := lamplighter.get_node("IdentityLabel") as Label
+	var boss_label := boss.get_node("IdentityLabel") as Label
+	var lamplighter_offset := lamplighter_label.global_position - lamplighter.global_position
+	var boss_offset := boss_label.global_position - boss.global_position
+	lamplighter.global_position += Vector2(70.0, -20.0)
+	boss.global_position += Vector2(-80.0, -10.0)
+	await process_frame
+
+	_expect(
+		lamplighter_label.visible
+		and lamplighter_label.text == "守燈人"
+		and lamplighter_label.global_position - lamplighter.global_position == lamplighter_offset,
+		"the named NPC displays a localized identity label that follows movement"
+	)
+	_expect(
+		boss_label.visible
+		and boss_label.text == "殘響監工"
+		and boss_label.global_position - boss.global_position == boss_offset,
+		"the important monster displays a localized identity label that follows movement"
 	)
 	game.queue_free()
 	await process_frame

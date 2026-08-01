@@ -5,6 +5,8 @@ ui.status,"Health %d/%d    Memory Energy %d/%d","生命 %d/%d    记忆能量 %d
 ui.objective,Objective: %s,目标：%s,目標：%s
 ui.boss_status,Echo Foreman  %d / %d,残响监工  %d / %d,殘響監工  %d / %d
 ui.controls,A/D Move   Space Jump   S Drop   L Dash   J Attack   W/S+J Directional Attack   K Skill   E Interact,A/D 移动   Space 跳跃   S 下穿平台   L 冲刺   J 普攻   W/S+J 方向攻击   K 技能   E 互动,A/D 移動   Space 跳躍   S 下穿平台   L 衝刺   J 普攻   W/S+J 方向攻擊   K 技能   E 互動
+identity.lamplighter,Lamplighter,守灯人,守燈人
+identity.echo_foreman,Echo Foreman,残响监工,殘響監工
 objective.find_exit,Find the maintenance district exit,寻找维修区出口,尋找維修區出口
 objective.use_direction_skill,Use the directional skill to cross the transport platforms,使用方向技能穿越运输平台,使用方向技能穿越運輸平台
 objective.reach_lockdown,Cross the transport platforms and reach the lockdown zone,穿越运输平台并找到封锁区,穿越運輸平台並找到封鎖區
