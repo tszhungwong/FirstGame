@@ -43,6 +43,8 @@ func _run() -> void:
 	await _test_basic_attack_damages_enemy_and_builds_memory()
 	await _test_skill_spends_memory_and_damages_enemy()
 	await _test_player_damage_has_brief_invulnerability()
+	await _test_enemy_melee_attack_is_blocked_by_a_wall()
+	await _test_enemy_attack_path_is_blocked_by_a_platform()
 	await _test_death_respawns_at_checkpoint_with_persistent_progress()
 	await _test_boss_defeat_unlocks_wall_module_and_return_route()
 	await _test_wall_module_enables_wall_jump()
@@ -54,6 +56,7 @@ func _run() -> void:
 	await _test_nearest_interactable_shows_prompt()
 	await _test_area_message_trigger_only_fires_once()
 	await _test_crossing_return_gate_does_not_cause_unprompted_damage()
+	await _test_distant_boss_does_not_attack_player_at_return_gate()
 
 	if _failures == 0:
 		print("PASS: all gameplay tests")
@@ -468,6 +471,80 @@ func _test_player_damage_has_brief_invulnerability() -> void:
 	await process_frame
 
 
+func _test_enemy_melee_attack_is_blocked_by_a_wall() -> void:
+	var player_scene := load(PLAYER_SCENE_PATH) as PackedScene
+	var worker_scene := load(FORGOTTEN_WORKER_SCENE_PATH) as PackedScene
+	if player_scene == null or worker_scene == null:
+		_fail("combat scenes are available for wall-blocked attack regression")
+		return
+	var floor_body := _make_floor()
+	var wall := StaticBody2D.new()
+	wall.global_position = Vector2(28.0, 0.0)
+	var wall_collision := CollisionShape2D.new()
+	var wall_shape := RectangleShape2D.new()
+	wall_shape.size = Vector2(4.0, 100.0)
+	wall_collision.shape = wall_shape
+	wall.add_child(wall_collision)
+	var player := player_scene.instantiate() as CharacterBody2D
+	var worker := worker_scene.instantiate() as CharacterBody2D
+	player.global_position = Vector2(56.0, 0.0)
+	worker.global_position = Vector2.ZERO
+	root.add_child(floor_body)
+	root.add_child(wall)
+	root.add_child(player)
+	root.add_child(worker)
+	worker.set_target(player)
+	for _frame in range(30):
+		await physics_frame
+	var starting_health: int = player.health
+	for _frame in range(120):
+		await physics_frame
+
+	_expect(
+		player.health == starting_health,
+		"an enemy melee attack cannot damage the player through a solid wall"
+	)
+	player.queue_free()
+	worker.queue_free()
+	wall.queue_free()
+	floor_body.queue_free()
+	await process_frame
+
+
+func _test_enemy_attack_path_is_blocked_by_a_platform() -> void:
+	var player_scene := load(PLAYER_SCENE_PATH) as PackedScene
+	var worker_scene := load(FORGOTTEN_WORKER_SCENE_PATH) as PackedScene
+	if player_scene == null or worker_scene == null:
+		_fail("combat scenes are available for platform-blocked attack regression")
+		return
+	var platform := StaticBody2D.new()
+	platform.global_position = Vector2(0.0, 28.0)
+	var platform_collision := CollisionShape2D.new()
+	var platform_shape := RectangleShape2D.new()
+	platform_shape.size = Vector2(100.0, 4.0)
+	platform_collision.shape = platform_shape
+	platform.add_child(platform_collision)
+	var player := player_scene.instantiate() as CharacterBody2D
+	var worker := worker_scene.instantiate() as CharacterBody2D
+	worker.global_position = Vector2.ZERO
+	player.global_position = Vector2(0.0, 56.0)
+	worker.process_mode = Node.PROCESS_MODE_DISABLED
+	player.process_mode = Node.PROCESS_MODE_DISABLED
+	root.add_child(platform)
+	root.add_child(player)
+	root.add_child(worker)
+	await physics_frame
+
+	_expect(
+		not worker.has_clear_attack_path(player),
+		"an enemy attack path cannot pass through a solid platform"
+	)
+	player.queue_free()
+	worker.queue_free()
+	platform.queue_free()
+	await process_frame
+
+
 func _test_death_respawns_at_checkpoint_with_persistent_progress() -> void:
 	var game_scene := load(GAME_SCENE_PATH) as PackedScene
 	if game_scene == null:
@@ -861,6 +938,37 @@ func _test_crossing_return_gate_does_not_cause_unprompted_damage() -> void:
 		player.health == starting_health,
 		(
 			"crossing the return gate does not cause unprompted damage "
+			+ "(health %d -> %d)" % [starting_health, player.health]
+		)
+	)
+	game.queue_free()
+	await process_frame
+
+
+func _test_distant_boss_does_not_attack_player_at_return_gate() -> void:
+	var game_scene := load(GAME_SCENE_PATH) as PackedScene
+	if game_scene == null:
+		_fail("game scene is available for boss encounter range regression")
+		return
+	var game := game_scene.instantiate()
+	root.add_child(game)
+	await physics_frame
+
+	var player: CharacterBody2D = game.get_player()
+	var level := game.get_node("LevelContainer/AbandonedMaintenanceLevel")
+	for enemy_name: String in ["WorkerA", "WorkerB", "WorkerC", "WorkerD", "DroneA", "DroneB"]:
+		level.get_node(enemy_name).queue_free()
+	player.global_position = Vector2(1460.0, 620.0)
+	player.velocity = Vector2.ZERO
+	await physics_frame
+	var starting_health: int = player.health
+	for _frame in range(600):
+		await physics_frame
+
+	_expect(
+		player.health == starting_health,
+		(
+			"the distant boss does not attack the player before the boss area "
 			+ "(health %d -> %d)" % [starting_health, player.health]
 		)
 	)

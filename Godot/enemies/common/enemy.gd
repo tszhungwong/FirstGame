@@ -2,6 +2,7 @@ class_name Enemy
 extends "res://combat/combatant_body_2d.gd"
 
 const VitalsType := preload("res://combat/vitals.gd")
+const WORLD_GEOMETRY_MASK := 3
 
 signal health_changed(current: int, maximum: int)
 signal defeated
@@ -67,6 +68,20 @@ func set_target(target: CombatantBody2D) -> void:
 
 func get_target() -> CombatantBody2D:
 	return _target
+
+
+func has_clear_attack_path(target: CollisionObject2D) -> bool:
+	if target == null:
+		return false
+	var query := PhysicsRayQueryParameters2D.create(
+		global_position,
+		target.global_position,
+		WORLD_GEOMETRY_MASK,
+		[get_rid(), target.get_rid()]
+	)
+	query.collide_with_areas = false
+	query.collide_with_bodies = true
+	return get_world_2d().direct_space_state.intersect_ray(query).is_empty()
 
 
 func restore_defeated() -> void:

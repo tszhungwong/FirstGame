@@ -33,6 +33,7 @@ func _physics_process(delta: float) -> void:
 			if (
 				absf(strike_offset.x) <= behavior.attack_range * behavior.strike_range_multiplier
 				and absf(strike_offset.y) < behavior.vertical_detection_range
+				and has_clear_attack_path(player)
 			):
 				player.apply_damage(DamageRequestType.new(
 					behavior.contact_damage,
@@ -69,4 +70,12 @@ func _draw() -> void:
 	draw_rect(Rect2(-12.0, -18.0, 24.0, 8.0), Color("5b2527"))
 	draw_line(Vector2(12.0, -4.0), Vector2(28.0, 12.0), Color("ffc857"), 6.0)
 	if _attack_windup_remaining > 0.0:
-		draw_arc(Vector2.ZERO, 34.0, 0.0, TAU, 24, Color("ffcf5b"), 4.0)
+		var strike_range := behavior.attack_range * behavior.strike_range_multiplier
+		var attack_rect := Rect2(
+			-strike_range,
+			-behavior.vertical_detection_range,
+			strike_range * 2.0,
+			behavior.vertical_detection_range * 2.0
+		)
+		draw_rect(attack_rect, Color(1.0, 0.2, 0.12, 0.16), true)
+		draw_rect(attack_rect, Color("ff6b4a"), false, 3.0)
