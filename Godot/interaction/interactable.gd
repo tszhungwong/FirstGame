@@ -10,14 +10,17 @@ signal interacted(entry: DialogueEntry, interaction_id: StringName)
 @export var one_shot := false
 @export var show_interaction_prompt := true
 @export var interaction_prompt_key := &"ui.interact"
+@export var identity_label_key: StringName
 
 @onready var _interaction_prompt := $InteractionPrompt as Label
+@onready var _identity_label := $IdentityLabel as WorldIdentityLabel
 
 var _line_index := 0
 var _completed := false
 
 
 func _ready() -> void:
+	_identity_label.set_text_key(identity_label_key)
 	_refresh_localized_text()
 	AppSettings.locale_changed.connect(_on_locale_changed)
 	_interaction_prompt.visible = false

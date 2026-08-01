@@ -157,6 +157,7 @@ position = Vector2(740, 628)
 position = Vector2(880, 632)
 dialogue = ExtResource("9_lamplighter")
 interaction_id = &"lamplighter"
+identity_label_key = &"identity.lamplighter"
 display_color = Color(0.91, 0.72, 0.32, 1)
 
 [node name="SkillTerminal" parent="." unique_id=2066016465 instance=ExtResource("7_interactable")]
