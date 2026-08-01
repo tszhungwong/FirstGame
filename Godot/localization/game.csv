@@ -4,7 +4,19 @@ ui.continue,Press E to continue,按 E 继续,按 E 繼續
 ui.status,"Health %d/%d    Memory Energy %d/%d","生命 %d/%d    记忆能量 %d/%d","生命 %d/%d    記憶能量 %d/%d"
 ui.objective,Objective: %s,目标：%s,目標：%s
 ui.boss_status,Echo Foreman  %d / %d,残响监工  %d / %d,殘響監工  %d / %d
-ui.controls,A/D Move   Space Jump   S Drop   L Dash   J Attack   W/S+J Directional Attack   K Skill   E Interact,A/D 移动   Space 跳跃   S 下穿平台   L 冲刺   J 普攻   W/S+J 方向攻击   K 技能   E 互动,A/D 移動   Space 跳躍   S 下穿平台   L 衝刺   J 普攻   W/S+J 方向攻擊   K 技能   E 互動
+ui.controls,A/D Move   Space Jump   S Drop   L Dash   J Attack   W/S+J Directional Attack   K Skill   E Interact   Esc Settings,A/D 移动   Space 跳跃   S 下穿平台   L 冲刺   J 普攻   W/S+J 方向攻击   K 技能   E 互动   Esc 设置,A/D 移動   Space 跳躍   S 下穿平台   L 衝刺   J 普攻   W/S+J 方向攻擊   K 技能   E 互動   Esc 設定
+ui.settings.title,Settings,设置,設定
+ui.settings.paused,Game paused,游戏已暂停,遊戲已暫停
+ui.settings.language,Language,语言,語言
+ui.settings.resume,Resume,继续游戏,繼續遊戲
+ui.settings.restart,Restart from checkpoint,从记录点重新开始,從記錄點重新開始
+ui.settings.home,Return to Home,返回主页,返回首頁
+ui.home.title,GAME GHOST,游戏幽灵,遊戲幽靈
+ui.home.subtitle,Recover the memories buried beneath the maintenance district.,找回埋藏在维修区深处的记忆。,找回埋藏在維修區深處的記憶。
+ui.home.start,Start,开始,開始
+locale.en,English,English,English
+locale.zh_Hans,Simplified Chinese,简体中文,簡體中文
+locale.zh_Hant,Traditional Chinese,繁體中文,繁體中文
 identity.lamplighter,Lamplighter,守灯人,守燈人
 identity.echo_foreman,Echo Foreman,残响监工,殘響監工
 objective.find_exit,Find the maintenance district exit,寻找维修区出口,尋找維修區出口

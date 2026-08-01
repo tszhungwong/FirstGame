@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://vfuh755aowhv"]
+[gd_scene load_steps=10 format=3 uid="uid://vfuh755aowhv"]
 
 [ext_resource type="Script" uid="uid://4yt2erkp5ucm" path="res://scenes/game/game.gd" id="1_game"]
 [ext_resource type="PackedScene" uid="uid://3nkcxbg8xxdl" path="res://player/player.tscn" id="2_player"]
@@ -8,9 +8,11 @@
 [ext_resource type="Script" uid="uid://blohpik7he6f3" path="res://interaction/interaction_controller.gd" id="6_interaction"]
 [ext_resource type="Script" uid="uid://jfedq6r3jg5c" path="res://effects/time_effects_controller.gd" id="7_effects"]
 [ext_resource type="Script" uid="uid://dv2ygna6vo5dj" path="res://ui/hud/hud_presenter.gd" id="8_hud"]
+[ext_resource type="PackedScene" path="res://ui/settings/settings_menu.tscn" id="9_settings"]
 
 [node name="Game" type="Node2D" unique_id=1789226421]
 script = ExtResource("1_game")
+home_scene_path = "res://scenes/home/home.tscn"
 
 [node name="Systems" type="Node" parent="." unique_id=177371921]
 
@@ -109,3 +111,6 @@ theme_override_colors/font_color = Color(0.72, 0.78, 0.82, 1)
 theme_override_font_sizes/font_size = 14
 text = "ui.continue"
 horizontal_alignment = 2
+
+[node name="SettingsMenu" parent="." instance=ExtResource("9_settings")]
+open_on_ready = false
