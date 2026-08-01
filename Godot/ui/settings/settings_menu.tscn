@@ -1,0 +1,93 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://ui/settings/settings_menu.gd" id="1_settings"]
+[ext_resource type="Theme" path="res://ui/theme/game_ui_theme.tres" id="2_theme"]
+
+[node name="SettingsMenu" type="CanvasLayer"]
+layer = 100
+script = ExtResource("1_settings")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.012, 0.023, 0.031, 0.94)
+mouse_filter = 0
+
+[node name="Center" type="CenterContainer" parent="Backdrop"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="Panel" type="PanelContainer" parent="Backdrop/Center"]
+custom_minimum_size = Vector2(540, 0)
+layout_mode = 2
+theme = ExtResource("2_theme")
+
+[node name="Margin" type="MarginContainer" parent="Backdrop/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 40
+
+[node name="Options" type="VBoxContainer" parent="Backdrop/Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="Backdrop/Center/Panel/Margin/Options"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.94, 0.94, 1)
+theme_override_font_sizes/font_size = 34
+text = "ui.settings.title"
+horizontal_alignment = 1
+
+[node name="PausedLabel" type="Label" parent="Backdrop/Center/Panel/Margin/Options"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.63, 0.7, 0.74, 1)
+theme_override_font_sizes/font_size = 17
+text = "ui.settings.paused"
+horizontal_alignment = 1
+
+[node name="Separator" type="HSeparator" parent="Backdrop/Center/Panel/Margin/Options"]
+layout_mode = 2
+
+[node name="LanguageRow" type="HBoxContainer" parent="Backdrop/Center/Panel/Margin/Options"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="LanguageLabel" type="Label" parent="Backdrop/Center/Panel/Margin/Options/LanguageRow"]
+layout_mode = 2
+text = "ui.settings.language"
+vertical_alignment = 1
+
+[node name="Spacer" type="Control" parent="Backdrop/Center/Panel/Margin/Options/LanguageRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="LocaleSelector" type="OptionButton" parent="Backdrop/Center/Panel/Margin/Options/LanguageRow"]
+custom_minimum_size = Vector2(230, 52)
+layout_mode = 2
+
+[node name="ResumeButton" type="Button" parent="Backdrop/Center/Panel/Margin/Options"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "ui.settings.resume"
+
+[node name="RestartButton" type="Button" parent="Backdrop/Center/Panel/Margin/Options"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "ui.settings.restart"
+
+[node name="HomeButton" type="Button" parent="Backdrop/Center/Panel/Margin/Options"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_type_variation = &"DangerButton"
+text = "ui.settings.home"

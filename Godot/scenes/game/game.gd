@@ -9,12 +9,16 @@ const BATTLE_DIALOG_DURATION := 3.2
 const CHECKPOINT_DIALOG_DURATION := 2.0
 const INTERACTION_DISTANCE := 112.0
 
+@export_file("*.tscn") var home_scene_path: String
+
 @onready var _player := $Player as Player
 @onready var _level_container := $LevelContainer as Node2D
 @onready var _hud := $HUD as HUDPresenter
 @onready var _dialogue_controller := $Systems/DialogueController as DialogueController
 @onready var _interaction_controller := $Systems/InteractionController as InteractionController
 @onready var _time_effects := $Systems/TimeEffectsController as TimeEffectsController
+@onready var _pause_controller := $Systems/PauseController as PauseController
+@onready var _settings_menu := $SettingsMenu as SettingsMenu
 
 var _return_route_open := false
 var _objective_key := &"objective.find_exit"
@@ -26,6 +30,7 @@ var _boss: Enemy
 
 
 func _ready() -> void:
+	assert(not home_scene_path.is_empty(), "Game requires a home scene path")
 	if not _run_state_was_injected:
 		_run_state.initialize(_player.global_position)
 	_player.died.connect(_on_player_died)
@@ -33,6 +38,12 @@ func _ready() -> void:
 	_dialogue_controller.dialogue_changed.connect(_on_dialogue_changed)
 	_dialogue_controller.dialogue_hidden.connect(_on_dialogue_hidden)
 	AppSettings.locale_changed.connect(_on_locale_changed)
+	_pause_controller.pause_changed.connect(_on_pause_changed)
+	_settings_menu.resume_requested.connect(_on_resume_requested)
+	_settings_menu.restart_requested.connect(_on_restart_requested)
+	_settings_menu.home_requested.connect(_on_home_requested)
+	_settings_menu.locale_requested.connect(_on_locale_requested)
+	_settings_menu.set_open(_pause_controller.is_paused())
 	_hud.hide_dialog()
 	_attach_level(_level_container.get_child(0) as GameLevel)
 	_refresh_localized_ui()
@@ -95,9 +106,37 @@ func replace_level(level_scene: PackedScene) -> void:
 
 
 func _on_player_died() -> void:
+	_respawn_from_checkpoint()
+
+
+func _respawn_from_checkpoint() -> void:
 	_level.reset_respawnable_enemies()
 	_player.respawn_at(_run_state.get_checkpoint_position())
 	present_dialogue(&"dialog.respawn")
+
+
+func _on_pause_changed(is_paused: bool) -> void:
+	_settings_menu.set_open(is_paused)
+
+
+func _on_resume_requested() -> void:
+	_pause_controller.set_paused(false)
+
+
+func _on_restart_requested() -> void:
+	_respawn_from_checkpoint()
+	_pause_controller.set_paused(false)
+
+
+func _on_home_requested() -> void:
+	_pause_controller.set_paused(false)
+	var change_error := get_tree().change_scene_to_file(home_scene_path)
+	if change_error != OK:
+		push_error("Unable to return to home scene (error %d)" % change_error)
+
+
+func _on_locale_requested(locale: StringName) -> void:
+	AppSettings.set_locale(locale)
 
 
 func _on_boss_defeated() -> void:

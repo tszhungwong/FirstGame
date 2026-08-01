@@ -3,6 +3,8 @@ extends SceneTree
 const PLAYER_SCENE_PATH := "res://player/player.tscn"
 const FORGOTTEN_WORKER_SCENE_PATH := "res://enemies/forgotten_worker/forgotten_worker.tscn"
 const GAME_SCENE_PATH := "res://scenes/game/game.tscn"
+const HOME_SCENE_PATH := "res://scenes/home/home.tscn"
+const SETTINGS_MENU_SCENE_PATH := "res://ui/settings/settings_menu.tscn"
 const MESSAGE_TRIGGER_SCENE_PATH := "res://dialogue/message_trigger.tscn"
 const APP_SETTINGS_SCRIPT_PATH := "res://core/app_settings/app_settings.gd"
 const PAUSE_CONTROLLER_SCRIPT_PATH := "res://core/pause/pause_controller.gd"
@@ -35,6 +37,7 @@ func _run() -> void:
 	_test_keyboard_input_adapter_builds_player_commands()
 	_test_time_effects_controller_owns_global_time_scale()
 	await _test_pause_controller_stops_pausable_gameplay()
+	await _test_pause_settings_menu_restarts_from_checkpoint()
 	await _test_player_moves_right_from_keyboard_input()
 	await _test_player_jumps_from_keyboard_input()
 	await _test_holding_jump_reaches_platform_height()
@@ -289,6 +292,66 @@ func _test_pause_controller_stops_pausable_gameplay() -> void:
 	)
 	pause_controller.queue_free()
 	player.queue_free()
+	await process_frame
+
+
+func _test_pause_settings_menu_restarts_from_checkpoint() -> void:
+	var game_scene := load(GAME_SCENE_PATH) as PackedScene
+	var home_scene := load(HOME_SCENE_PATH) as PackedScene
+	var settings_scene := load(SETTINGS_MENU_SCENE_PATH) as PackedScene
+	if game_scene == null or home_scene == null or settings_scene == null:
+		_fail("pause settings and home scenes are available")
+		return
+	var game := game_scene.instantiate()
+	root.add_child(game)
+	await physics_frame
+
+	var player: CharacterBody2D = game.get_player()
+	var checkpoint_position := Vector2(320.0, 180.0)
+	var pause_controller := game.get_node("Systems/PauseController") as PauseController
+	var settings_menu := game.get_node("SettingsMenu") as CanvasLayer
+	var restart_button := settings_menu.get_node(
+		"Backdrop/Center/Panel/Margin/Options/RestartButton"
+	) as Button
+	var locale_selector := settings_menu.get_node(
+		"Backdrop/Center/Panel/Margin/Options/LanguageRow/LocaleSelector"
+	) as OptionButton
+	var app_settings := root.get_node("AppSettings")
+	var original_locale: StringName = app_settings.get_locale()
+	var requested_locale := &"zh_Hans" if original_locale != &"zh_Hans" else &"zh_Hant"
+	game.activate_checkpoint(checkpoint_position)
+	player.global_position = Vector2(900.0, 360.0)
+	player.memory_energy = player.max_memory_energy
+	player.health = 1
+	pause_controller.set_paused(true)
+	await process_frame
+	var opened_while_paused := paused and settings_menu.visible
+	var requested_locale_index := -1
+	for item_index in range(locale_selector.item_count):
+		if StringName(locale_selector.get_item_metadata(item_index)) == requested_locale:
+			requested_locale_index = item_index
+			break
+	if requested_locale_index >= 0:
+		locale_selector.item_selected.emit(requested_locale_index)
+	var locale_changed_from_menu: bool = app_settings.get_locale() == requested_locale
+	restart_button.pressed.emit()
+	await process_frame
+
+	_expect(
+		opened_while_paused
+		and not paused
+		and not settings_menu.visible,
+		"pausing opens the settings page and restart closes it"
+	)
+	_expect(
+		player.global_position.distance_to(checkpoint_position) < 5.0
+		and player.health == player.max_health
+		and player.memory_energy == player.max_memory_energy / 2,
+		"settings restart restores the player at the latest checkpoint"
+	)
+	_expect(locale_changed_from_menu, "settings language selection updates AppSettings")
+	app_settings.set_locale(original_locale)
+	game.queue_free()
 	await process_frame
 
 
