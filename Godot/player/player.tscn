@@ -4,11 +4,12 @@
 [ext_resource type="Script" uid="uid://kvrcknj0n34j" path="res://player/presentation/graybox_player_visual.gd" id="2_visual"]
 [ext_resource type="Script" uid="uid://c3w3kf4deulk0" path="res://player/movement/player_motor.gd" id="3_motor"]
 [ext_resource type="Script" uid="uid://d1yisfo4ilf6j" path="res://player/combat/player_combat.gd" id="4_combat"]
-[ext_resource type="Resource" path="res://player/default_player_tuning.tres" id="5_tuning"]
+[ext_resource type="Resource" uid="uid://bcsua5l2ic8hg" path="res://player/default_player_tuning.tres" id="5_tuning"]
+[ext_resource type="SpriteFrames" path="res://player/presentation/player_sprite_frames.tres" id="6_frames"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_player"]
-radius = 14.0
-height = 44.0
+radius = 15.0
+height = 76.0
 
 [node name="Player" type="CharacterBody2D" unique_id=149897214 groups=["player"]]
 collision_mask = 3
@@ -18,6 +19,13 @@ tuning = ExtResource("5_tuning")
 [node name="Visual" type="Node2D" parent="." unique_id=587791569]
 script = ExtResource("2_visual")
 
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Visual" unique_id=1070604795]
+unique_name_in_owner = true
+position = Vector2(0, -26)
+sprite_frames = ExtResource("6_frames")
+animation = &"run"
+autoplay = "idle"
+
 [node name="Motor" type="Node" parent="." unique_id=1117854965]
 script = ExtResource("3_motor")
 
@@ -25,6 +33,7 @@ script = ExtResource("3_motor")
 script = ExtResource("4_combat")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=79177295]
+position = Vector2(1, -27)
 shape = SubResource("CapsuleShape2D_player")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=10719214]

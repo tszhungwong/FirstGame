@@ -4,7 +4,7 @@ extends PlayerVisual
 const IDLE_ANIMATION: StringName = &"idle"
 const RUN_ANIMATION: StringName = &"run"
 
-var animated_sprite: AnimatedSprite2D
+@onready var animated_sprite: AnimatedSprite2D = %AnimatedSprite2D
 var _is_hurt := false
 var _attack_time_remaining := 0.0
 var _attack_direction := Vector2.RIGHT
@@ -12,11 +12,6 @@ var _attack_size := Vector2.ZERO
 var _attack_reach := 0.0
 var _attack_color := Color.TRANSPARENT
 var _facing_direction := 1.0
-
-
-func configure_sprite(sprite: AnimatedSprite2D) -> void:
-	animated_sprite = sprite
-	queue_redraw()
 
 
 func sync_state(state: PlayerVisualState) -> void:

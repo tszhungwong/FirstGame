@@ -357,16 +357,20 @@ func _test_pause_settings_menu_restarts_from_checkpoint() -> void:
 
 
 func _test_player_animation_follows_horizontal_input() -> void:
-	var game_scene := load(GAME_SCENE_PATH) as PackedScene
-	if game_scene == null:
-		_fail("game scene is available for player animation")
+	var player_scene := load(PLAYER_SCENE_PATH) as PackedScene
+	if player_scene == null:
+		_fail("player scene is available for player animation")
 		return
-	var game := game_scene.instantiate()
-	root.add_child(game)
+	var player := player_scene.instantiate() as CharacterBody2D
+	root.add_child(player)
 	await physics_frame
 
-	var player: CharacterBody2D = game.get_player()
-	var animated_sprite := player.get_node("AnimatedSprite2D") as AnimatedSprite2D
+	var animated_sprite := player.get_node_or_null("Visual/AnimatedSprite2D") as AnimatedSprite2D
+	if animated_sprite == null:
+		_fail("Player scene owns its AnimatedSprite2D under Visual")
+		player.queue_free()
+		await process_frame
+		return
 	var starts_idle := animated_sprite.animation == &"idle"
 	Input.action_press("move_left")
 	await physics_frame
@@ -380,9 +384,9 @@ func _test_player_animation_follows_horizontal_input() -> void:
 
 	_expect(
 		starts_idle and runs_left and runs_right and animated_sprite.animation == &"idle",
-		"Player animation is idle without horizontal input and run while A or D is pressed"
+		"Player-owned animation is idle without horizontal input and run while A or D is pressed"
 	)
-	game.queue_free()
+	player.queue_free()
 	await process_frame
 
 

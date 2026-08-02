@@ -2,10 +2,6 @@ class_name PlayerVisual
 extends Node2D
 
 
-func configure_sprite(_animated_sprite: AnimatedSprite2D) -> void:
-	pass
-
-
 func sync_state(_state: PlayerVisualState) -> void:
 	pass
 
