@@ -2,6 +2,7 @@ extends SceneTree
 
 const PLAYER_SCENE_PATH := "res://player/player.tscn"
 const FORGOTTEN_WORKER_SCENE_PATH := "res://enemies/forgotten_worker/forgotten_worker.tscn"
+const INSPECTION_DRONE_SCENE_PATH := "res://enemies/inspection_drone/inspection_drone.tscn"
 const GAME_SCENE_PATH := "res://scenes/game/game.tscn"
 const HOME_SCENE_PATH := "res://scenes/home/home.tscn"
 const SETTINGS_MENU_SCENE_PATH := "res://ui/settings/settings_menu.tscn"
@@ -39,6 +40,7 @@ func _run() -> void:
 	await _test_pause_controller_stops_pausable_gameplay()
 	await _test_pause_settings_menu_restarts_from_checkpoint()
 	await _test_player_animation_follows_horizontal_input()
+	await _test_inspection_drone_animation_follows_motion_and_fire()
 	await _test_player_moves_right_from_keyboard_input()
 	await _test_player_jumps_from_keyboard_input()
 	await _test_holding_jump_reaches_platform_height()
@@ -387,6 +389,74 @@ func _test_player_animation_follows_horizontal_input() -> void:
 		"Player-owned animation is idle without horizontal input and run while A or D is pressed"
 	)
 	player.queue_free()
+	await process_frame
+
+
+func _test_inspection_drone_animation_follows_motion_and_fire() -> void:
+	var drone_scene := load(INSPECTION_DRONE_SCENE_PATH) as PackedScene
+	if drone_scene == null:
+		_fail("inspection drone scene is available for animation validation")
+		return
+	var drone := drone_scene.instantiate() as CharacterBody2D
+	root.add_child(drone)
+	await physics_frame
+
+	var visual := drone.get_node_or_null("Visual")
+	var animated_sprite := drone.get_node_or_null("Visual/AnimatedSprite2D") as AnimatedSprite2D
+	if visual == null or animated_sprite == null:
+		_fail("InspectionDrone owns an AnimatedSprite2D through its Visual adapter")
+		drone.queue_free()
+		await process_frame
+		return
+
+	var expected_animations := {
+		&"hover": [6, 10.0, true],
+		&"move_right": [6, 12.0, true],
+		&"move_up": [6, 12.0, true],
+		&"move_down": [6, 12.0, true],
+		&"fire": [7, 15.0, false],
+	}
+	var animation_contract_matches := true
+	for animation_name: StringName in expected_animations:
+		var expected: Array = expected_animations[animation_name]
+		animation_contract_matches = (
+			animation_contract_matches
+			and animated_sprite.sprite_frames.has_animation(animation_name)
+			and animated_sprite.sprite_frames.get_frame_count(animation_name) == expected[0]
+			and is_equal_approx(
+				animated_sprite.sprite_frames.get_animation_speed(animation_name),
+				expected[1]
+			)
+			and animated_sprite.sprite_frames.get_animation_loop(animation_name) == expected[2]
+		)
+
+	visual.call("sync_motion", Vector2.ZERO, Vector2.RIGHT)
+	var idles_while_still := animated_sprite.animation == &"hover"
+	visual.call("sync_motion", Vector2(80.0, 15.0), Vector2.RIGHT)
+	var moves_horizontally := animated_sprite.animation == &"move_right"
+	visual.call("sync_motion", Vector2(10.0, -80.0), Vector2.RIGHT)
+	var moves_upward := animated_sprite.animation == &"move_up"
+	visual.call("sync_motion", Vector2(10.0, 80.0), Vector2.RIGHT)
+	var moves_downward := animated_sprite.animation == &"move_down"
+
+	var projectile_events: Array[int] = []
+	visual.connect(&"projectile_frame_reached", func() -> void: projectile_events.append(1))
+	visual.call("play_fire", Vector2.LEFT)
+	var attack_faces_target := animated_sprite.animation == &"fire" and animated_sprite.flip_h
+	animated_sprite.set_frame_and_progress(4, 0.0)
+	var projectile_event_matches_frame := projectile_events.size() == 1
+
+	_expect(
+		animation_contract_matches
+		and idles_while_still
+		and moves_horizontally
+		and moves_upward
+		and moves_downward
+		and attack_faces_target
+		and projectile_event_matches_frame,
+		"InspectionDrone maps trajectories to animation states and emits fire on frame 4"
+	)
+	drone.queue_free()
 	await process_frame
 
 

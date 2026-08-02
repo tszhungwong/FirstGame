@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://c4ixuettv7b5t" path="res://enemies/inspection_drone/inspection_drone.gd" id="1_drone"]
 [ext_resource type="Resource" path="res://enemies/common/drone_enemy.tres" id="2_base"]
 [ext_resource type="Resource" path="res://enemies/inspection_drone/default_inspection_drone.tres" id="3_behavior"]
+[ext_resource type="Script" path="res://enemies/inspection_drone/inspection_drone_visual.gd" id="4_visual"]
+[ext_resource type="SpriteFrames" path="res://enemies/inspection_drone/inspection_drone_sprite_frames.tres" id="5_frames"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_drone"]
 radius = 20.0
@@ -15,3 +17,18 @@ definition = ExtResource("2_base")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1100372362]
 shape = SubResource("CircleShape2D_drone")
+
+[node name="Visual" type="Node2D" parent="."]
+unique_name_in_owner = true
+texture_filter = 1
+script = ExtResource("4_visual")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Visual"]
+unique_name_in_owner = true
+sprite_frames = ExtResource("5_frames")
+animation = &"hover"
+autoplay = "hover"
+
+[node name="ProjectileOrigin" type="Marker2D" parent="Visual"]
+unique_name_in_owner = true
+position = Vector2(42, 16)
