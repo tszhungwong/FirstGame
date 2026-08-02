@@ -15,6 +15,7 @@ func show_attack(
 	_size: Vector2,
 	_reach: float,
 	_color: Color,
-	_duration: float
+	_duration: float,
+	_animation_name: StringName
 ) -> void:
 	pass

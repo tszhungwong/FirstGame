@@ -1,4 +1,4 @@
-extends SceneTree
+﻿extends SceneTree
 
 const PLAYER_SCENE_PATH := "res://player/player.tscn"
 const FORGOTTEN_WORKER_SCENE_PATH := "res://enemies/forgotten_worker/forgotten_worker.tscn"
@@ -40,6 +40,7 @@ func _run() -> void:
 	await _test_pause_controller_stops_pausable_gameplay()
 	await _test_pause_settings_menu_restarts_from_checkpoint()
 	await _test_player_animation_follows_horizontal_input()
+	await _test_player_jump_and_attack_animations_follow_input()
 	await _test_inspection_drone_animation_follows_motion_and_fire()
 	await _test_player_moves_right_from_keyboard_input()
 	await _test_player_jumps_from_keyboard_input()
@@ -363,14 +364,18 @@ func _test_player_animation_follows_horizontal_input() -> void:
 	if player_scene == null:
 		_fail("player scene is available for player animation")
 		return
+	var floor_body := _make_floor()
+	root.add_child(floor_body)
 	var player := player_scene.instantiate() as CharacterBody2D
 	root.add_child(player)
-	await physics_frame
+	for _frame in range(30):
+		await physics_frame
 
 	var animated_sprite := player.get_node_or_null("Visual/AnimatedSprite2D") as AnimatedSprite2D
 	if animated_sprite == null:
 		_fail("Player scene owns its AnimatedSprite2D under Visual")
 		player.queue_free()
+		floor_body.queue_free()
 		await process_frame
 		return
 	var starts_idle := animated_sprite.animation == &"idle"
@@ -389,6 +394,121 @@ func _test_player_animation_follows_horizontal_input() -> void:
 		"Player-owned animation is idle without horizontal input and run while A or D is pressed"
 	)
 	player.queue_free()
+	floor_body.queue_free()
+	await process_frame
+
+
+func _test_player_jump_and_attack_animations_follow_input() -> void:
+	var player_scene := load(PLAYER_SCENE_PATH) as PackedScene
+	if player_scene == null:
+		_fail("player scene is available for jump and attack animation validation")
+		return
+	var floor_body := _make_floor()
+	root.add_child(floor_body)
+	var player := player_scene.instantiate() as CharacterBody2D
+	root.add_child(player)
+	for _frame in range(30):
+		await physics_frame
+
+	var animated_sprite := player.get_node_or_null("Visual/AnimatedSprite2D") as AnimatedSprite2D
+	if animated_sprite == null:
+		_fail("Player jump and attack animations use Visual/AnimatedSprite2D")
+		player.queue_free()
+		floor_body.queue_free()
+		await process_frame
+		return
+
+	var expected_animations := {
+		&"idle": [6, 8.0, true],
+		&"run": [8, 14.0, true],
+		&"jump_start": [3, 15.0, false],
+		&"jump_rise": [2, 12.0, true],
+		&"jump_apex": [3, 12.0, false],
+		&"fall": [2, 12.0, true],
+		&"land": [4, 15.0, false],
+		&"attack_side": [6, 18.0, false],
+	}
+	var animation_contract_matches := true
+	for animation_name: StringName in expected_animations:
+		var expected: Array = expected_animations[animation_name]
+		animation_contract_matches = (
+			animation_contract_matches
+			and animated_sprite.sprite_frames.has_animation(animation_name)
+			and animated_sprite.sprite_frames.get_frame_count(animation_name) == expected[0]
+			and is_equal_approx(
+				animated_sprite.sprite_frames.get_animation_speed(animation_name),
+				expected[1]
+			)
+			and animated_sprite.sprite_frames.get_animation_loop(animation_name) == expected[2]
+		)
+
+	var observed_jump_animations: Dictionary[StringName, bool] = {}
+	Input.action_press("jump")
+	await physics_frame
+	await physics_frame
+	var space_starts_jump := animated_sprite.animation == &"jump_start"
+	observed_jump_animations[animated_sprite.animation] = true
+	for _frame in range(14):
+		await physics_frame
+		observed_jump_animations[animated_sprite.animation] = true
+	Input.action_release("jump")
+	for _frame in range(90):
+		await physics_frame
+		observed_jump_animations[animated_sprite.animation] = true
+	var jump_final_animation := animated_sprite.animation
+	var jump_sequence_matches := (
+		space_starts_jump
+		and observed_jump_animations.has(&"jump_rise")
+		and observed_jump_animations.has(&"jump_apex")
+		and observed_jump_animations.has(&"fall")
+		and observed_jump_animations.has(&"land")
+		and animated_sprite.animation == &"idle"
+	)
+
+	Input.action_press("move_left")
+	await physics_frame
+	await physics_frame
+	Input.action_press("attack")
+	await physics_frame
+	await physics_frame
+	var attack_started_animation := animated_sprite.animation
+	var attack_started_flip := animated_sprite.flip_h
+	Input.action_release("attack")
+	Input.action_release("move_left")
+	var j_starts_left_attack := (
+		attack_started_animation == &"attack_side" and attack_started_flip
+	)
+	for _frame in range(30):
+		await physics_frame
+	var attack_returns_to_locomotion := animated_sprite.animation == &"idle"
+
+	var animation_linkage_matches := (
+		animation_contract_matches
+		and jump_sequence_matches
+		and j_starts_left_attack
+		and attack_returns_to_locomotion
+	)
+	var animation_linkage_message := (
+		"Space drives staged jump animations and J plays a facing-aware side attack"
+	)
+	if not animation_linkage_matches:
+		animation_linkage_message += (
+			" (contract=%s, jump=%s, space=%s, jump_final=%s, attack=%s, "
+			+ "attack_name=%s, flip=%s, return=%s, observed=%s)"
+		) % [
+			animation_contract_matches,
+			jump_sequence_matches,
+			space_starts_jump,
+			jump_final_animation,
+			j_starts_left_attack,
+			attack_started_animation,
+			attack_started_flip,
+			attack_returns_to_locomotion,
+			observed_jump_animations.keys(),
+		]
+	_expect(animation_linkage_matches, animation_linkage_message)
+	player.queue_free()
+	floor_body.queue_free()
 	await process_frame
 
 

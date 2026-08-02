@@ -4,13 +4,15 @@ extends Node
 const CombatantBodyType := preload("res://combat/combatant_body_2d.gd")
 const DamageRequestType := preload("res://combat/damage_request.gd")
 const CombatOutcomeType := preload("res://player/combat/combat_outcome.gd")
+const BASIC_SIDE_ANIMATION: StringName = &"attack_side"
 
 signal attack_visual_requested(
 	direction: Vector2,
 	size: Vector2,
 	reach: float,
 	color: Color,
-	duration: float
+	duration: float,
+	animation_name: StringName
 )
 signal hit_confirmed(duration: float)
 
@@ -31,7 +33,8 @@ func perform_basic(body: CombatantBodyType, direction: Vector2) -> CombatOutcome
 		_tuning.basic_attack_reach,
 		_tuning.basic_attack_knockback,
 		_tuning.basic_attack_color,
-		_tuning.basic_attack_visual_duration
+		_tuning.basic_attack_visual_duration,
+		BASIC_SIDE_ANIMATION if not is_zero_approx(direction.x) else StringName()
 	)
 	outcome.memory_delta = _tuning.basic_attack_memory_gain if outcome.hit_something else 0
 	outcome.movement_lock = _tuning.basic_attack_move_lock
@@ -50,7 +53,8 @@ func perform_skill(body: CombatantBodyType, direction: Vector2) -> CombatOutcome
 		_tuning.skill_reach,
 		_tuning.skill_knockback,
 		_tuning.skill_color,
-		_tuning.skill_visual_duration
+		_tuning.skill_visual_duration,
+		StringName()
 	)
 	outcome.memory_delta = -_tuning.skill_memory_cost
 	outcome.movement_lock = _tuning.skill_move_lock
@@ -73,7 +77,8 @@ func _execute(
 	reach: float,
 	knockback_strength: float,
 	visual_color: Color,
-	flash_duration: float
+	flash_duration: float,
+	animation_name: StringName
 ) -> CombatOutcomeType:
 	var attack_shape := RectangleShape2D.new()
 	attack_shape.size = size
@@ -94,7 +99,14 @@ func _execute(
 			body
 		)
 		outcome.hit_something = target.apply_damage(request) or outcome.hit_something
-	attack_visual_requested.emit(direction, size, reach, visual_color, flash_duration)
+	attack_visual_requested.emit(
+		direction,
+		size,
+		reach,
+		visual_color,
+		flash_duration,
+		animation_name
+	)
 	if outcome.hit_something:
 		hit_confirmed.emit(_tuning.hit_stop_duration)
 	return outcome
