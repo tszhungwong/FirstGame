@@ -1,78 +1,42 @@
-[gd_resource type="SpriteFrames" format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://djipvtw6vahc2"]
 
-[ext_resource type="Texture2D" path="res://assets/art/characters/forgotten_worker/forgotten_worker_patrol_left.png" id="1_patrol"]
-[ext_resource type="Texture2D" path="res://assets/art/characters/forgotten_worker/forgotten_worker_jump_left.png" id="2_jump"]
-[ext_resource type="Texture2D" path="res://assets/art/characters/forgotten_worker/forgotten_worker_attack_left.png" id="3_attack"]
-[ext_resource type="Texture2D" path="res://assets/art/characters/forgotten_worker/forgotten_worker_death_left.png" id="4_death"]
-
-[sub_resource type="AtlasTexture" id="patrol_0"]
-atlas = ExtResource("1_patrol")
-region = Rect2(0, 0, 128, 128)
-[sub_resource type="AtlasTexture" id="patrol_1"]
-atlas = ExtResource("1_patrol")
-region = Rect2(128, 0, 128, 128)
-[sub_resource type="AtlasTexture" id="patrol_2"]
-atlas = ExtResource("1_patrol")
-region = Rect2(256, 0, 128, 128)
-[sub_resource type="AtlasTexture" id="patrol_3"]
-atlas = ExtResource("1_patrol")
-region = Rect2(384, 0, 128, 128)
-[sub_resource type="AtlasTexture" id="patrol_4"]
-atlas = ExtResource("1_patrol")
-region = Rect2(512, 0, 128, 128)
-[sub_resource type="AtlasTexture" id="patrol_5"]
-atlas = ExtResource("1_patrol")
-region = Rect2(640, 0, 128, 128)
-[sub_resource type="AtlasTexture" id="patrol_6"]
-atlas = ExtResource("1_patrol")
-region = Rect2(768, 0, 128, 128)
-[sub_resource type="AtlasTexture" id="patrol_7"]
-atlas = ExtResource("1_patrol")
-region = Rect2(896, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="jump_0"]
-atlas = ExtResource("2_jump")
-region = Rect2(0, 0, 128, 128)
-[sub_resource type="AtlasTexture" id="jump_1"]
-atlas = ExtResource("2_jump")
-region = Rect2(128, 0, 128, 128)
-[sub_resource type="AtlasTexture" id="jump_2"]
-atlas = ExtResource("2_jump")
-region = Rect2(256, 0, 128, 128)
-[sub_resource type="AtlasTexture" id="jump_3"]
-atlas = ExtResource("2_jump")
-region = Rect2(384, 0, 128, 128)
-[sub_resource type="AtlasTexture" id="jump_4"]
-atlas = ExtResource("2_jump")
-region = Rect2(512, 0, 128, 128)
-[sub_resource type="AtlasTexture" id="jump_5"]
-atlas = ExtResource("2_jump")
-region = Rect2(640, 0, 128, 128)
+[ext_resource type="Texture2D" uid="uid://cf2ahspvlumm3" path="res://assets/art/characters/forgotten_worker/forgotten_worker_patrol_left.png" id="1_patrol"]
+[ext_resource type="Texture2D" uid="uid://cw88qubfcyxqd" path="res://assets/art/characters/forgotten_worker/forgotten_worker_jump_left.png" id="2_jump"]
+[ext_resource type="Texture2D" uid="uid://b1348u2c7cd6i" path="res://assets/art/characters/forgotten_worker/forgotten_worker_attack_left.png" id="3_attack"]
+[ext_resource type="Texture2D" uid="uid://cjhebw3upn18j" path="res://assets/art/characters/forgotten_worker/forgotten_worker_death_left.png" id="4_death"]
 
 [sub_resource type="AtlasTexture" id="attack_0"]
 atlas = ExtResource("3_attack")
 region = Rect2(0, 0, 128, 128)
+
 [sub_resource type="AtlasTexture" id="attack_1"]
 atlas = ExtResource("3_attack")
 region = Rect2(128, 0, 128, 128)
+
 [sub_resource type="AtlasTexture" id="attack_2"]
 atlas = ExtResource("3_attack")
 region = Rect2(256, 0, 128, 128)
+
 [sub_resource type="AtlasTexture" id="attack_3"]
 atlas = ExtResource("3_attack")
 region = Rect2(384, 0, 128, 128)
+
 [sub_resource type="AtlasTexture" id="attack_4"]
 atlas = ExtResource("3_attack")
 region = Rect2(512, 0, 128, 128)
+
 [sub_resource type="AtlasTexture" id="attack_5"]
 atlas = ExtResource("3_attack")
 region = Rect2(640, 0, 128, 128)
+
 [sub_resource type="AtlasTexture" id="attack_6"]
 atlas = ExtResource("3_attack")
 region = Rect2(768, 0, 128, 128)
+
 [sub_resource type="AtlasTexture" id="attack_7"]
 atlas = ExtResource("3_attack")
 region = Rect2(896, 0, 128, 128)
+
 [sub_resource type="AtlasTexture" id="attack_8"]
 atlas = ExtResource("3_attack")
 region = Rect2(1024, 0, 128, 128)
@@ -80,47 +44,203 @@ region = Rect2(1024, 0, 128, 128)
 [sub_resource type="AtlasTexture" id="death_0"]
 atlas = ExtResource("4_death")
 region = Rect2(0, 0, 128, 128)
+
 [sub_resource type="AtlasTexture" id="death_1"]
 atlas = ExtResource("4_death")
 region = Rect2(128, 0, 128, 128)
+
 [sub_resource type="AtlasTexture" id="death_2"]
 atlas = ExtResource("4_death")
 region = Rect2(256, 0, 128, 128)
+
 [sub_resource type="AtlasTexture" id="death_3"]
 atlas = ExtResource("4_death")
 region = Rect2(384, 0, 128, 128)
+
 [sub_resource type="AtlasTexture" id="death_4"]
 atlas = ExtResource("4_death")
 region = Rect2(512, 0, 128, 128)
+
 [sub_resource type="AtlasTexture" id="death_5"]
 atlas = ExtResource("4_death")
 region = Rect2(640, 0, 128, 128)
+
 [sub_resource type="AtlasTexture" id="death_6"]
 atlas = ExtResource("4_death")
 region = Rect2(768, 0, 128, 128)
+
 [sub_resource type="AtlasTexture" id="death_7"]
 atlas = ExtResource("4_death")
 region = Rect2(896, 0, 128, 128)
 
+[sub_resource type="AtlasTexture" id="jump_0"]
+atlas = ExtResource("2_jump")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="jump_1"]
+atlas = ExtResource("2_jump")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="jump_2"]
+atlas = ExtResource("2_jump")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="jump_3"]
+atlas = ExtResource("2_jump")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="jump_4"]
+atlas = ExtResource("2_jump")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="jump_5"]
+atlas = ExtResource("2_jump")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="patrol_0"]
+atlas = ExtResource("1_patrol")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="patrol_1"]
+atlas = ExtResource("1_patrol")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="patrol_2"]
+atlas = ExtResource("1_patrol")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="patrol_3"]
+atlas = ExtResource("1_patrol")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="patrol_4"]
+atlas = ExtResource("1_patrol")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="patrol_5"]
+atlas = ExtResource("1_patrol")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="patrol_6"]
+atlas = ExtResource("1_patrol")
+region = Rect2(768, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="patrol_7"]
+atlas = ExtResource("1_patrol")
+region = Rect2(896, 0, 128, 128)
+
 [resource]
 animations = [{
-"frames": [{"duration": 1.0, "texture": SubResource("patrol_0")}, {"duration": 1.0, "texture": SubResource("patrol_1")}, {"duration": 1.0, "texture": SubResource("patrol_2")}, {"duration": 1.0, "texture": SubResource("patrol_3")}, {"duration": 1.0, "texture": SubResource("patrol_4")}, {"duration": 1.0, "texture": SubResource("patrol_5")}, {"duration": 1.0, "texture": SubResource("patrol_6")}, {"duration": 1.0, "texture": SubResource("patrol_7")}],
-"loop": true,
-"name": &"patrol_left",
-"speed": 10.0
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("attack_0")
 }, {
-"frames": [{"duration": 1.0, "texture": SubResource("jump_0")}, {"duration": 1.0, "texture": SubResource("jump_1")}, {"duration": 1.0, "texture": SubResource("jump_2")}, {"duration": 1.0, "texture": SubResource("jump_3")}, {"duration": 1.0, "texture": SubResource("jump_4")}, {"duration": 1.0, "texture": SubResource("jump_5")}],
-"loop": false,
-"name": &"jump_left",
-"speed": 10.0
+"duration": 1.0,
+"texture": SubResource("attack_1")
 }, {
-"frames": [{"duration": 1.0, "texture": SubResource("attack_0")}, {"duration": 1.0, "texture": SubResource("attack_1")}, {"duration": 1.0, "texture": SubResource("attack_2")}, {"duration": 1.0, "texture": SubResource("attack_3")}, {"duration": 1.0, "texture": SubResource("attack_4")}, {"duration": 1.0, "texture": SubResource("attack_5")}, {"duration": 1.0, "texture": SubResource("attack_6")}, {"duration": 1.0, "texture": SubResource("attack_7")}, {"duration": 1.0, "texture": SubResource("attack_8")}],
-"loop": false,
+"duration": 1.0,
+"texture": SubResource("attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("attack_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("attack_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("attack_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("attack_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("attack_7")
+}, {
+"duration": 1.0,
+"texture": SubResource("attack_8")
+}],
+"loop": 0,
 "name": &"attack_left",
 "speed": 12.0
 }, {
-"frames": [{"duration": 1.0, "texture": SubResource("death_0")}, {"duration": 1.0, "texture": SubResource("death_1")}, {"duration": 1.0, "texture": SubResource("death_2")}, {"duration": 1.0, "texture": SubResource("death_3")}, {"duration": 1.0, "texture": SubResource("death_4")}, {"duration": 1.0, "texture": SubResource("death_5")}, {"duration": 1.0, "texture": SubResource("death_6")}, {"duration": 1.0, "texture": SubResource("death_7")}],
-"loop": false,
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("death_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("death_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("death_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("death_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("death_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("death_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("death_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("death_7")
+}],
+"loop": 0,
 "name": &"death_left",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("jump_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("jump_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("jump_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("jump_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("jump_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("jump_5")
+}],
+"loop": 0,
+"name": &"jump_left",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("patrol_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("patrol_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("patrol_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("patrol_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("patrol_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("patrol_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("patrol_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("patrol_7")
+}],
+"loop": 1,
+"name": &"patrol_left",
 "speed": 10.0
 }]

@@ -27,7 +27,7 @@ script = ExtResource("4_visual")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Visual"]
 unique_name_in_owner = true
-position = Vector2(0, -31)
+position = Vector2(0, -24)
 sprite_frames = ExtResource("5_frames")
 animation = &"patrol_left"
 autoplay = "patrol_left"

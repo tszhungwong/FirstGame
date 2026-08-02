@@ -12,23 +12,37 @@ const ATTACK_SIDE_ANIMATION: StringName = &"attack_side"
 const APEX_ENTER_SPEED := 110.0
 const FALL_ENTER_SPEED := 70.0
 
+@export_range(0.0, 24.0, 0.5) var hurt_recoil_distance := 8.0
+@export_range(0.0, 12.0, 0.5) var hurt_lift_distance := 3.0
+@export_range(0.0, 0.25, 0.01) var hurt_tilt_radians := 0.08
+@export_range(0.01, 0.2, 0.01) var hurt_impact_duration := 0.06
+@export_range(0.01, 0.4, 0.01) var hurt_recovery_duration := 0.16
+@export var hurt_flash_color := Color(1.0, 0.7, 0.7, 1.0)
+
 @onready var animated_sprite: AnimatedSprite2D = %AnimatedSprite2D
 var _is_hurt := false
-var _attack_time_remaining := 0.0
-var _attack_direction := Vector2.RIGHT
-var _attack_size := Vector2.ZERO
-var _attack_reach := 0.0
-var _attack_color := Color.TRANSPARENT
 var _facing_direction := 1.0
 var _state_initialized := false
 var _was_grounded := false
 var _attack_animation_active := false
 var _landing_animation_active := false
 var _latest_state: PlayerVisualState
+var _hurt_tween: Tween
+var _sprite_rest_position := Vector2.ZERO
+var _sprite_rest_rotation := 0.0
+var _sprite_rest_modulate := Color.WHITE
 
 
 func _ready() -> void:
+	_sprite_rest_position = animated_sprite.position
+	_sprite_rest_rotation = animated_sprite.rotation
+	_sprite_rest_modulate = animated_sprite.modulate
 	animated_sprite.animation_finished.connect(_on_animation_finished)
+
+
+func _exit_tree() -> void:
+	if _hurt_tween != null and _hurt_tween.is_valid():
+		_hurt_tween.kill()
 
 
 func sync_state(state: PlayerVisualState) -> void:
@@ -51,32 +65,84 @@ func sync_state(state: PlayerVisualState) -> void:
 	_sync_locomotion(state, just_left_ground, just_landed)
 
 
-func _process(delta: float) -> void:
-	if _attack_time_remaining > 0.0:
-		_attack_time_remaining = maxf(_attack_time_remaining - delta, 0.0)
-		queue_redraw()
-
-
 func set_hurt(is_hurt: bool) -> void:
 	if _is_hurt == is_hurt:
 		return
 	_is_hurt = is_hurt
+	if is_hurt and animated_sprite != null:
+		_play_hurt_animation()
 	queue_redraw()
+
+
+func _play_hurt_animation() -> void:
+	if _hurt_tween != null and _hurt_tween.is_valid():
+		_hurt_tween.kill()
+	_reset_hurt_transform()
+	var recoil_offset := Vector2(
+		-_facing_direction * hurt_recoil_distance,
+		-hurt_lift_distance
+	)
+	var recoil_rotation := _sprite_rest_rotation + _facing_direction * hurt_tilt_radians
+	_hurt_tween = create_tween()
+	_hurt_tween.set_trans(Tween.TRANS_QUAD)
+	_hurt_tween.set_ease(Tween.EASE_OUT)
+	_hurt_tween.tween_property(
+		animated_sprite,
+		"position",
+		_sprite_rest_position + recoil_offset,
+		hurt_impact_duration
+	)
+	_hurt_tween.parallel().tween_property(
+		animated_sprite,
+		"rotation",
+		recoil_rotation,
+		hurt_impact_duration
+	)
+	_hurt_tween.parallel().tween_property(
+		animated_sprite,
+		"modulate",
+		hurt_flash_color,
+		hurt_impact_duration
+	)
+	_hurt_tween.set_trans(Tween.TRANS_BACK)
+	_hurt_tween.set_ease(Tween.EASE_OUT)
+	_hurt_tween.tween_property(
+		animated_sprite,
+		"position",
+		_sprite_rest_position,
+		hurt_recovery_duration
+	)
+	_hurt_tween.parallel().tween_property(
+		animated_sprite,
+		"rotation",
+		_sprite_rest_rotation,
+		hurt_recovery_duration
+	)
+	_hurt_tween.parallel().tween_property(
+		animated_sprite,
+		"modulate",
+		_sprite_rest_modulate,
+		hurt_recovery_duration
+	)
+	_hurt_tween.finished.connect(_reset_hurt_transform)
+
+
+func _reset_hurt_transform() -> void:
+	if animated_sprite == null:
+		return
+	animated_sprite.position = _sprite_rest_position
+	animated_sprite.rotation = _sprite_rest_rotation
+	animated_sprite.modulate = _sprite_rest_modulate
 
 
 func show_attack(
 	direction: Vector2,
-	size: Vector2,
-	reach: float,
-	color: Color,
-	duration: float,
+	_size: Vector2,
+	_reach: float,
+	_color: Color,
+	_duration: float,
 	animation_name: StringName
 ) -> void:
-	_attack_direction = direction
-	_attack_size = size
-	_attack_reach = reach
-	_attack_color = color
-	_attack_time_remaining = duration
 	if animation_name == ATTACK_SIDE_ANIMATION:
 		_attack_animation_active = true
 		_landing_animation_active = false
@@ -84,7 +150,6 @@ func show_attack(
 			animated_sprite.flip_h = direction.x < 0.0
 		animated_sprite.play(ATTACK_SIDE_ANIMATION)
 		animated_sprite.set_frame_and_progress(0, 0.0)
-	queue_redraw()
 
 
 func _sync_locomotion(
@@ -144,10 +209,3 @@ func _draw() -> void:
 		var body_color := Color("ff9f8f") if _is_hurt else Color("d7f4ff")
 		draw_rect(Rect2(-14.0, -22.0, 28.0, 44.0), body_color)
 		draw_rect(Rect2(-10.0, -17.0, 20.0, 5.0), Color("54d2e8"))
-	if _attack_time_remaining <= 0.0:
-		return
-	var attack_rotation := 0.0 if not is_zero_approx(_attack_direction.x) else PI * 0.5
-	var attack_rect := Rect2(-_attack_size * 0.5, _attack_size)
-	draw_set_transform(_attack_direction * _attack_reach, attack_rotation)
-	draw_rect(attack_rect, _attack_color)
-	draw_set_transform(Vector2.ZERO)

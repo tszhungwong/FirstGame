@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://cv3i0utet750h"]
 
 [ext_resource type="Texture2D" uid="uid://dypqge041o7r" path="res://assets/art/characters/lamplighter/lamplighter_idle.png" id="1_idle"]
 
@@ -61,7 +61,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_idle_7")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 8.0
 }]

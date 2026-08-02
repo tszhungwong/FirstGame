@@ -11,7 +11,7 @@ ui.settings.language,Language,语言,語言
 ui.settings.resume,Resume,继续游戏,繼續遊戲
 ui.settings.restart,Restart from checkpoint,从记录点重新开始,從記錄點重新開始
 ui.settings.home,Return to Home,返回主页,返回首頁
-ui.home.title,GAME GHOST,游戏幽灵,遊戲幽靈
+ui.home.title,Echoes Below,深城殘響,深城残响
 ui.home.subtitle,Recover the memories buried beneath the maintenance district.,找回埋藏在维修区深处的记忆。,找回埋藏在維修區深處的記憶。
 ui.home.start,Start,开始,開始
 locale.en,English,English,English

@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://c3w3kf4deulk0" path="res://player/movement/player_motor.gd" id="3_motor"]
 [ext_resource type="Script" uid="uid://d1yisfo4ilf6j" path="res://player/combat/player_combat.gd" id="4_combat"]
 [ext_resource type="Resource" uid="uid://bcsua5l2ic8hg" path="res://player/default_player_tuning.tres" id="5_tuning"]
-[ext_resource type="SpriteFrames" path="res://player/presentation/player_sprite_frames.tres" id="6_frames"]
+[ext_resource type="SpriteFrames" uid="uid://bwpvy5im7phd7" path="res://player/presentation/player_sprite_frames.tres" id="6_frames"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_player"]
 radius = 15.0
@@ -21,7 +21,7 @@ script = ExtResource("2_visual")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Visual" unique_id=1070604795]
 unique_name_in_owner = true
-position = Vector2(0, -26)
+position = Vector2(0, -36)
 sprite_frames = ExtResource("6_frames")
 animation = &"run"
 autoplay = "idle"

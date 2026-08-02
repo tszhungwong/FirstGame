@@ -9,6 +9,38 @@
 [ext_resource type="Texture2D" uid="uid://bw3j35ocqjxts" path="res://assets/art/characters/player/player_land.png" id="7_land"]
 [ext_resource type="Texture2D" uid="uid://begla7r0nbqid" path="res://assets/art/characters/player/player_attack_side.png" id="8_attack_side"]
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_attack_side_0"]
+atlas = ExtResource("8_attack_side")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_attack_side_1"]
+atlas = ExtResource("8_attack_side")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_attack_side_2"]
+atlas = ExtResource("8_attack_side")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_attack_side_3"]
+atlas = ExtResource("8_attack_side")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_attack_side_4"]
+atlas = ExtResource("8_attack_side")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_attack_side_5"]
+atlas = ExtResource("8_attack_side")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fall_0"]
+atlas = ExtResource("6_fall")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fall_1"]
+atlas = ExtResource("6_fall")
+region = Rect2(128, 0, 128, 128)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_0"]
 atlas = ExtResource("1_idle")
 region = Rect2(0, 0, 128, 128)
@@ -32,6 +64,54 @@ region = Rect2(512, 0, 128, 128)
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_5"]
 atlas = ExtResource("1_idle")
 region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jump_apex_0"]
+atlas = ExtResource("5_jump_apex")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jump_apex_1"]
+atlas = ExtResource("5_jump_apex")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jump_apex_2"]
+atlas = ExtResource("5_jump_apex")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jump_rise_0"]
+atlas = ExtResource("4_jump_rise")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jump_rise_1"]
+atlas = ExtResource("4_jump_rise")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jump_start_0"]
+atlas = ExtResource("3_jump_start")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jump_start_1"]
+atlas = ExtResource("3_jump_start")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jump_start_2"]
+atlas = ExtResource("3_jump_start")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_land_0"]
+atlas = ExtResource("7_land")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_land_1"]
+atlas = ExtResource("7_land")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_land_2"]
+atlas = ExtResource("7_land")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_land_3"]
+atlas = ExtResource("7_land")
+region = Rect2(384, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_run_0"]
 atlas = ExtResource("2_run")
@@ -65,88 +145,42 @@ region = Rect2(768, 0, 128, 128)
 atlas = ExtResource("2_run")
 region = Rect2(896, 0, 128, 128)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_jump_start_0"]
-atlas = ExtResource("3_jump_start")
-region = Rect2(0, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_jump_start_1"]
-atlas = ExtResource("3_jump_start")
-region = Rect2(128, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_jump_start_2"]
-atlas = ExtResource("3_jump_start")
-region = Rect2(256, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_jump_rise_0"]
-atlas = ExtResource("4_jump_rise")
-region = Rect2(0, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_jump_rise_1"]
-atlas = ExtResource("4_jump_rise")
-region = Rect2(128, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_jump_apex_0"]
-atlas = ExtResource("5_jump_apex")
-region = Rect2(0, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_jump_apex_1"]
-atlas = ExtResource("5_jump_apex")
-region = Rect2(128, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_jump_apex_2"]
-atlas = ExtResource("5_jump_apex")
-region = Rect2(256, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_fall_0"]
-atlas = ExtResource("6_fall")
-region = Rect2(0, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_fall_1"]
-atlas = ExtResource("6_fall")
-region = Rect2(128, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_land_0"]
-atlas = ExtResource("7_land")
-region = Rect2(0, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_land_1"]
-atlas = ExtResource("7_land")
-region = Rect2(128, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_land_2"]
-atlas = ExtResource("7_land")
-region = Rect2(256, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_land_3"]
-atlas = ExtResource("7_land")
-region = Rect2(384, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_attack_side_0"]
-atlas = ExtResource("8_attack_side")
-region = Rect2(0, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_attack_side_1"]
-atlas = ExtResource("8_attack_side")
-region = Rect2(128, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_attack_side_2"]
-atlas = ExtResource("8_attack_side")
-region = Rect2(256, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_attack_side_3"]
-atlas = ExtResource("8_attack_side")
-region = Rect2(384, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_attack_side_4"]
-atlas = ExtResource("8_attack_side")
-region = Rect2(512, 0, 128, 128)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_attack_side_5"]
-atlas = ExtResource("8_attack_side")
-region = Rect2(640, 0, 128, 128)
-
 [resource]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_attack_side_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_attack_side_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_attack_side_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_attack_side_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_attack_side_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_attack_side_5")
+}],
+"loop": 0,
+"name": &"attack_side",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fall_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fall_1")
+}],
+"loop": 1,
+"name": &"fall",
+"speed": 12.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_idle_0")
@@ -169,6 +203,62 @@ animations = [{
 "loop": 1,
 "name": &"idle",
 "speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jump_apex_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jump_apex_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jump_apex_2")
+}],
+"loop": 0,
+"name": &"jump_apex",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jump_rise_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jump_rise_1")
+}],
+"loop": 1,
+"name": &"jump_rise",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jump_start_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jump_start_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jump_start_2")
+}],
+"loop": 0,
+"name": &"jump_start",
+"speed": 15.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_land_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_land_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_land_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_land_3")
+}],
+"loop": 0,
+"name": &"land",
+"speed": 15.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -198,94 +288,4 @@ animations = [{
 "loop": 1,
 "name": &"run",
 "speed": 14.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jump_start_0")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jump_start_1")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jump_start_2")
-}],
-"loop": false,
-"name": &"jump_start",
-"speed": 15.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jump_rise_0")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jump_rise_1")
-}],
-"loop": true,
-"name": &"jump_rise",
-"speed": 12.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jump_apex_0")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jump_apex_1")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jump_apex_2")
-}],
-"loop": false,
-"name": &"jump_apex",
-"speed": 12.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_fall_0")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_fall_1")
-}],
-"loop": true,
-"name": &"fall",
-"speed": 12.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_land_0")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_land_1")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_land_2")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_land_3")
-}],
-"loop": false,
-"name": &"land",
-"speed": 15.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_attack_side_0")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_attack_side_1")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_attack_side_2")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_attack_side_3")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_attack_side_4")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_attack_side_5")
-}],
-"loop": false,
-"name": &"attack_side",
-"speed": 18.0
 }]
