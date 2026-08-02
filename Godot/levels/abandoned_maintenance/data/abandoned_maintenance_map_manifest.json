@@ -1,0 +1,88 @@
+{
+  "schema": "generate2dmap.side_scroll_stage.v1",
+  "map_id": "abandoned_maintenance",
+  "map_mode": "side_scroll_mode",
+  "map_kind": "metroidvania",
+  "art_style": "project_native_pixel_inspired",
+  "visual_model": "parallax_layers",
+  "runtime_object_model": [
+    "platform_objects",
+    "interactive_scene_objects",
+    "foreground_occluders",
+    "scene_hooks"
+  ],
+  "collision_model": "precise_shapes",
+  "engine_target": "Godot_4_project_native",
+  "stage_canvas": {
+    "width": 1280,
+    "height": 720
+  },
+  "stage_segment_count": 3,
+  "stage_length": 3200,
+  "segments": [
+    { "id": "segment_01", "x": 0, "width": 1280 },
+    { "id": "segment_02", "x": 1280, "width": 1280 },
+    { "id": "segment_03", "x": 2560, "width": 640 }
+  ],
+  "platform_strategy": "platform_rects_with_shared_tiles",
+  "runtime_scene": "res://levels/abandoned_maintenance/abandoned_maintenance_level.tscn",
+  "stage_reference": "res://assets/art/environment/maintenance_area/reference/abandoned_maintenance_stage_reference.png",
+  "stage_preview": "res://assets/art/environment/maintenance_area/reference/abandoned_maintenance_stage_preview.png",
+  "parallax_layers": [
+    {
+      "id": "sky",
+      "image": "res://assets/art/environment/maintenance_area/parallax/abandoned_maintenance_sky.png",
+      "source_size": [1280, 720],
+      "sprite_position": [640, 360],
+      "render_order": -40,
+      "scroll_factor": [0.05, 0.05],
+      "repeat_axis": "x",
+      "repeat_size": [1280, 0]
+    },
+    {
+      "id": "mid_bg",
+      "image": "res://assets/art/environment/maintenance_area/parallax/abandoned_maintenance_mid_bg.png",
+      "source_size": [1280, 720],
+      "sprite_position": [640, 360],
+      "render_order": -30,
+      "scroll_factor": [0.18, 0.18],
+      "repeat_axis": "x",
+      "repeat_size": [1280, 0]
+    },
+    {
+      "id": "near_bg",
+      "image": "res://assets/art/environment/maintenance_area/parallax/abandoned_maintenance_near_bg.png",
+      "source_size": [1280, 720],
+      "sprite_position": [640, 360],
+      "render_order": -20,
+      "scroll_factor": [0.38, 0.38],
+      "repeat_axis": "x",
+      "repeat_size": [1280, 0]
+    },
+    {
+      "id": "foreground",
+      "image": "res://assets/art/environment/maintenance_area/parallax/abandoned_maintenance_foreground.png",
+      "source_size": [1280, 720],
+      "sprite_position": [640, 360],
+      "render_order": 30,
+      "scroll_factor": [1.08, 1.08],
+      "repeat_axis": "x",
+      "repeat_size": [1280, 0],
+      "occlusion_class": "foreground",
+      "actor_safe_area": { "x": 0.08, "y": 0.16, "width": 0.84, "height": 0.74 },
+      "occupant_policy": "fade"
+    }
+  ],
+  "shared_platform_library": {
+    "id": "maintenance_platform_strip",
+    "scene": "res://levels/abandoned_maintenance/maintenance_platform.tscn",
+    "image": "res://assets/art/environment/maintenance_area/platforms/maintenance_platform_strip.png",
+    "source_size": [512, 64],
+    "anchor": "center",
+    "repeat_policy": "nine_patch",
+    "collision_source": "engine_native_rectangle"
+  },
+  "object_metadata": "res://levels/abandoned_maintenance/data/abandoned_maintenance_objects.json",
+  "collision_metadata": "res://levels/abandoned_maintenance/data/abandoned_maintenance_collision.json",
+  "scene_hook_metadata": "res://levels/abandoned_maintenance/data/abandoned_maintenance_scene_hooks.json"
+}

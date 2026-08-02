@@ -1,0 +1,7 @@
+Use case: stylized-concept
+Asset type: in-world stage-reference mockup for the first 1280x720 camera segment of a playable 2D side-scrolling Godot level
+Input images: the generated scenery-only background must be preserved; the current playable graybox screenshot defines gameplay geometry; the original generated maintenance-area concept defines art style.
+Dress the current first-segment graybox layout while preserving exactly: the continuous floor at y≈690; one-way platform around x≈350,y≈570; vertical shaft wall at x≈455 from y≈245 to y≈535; hidden ledge around x≈565,y≈245; one-way platforms around x≈700,y≈500 and x≈980,y≈445; the left-to-right route and open jump gaps.
+Visible runtime candidates: shared riveted metal platform strip, vertical service-shaft wall, sealed bulkhead gate, maintenance checkpoint node, skill terminal, cyan memory fragment, small amber-lit duty-room recess and sparse edge-only foreground chains and pipes.
+Use high-resolution pixel-art-inspired hand-painted 2D game art with dark navy-black steel, restrained bronze fasteners, rust, condensation, cold cyan energy and sparse amber work lamps. Platform top edges and end caps must remain extremely clear.
+Render a natural in-world game scene. No characters, enemies, NPC bodies, UI, text, labels, arrows, circles, outlines, numbers, grid, callouts, legends, watermark or spawn markers. Do not add or remove gameplay platforms.

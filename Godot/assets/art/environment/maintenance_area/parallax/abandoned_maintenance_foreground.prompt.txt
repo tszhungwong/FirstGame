@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: transparent foreground occluder plate for a 2D side-scrolling Godot stage
+Input image: the generated Game Ghost abandoned-maintenance concept is the exact style reference.
+Create a sparse darkest foreground framing layer: a few heavy black iron chains and thick pipe silhouettes hanging only from the top corners, plus low broken pipe silhouettes hugging the bottom 40 pixels and extreme side edges. Keep the central 90 percent of the gameplay view unobstructed. Nothing may cover y=160 through y=650 except tiny isolated chain ends near the outermost edges.
+Use an exact 16:9 side-view camera designed for normalization to 1280x720. Render all artwork on a perfectly flat solid #FF00FF background with no gradient, texture, shadow or lighting variation. Do not use #FF00FF in the artwork.
+No floors, platform tops, walls across the screen, door, gate, ladder, center prop, actors, UI, text or watermark. Avoid dense vignette, central chains, excessive fog, bright neon and gameplay obstruction.

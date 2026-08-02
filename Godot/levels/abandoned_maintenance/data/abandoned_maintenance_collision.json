@@ -1,0 +1,10 @@
+{
+  "schema": "generate2dmap.side_scroll_collision.v1",
+  "map_id": "abandoned_maintenance",
+  "authority": "res://levels/abandoned_maintenance/abandoned_maintenance_level.tscn",
+  "bounds": { "left": 0, "top": 0, "right": 3200, "bottom": 720 },
+  "platform_geometry": "res://levels/abandoned_maintenance/data/abandoned_maintenance_objects.json#platforms",
+  "gate_geometry": { "node": "ReturnGate/CollisionShape2D", "position": [1500, 580], "size": [32, 180] },
+  "background_is_collision_source": false,
+  "foreground_is_collision_source": false
+}

@@ -39,7 +39,6 @@ func _ready() -> void:
 		interactable.interacted.connect(_on_interacted.bind(interactable))
 	$Checkpoint.activated.connect(checkpoint_activated.emit)
 	$SupervisorBroadcast.triggered.connect(message_triggered.emit)
-	queue_redraw()
 
 
 func configure(player: Player, interaction_controller: InteractionController) -> void:
@@ -99,15 +98,3 @@ func _on_interacted(
 	source: Node
 ) -> void:
 	interaction_requested.emit(entry, interaction_id, source)
-
-
-func _draw() -> void:
-	draw_rect(Rect2(0.0, 0.0, 3200.0, 720.0), Color("111820"))
-	draw_rect(Rect2(0.0, 90.0, 1050.0, 580.0), Color("172832"))
-	draw_rect(Rect2(1050.0, 90.0, 1050.0, 580.0), Color("20262f"))
-	draw_rect(Rect2(2100.0, 90.0, 1100.0, 580.0), Color("281e25"))
-	for pipe_y: float in [135.0, 180.0, 225.0]:
-		draw_line(Vector2(0.0, pipe_y), Vector2(3200.0, pipe_y), Color("304550"), 8.0)
-	for light_x: int in range(120, 3200, 280):
-		draw_circle(Vector2(light_x, 112.0), 10.0, Color("6ed6ce"))
-		draw_circle(Vector2(light_x, 112.0), 24.0, Color(0.3, 0.9, 0.82, 0.08))

@@ -1,0 +1,7 @@
+Use case: stylized-concept
+Asset type: transparent near-background parallax plate for a 2D side-scrolling Godot stage
+Input images: the generated maintenance-area concept is the exact style reference; the deepest generated plate sits behind this layer.
+Create large recessed riveted wall frames at the far left and right edges, vertical service conduits, thick pipe bundles along the top quarter, two shadowy maintenance chamber recesses and hanging cable loops. Use restrained corrosion, condensation, dim cyan memory-energy seams and one or two small amber maintenance lamps.
+Use high-resolution pixel-art-inspired hand-painted 2D game art with crisp controlled clusters and grounded rusty navy-black steel. Use an exact 16:9 side-view orthographic camera designed for normalization to 1280x720. Keep the central gameplay corridor and y=360 through y=700 mostly open. Do not create continuous horizontal surfaces that resemble platforms.
+Render all artwork on a perfectly flat solid #FF00FF background with no gradient, texture, shadow, haze or lighting variation. Do not use #FF00FF in the artwork.
+SCENERY ONLY: no floors, platform tops, catwalks, ladders, doors, gates, duty room, foreground generator, crates, hazards, checkpoints, actors, UI, text or watermark.

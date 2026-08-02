@@ -1,0 +1,23 @@
+{
+  "schema": "generate2dmap.side_scroll_scene_hooks.v1",
+  "map_id": "abandoned_maintenance",
+  "player_spawn": { "scene": "res://scenes/game/game.tscn", "position": [120, 620] },
+  "camera_bounds": { "left": 0, "top": 0, "right": 3200, "bottom": 720 },
+  "actor_spawns": [
+    { "id": "worker_a", "node": "WorkerA", "position": [570, 620] },
+    { "id": "worker_b", "node": "WorkerB", "position": [1220, 620] },
+    { "id": "worker_c", "node": "WorkerC", "position": [2050, 620] },
+    { "id": "worker_d", "node": "WorkerD", "position": [2410, 620] },
+    { "id": "drone_a", "node": "DroneA", "position": [1050, 350] },
+    { "id": "drone_b", "node": "DroneB", "position": [1970, 350] },
+    { "id": "echo_foreman", "node": "EchoForeman", "position": [2850, 610] }
+  ],
+  "triggers": [
+    { "id": "supervisor_broadcast", "node": "SupervisorBroadcast", "position": [1820, 390] },
+    { "id": "boss_arena", "range": [2560, 3200], "primary_encounter": "EchoForeman" },
+    { "id": "return_route", "gate": "ReturnGate", "control": "ReturnControl" }
+  ],
+  "exit_links": [
+    { "id": "maintenance_exit", "gate": "ReturnGate", "unlock_event": "return_route" }
+  ]
+}

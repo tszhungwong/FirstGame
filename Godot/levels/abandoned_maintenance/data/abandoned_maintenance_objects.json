@@ -1,0 +1,36 @@
+{
+  "schema": "generate2dmap.side_scroll_objects.v1",
+  "map_id": "abandoned_maintenance",
+  "coordinate_origin": "top_left",
+  "platforms": [
+    { "id": "floor_a", "node": "FloorA", "segment": "segment_01", "position": [400, 690], "size": [800, 40], "one_way": false, "library_id": "maintenance_platform_strip" },
+    { "id": "floor_b", "node": "FloorB", "segment": "segment_01_segment_02", "position": [1200, 690], "size": [800, 40], "one_way": false, "library_id": "maintenance_platform_strip" },
+    { "id": "floor_c", "node": "FloorC", "segment": "segment_02", "position": [2000, 690], "size": [800, 40], "one_way": false, "library_id": "maintenance_platform_strip" },
+    { "id": "floor_d", "node": "FloorD", "segment": "segment_02_segment_03", "position": [2800, 690], "size": [800, 40], "one_way": false, "library_id": "maintenance_platform_strip" },
+    { "id": "left_wall", "node": "LeftWall", "segment": "segment_01", "position": [-20, 360], "size": [40, 720], "one_way": false, "library_id": "maintenance_platform_strip" },
+    { "id": "right_wall", "node": "RightWall", "segment": "segment_03", "position": [3220, 360], "size": [40, 720], "one_way": false, "library_id": "maintenance_platform_strip" },
+    { "id": "start_platform", "node": "StartPlatform", "segment": "segment_01", "position": [350, 570], "size": [220, 22], "one_way": true, "library_id": "maintenance_platform_strip" },
+    { "id": "upper_platform_a", "node": "UpperPlatformA", "segment": "segment_01", "position": [700, 500], "size": [190, 22], "one_way": true, "library_id": "maintenance_platform_strip" },
+    { "id": "upper_platform_b", "node": "UpperPlatformB", "segment": "segment_01", "position": [980, 445], "size": [170, 22], "one_way": true, "library_id": "maintenance_platform_strip" },
+    { "id": "gate_step_a", "node": "GateStepA", "segment": "segment_01", "position": [1235, 610], "size": [125, 20], "one_way": true, "library_id": "maintenance_platform_strip" },
+    { "id": "gate_step_b", "node": "GateStepB", "segment": "segment_02", "position": [1355, 550], "size": [125, 20], "one_way": true, "library_id": "maintenance_platform_strip" },
+    { "id": "gate_step_c", "node": "GateStepC", "segment": "segment_02", "position": [1475, 482], "size": [125, 20], "one_way": true, "library_id": "maintenance_platform_strip" },
+    { "id": "gate_step_d", "node": "GateStepD", "segment": "segment_02", "position": [1600, 550], "size": [125, 20], "one_way": true, "library_id": "maintenance_platform_strip" },
+    { "id": "gate_step_e", "node": "GateStepE", "segment": "segment_02", "position": [1725, 610], "size": [125, 20], "one_way": true, "library_id": "maintenance_platform_strip" },
+    { "id": "combat_platform_a", "node": "CombatPlatformA", "segment": "segment_02", "position": [1940, 505], "size": [220, 22], "one_way": true, "library_id": "maintenance_platform_strip" },
+    { "id": "combat_platform_b", "node": "CombatPlatformB", "segment": "segment_02", "position": [2220, 430], "size": [190, 22], "one_way": true, "library_id": "maintenance_platform_strip" },
+    { "id": "boss_platform", "node": "BossPlatform", "segment": "segment_03", "position": [2760, 520], "size": [320, 22], "one_way": true, "library_id": "maintenance_platform_strip" },
+    { "id": "wall_module_shaft", "node": "WallModuleShaft", "segment": "segment_01", "position": [455, 390], "size": [32, 290], "one_way": false, "library_id": "maintenance_platform_strip" },
+    { "id": "hidden_memory_ledge", "node": "HiddenMemoryLedge", "segment": "segment_01", "position": [565, 245], "size": [180, 22], "one_way": true, "library_id": "maintenance_platform_strip" }
+  ],
+  "interactives": [
+    { "id": "checkpoint", "node": "Checkpoint", "position": [740, 628], "type": "checkpoint" },
+    { "id": "lamplighter", "node": "Lamplighter", "position": [880, 632], "type": "dialogue_npc" },
+    { "id": "skill_terminal", "node": "SkillTerminal", "position": [1010, 630], "type": "terminal" },
+    { "id": "memory_fragment", "node": "MemoryFragment", "position": [1160, 630], "type": "pickup_readable" },
+    { "id": "hidden_memory", "node": "HiddenMemory", "position": [565, 205], "type": "hidden_pickup_readable" },
+    { "id": "return_control", "node": "ReturnControl", "position": [655, 205], "type": "terminal" },
+    { "id": "return_gate", "node": "ReturnGate", "position": [1500, 580], "type": "gate", "collision_size": [32, 180] }
+  ],
+  "hazards": []
+}

@@ -1,0 +1,7 @@
+Use case: stylized-concept
+Asset type: transparent middle-distance parallax plate for a 2D side-scrolling Godot stage
+Input images: the generated maintenance-area concept is the exact style reference; the deepest generated plate sits behind this layer.
+Create sparse vertical machine columns, recessed maintenance wall frames, distant bundled pipes and cable trunks, broken conduit silhouettes, a few dim cyan memory-energy seams and extremely sparse amber pin lights. These are distant non-colliding background structures.
+Use an exact 16:9 side-view orthographic camera designed for normalization to 1280x720 with the same horizon and top-left anchor as the deepest plate. Keep large negative gaps and keep y=430 through y=720 mostly empty. No structure may form a continuous walkable ledge.
+Render all artwork on a perfectly flat solid #FF00FF background with no gradient, texture, shadow, haze or lighting variation. Do not use #FF00FF in the artwork. Preserve clean silhouettes for chroma-key removal.
+No floors, platform tops, catwalks, ladders, doors, gates, duty room, gameplay-plane generators, crates, hazards, checkpoints, actors, UI, text or watermark.

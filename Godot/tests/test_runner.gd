@@ -1,4 +1,4 @@
-﻿extends SceneTree
+extends SceneTree
 
 const PLAYER_SCENE_PATH := "res://player/player.tscn"
 const FORGOTTEN_WORKER_SCENE_PATH := "res://enemies/forgotten_worker/forgotten_worker.tscn"
@@ -42,6 +42,7 @@ func _run() -> void:
 	await _test_player_animation_follows_horizontal_input()
 	await _test_player_jump_and_attack_animations_follow_input()
 	await _test_inspection_drone_animation_follows_motion_and_fire()
+	await _test_abandoned_maintenance_map_uses_layered_runtime_art()
 	await _test_player_moves_right_from_keyboard_input()
 	await _test_player_jumps_from_keyboard_input()
 	await _test_holding_jump_reaches_platform_height()
@@ -339,7 +340,6 @@ func _test_pause_settings_menu_restarts_from_checkpoint() -> void:
 		locale_selector.item_selected.emit(requested_locale_index)
 	var locale_changed_from_menu: bool = app_settings.get_locale() == requested_locale
 	restart_button.pressed.emit()
-	await process_frame
 
 	_expect(
 		opened_while_paused
@@ -577,6 +577,50 @@ func _test_inspection_drone_animation_follows_motion_and_fire() -> void:
 		"InspectionDrone maps trajectories to animation states and emits fire on frame 4"
 	)
 	drone.queue_free()
+	await process_frame
+
+
+func _test_abandoned_maintenance_map_uses_layered_runtime_art() -> void:
+	var game_scene := load(GAME_SCENE_PATH) as PackedScene
+	if game_scene == null:
+		_fail("game scene is available for maintenance map art validation")
+		return
+	var game := game_scene.instantiate()
+	root.add_child(game)
+	await physics_frame
+	var level := game.get_node("LevelContainer/AbandonedMaintenanceLevel")
+	var layer_paths: Array[NodePath] = [
+		NodePath("SkyParallax/Plate"),
+		NodePath("MidParallax/Plate"),
+		NodePath("NearParallax/Plate"),
+		NodePath("ForegroundParallax/Plate"),
+	]
+	var layers_match_canvas := true
+	for layer_path: NodePath in layer_paths:
+		var plate := level.get_node_or_null(layer_path) as Sprite2D
+		layers_match_canvas = (
+			layers_match_canvas
+			and plate != null
+			and plate.texture != null
+			and plate.texture.get_size() == Vector2(1280.0, 720.0)
+		)
+	var platform := level.get_node("StartPlatform") as StaticBody2D
+	var platform_visual := platform.get_node_or_null("PlatformVisual") as NinePatchRect
+	var platform_collision := platform.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	var map_manifest := JSON.parse_string(
+		FileAccess.get_file_as_string(
+			"res://levels/abandoned_maintenance/data/abandoned_maintenance_map_manifest.json"
+		)
+	) as Dictionary
+	_expect(
+		layers_match_canvas
+		and platform_visual != null
+		and platform_collision != null
+		and map_manifest.get("stage_segment_count", 0) == 3
+		and map_manifest.get("stage_length", 0) == 3200,
+		"abandoned maintenance uses layered 1280x720 art with separate platform collision"
+	)
+	game.queue_free()
 	await process_frame
 
 

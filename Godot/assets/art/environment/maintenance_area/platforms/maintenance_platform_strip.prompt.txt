@@ -1,0 +1,7 @@
+Use case: stylized-concept
+Asset type: one reusable structural platform strip for a 2D side-scrolling Godot stage
+Input image: the generated Game Ghost abandoned-maintenance concept is the exact style reference.
+Create one single straight side-view metal maintenance platform strip built from a clear left end cap, long repeatable middle span and clear right end cap. Use riveted dark navy-black steel, worn bronze fasteners, a thin pale steel highlight along the perfectly flat top edge, a corroded underside support lip, restrained rust and one tiny cold cyan memory-energy seam.
+Use high-resolution pixel-art-inspired hand-painted 2D game art with a clean silhouette. Exact side elevation, perfectly horizontal, no perspective or tilt. One centered platform only, approximately 8:1, with an uninterrupted straight top edge and generous empty margin.
+Render on a perfectly flat solid #FF00FF background with no gradient, texture, shadow, reflection or floor plane. Do not use #FF00FF in the platform. Keep the full object away from every image edge.
+No text, UI, watermark, actors, door, ladder, hazard, cast shadow or additional platforms.

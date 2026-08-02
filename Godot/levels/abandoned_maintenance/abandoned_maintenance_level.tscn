@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bq518kaa3i48x"]
 
 [ext_resource type="Script" uid="uid://b07dcju6wikhd" path="res://levels/abandoned_maintenance/abandoned_maintenance_level.gd" id="1_level"]
-[ext_resource type="PackedScene" path="res://levels/common/graybox_platform.tscn" id="2_platform"]
+[ext_resource type="PackedScene" path="res://levels/abandoned_maintenance/maintenance_platform.tscn" id="2_platform"]
 [ext_resource type="PackedScene" uid="uid://bn6p0ga06oqiw" path="res://enemies/forgotten_worker/forgotten_worker.tscn" id="3_worker"]
 [ext_resource type="PackedScene" uid="uid://bauf0f544ib2i" path="res://enemies/inspection_drone/inspection_drone.tscn" id="4_drone"]
 [ext_resource type="PackedScene" uid="uid://djars2k8de5dv" path="res://enemies/echo_foreman/echo_foreman.tscn" id="5_boss"]
@@ -13,12 +13,50 @@
 [ext_resource type="Resource" path="res://dialogue/content/memory_fragment.tres" id="11_memory"]
 [ext_resource type="Resource" path="res://dialogue/content/hidden_memory.tres" id="12_hidden"]
 [ext_resource type="Resource" path="res://dialogue/content/return_control.tres" id="13_return"]
+[ext_resource type="Texture2D" path="res://assets/art/environment/maintenance_area/parallax/abandoned_maintenance_sky.png" id="14_sky"]
+[ext_resource type="Texture2D" path="res://assets/art/environment/maintenance_area/parallax/abandoned_maintenance_mid_bg.png" id="15_mid"]
+[ext_resource type="Texture2D" path="res://assets/art/environment/maintenance_area/parallax/abandoned_maintenance_near_bg.png" id="16_near"]
+[ext_resource type="Texture2D" path="res://assets/art/environment/maintenance_area/parallax/abandoned_maintenance_foreground.png" id="17_foreground"]
+[ext_resource type="SpriteFrames" path="res://interaction/lamplighter_sprite_frames.tres" id="18_lamplighter_frames"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_gate"]
 size = Vector2(32, 180)
 
 [node name="AbandonedMaintenanceLevel" type="Node2D" unique_id=182211352]
 script = ExtResource("1_level")
+
+[node name="SkyParallax" type="Parallax2D" parent="."]
+z_index = -40
+scroll_scale = Vector2(0.05, 0.05)
+repeat_size = Vector2(1280, 0)
+repeat_times = 4
+
+[node name="Plate" type="Sprite2D" parent="SkyParallax"]
+texture_filter = 1
+position = Vector2(640, 360)
+texture = ExtResource("14_sky")
+
+[node name="MidParallax" type="Parallax2D" parent="."]
+z_index = -30
+scroll_scale = Vector2(0.18, 0.18)
+repeat_size = Vector2(1280, 0)
+repeat_times = 4
+
+[node name="Plate" type="Sprite2D" parent="MidParallax"]
+texture_filter = 1
+position = Vector2(640, 360)
+texture = ExtResource("15_mid")
+
+[node name="NearParallax" type="Parallax2D" parent="."]
+z_index = -20
+scroll_scale = Vector2(0.38, 0.38)
+repeat_size = Vector2(1280, 0)
+repeat_times = 4
+
+[node name="Plate" type="Sprite2D" parent="NearParallax"]
+texture_filter = 1
+position = Vector2(640, 360)
+texture = ExtResource("16_near")
 
 [node name="FloorA" parent="." unique_id=632988576 instance=ExtResource("2_platform")]
 position = Vector2(400, 690)
@@ -155,10 +193,18 @@ position = Vector2(740, 628)
 
 [node name="Lamplighter" parent="." unique_id=185887889 instance=ExtResource("7_interactable")]
 position = Vector2(880, 632)
+self_modulate = Color(1, 1, 1, 0)
 dialogue = ExtResource("9_lamplighter")
 interaction_id = &"lamplighter"
 identity_label_key = &"identity.lamplighter"
 display_color = Color(0.91, 0.72, 0.32, 1)
+
+[node name="Visual" type="AnimatedSprite2D" parent="Lamplighter"]
+position = Vector2(0, -10)
+texture_filter = 1
+sprite_frames = ExtResource("18_lamplighter_frames")
+animation = &"idle"
+autoplay = "idle"
 
 [node name="SkillTerminal" parent="." unique_id=2066016465 instance=ExtResource("7_interactable")]
 position = Vector2(1010, 630)
@@ -195,3 +241,15 @@ one_shot = true
 [node name="SupervisorBroadcast" parent="." unique_id=433638732 groups=["message_trigger"] instance=ExtResource("8_trigger")]
 position = Vector2(1820, 390)
 message_key = &"dialog.supervisor"
+
+[node name="ForegroundParallax" type="Parallax2D" parent="."]
+z_index = 30
+scroll_scale = Vector2(1.08, 1.08)
+repeat_size = Vector2(1280, 0)
+repeat_times = 4
+
+[node name="Plate" type="Sprite2D" parent="ForegroundParallax"]
+modulate = Color(1, 1, 1, 0.72)
+texture_filter = 1
+position = Vector2(640, 360)
+texture = ExtResource("17_foreground")

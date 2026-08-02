@@ -1,0 +1,8 @@
+Use case: stylized-concept
+Asset type: runtime parallax sky/base plate for a 2D side-scrolling Godot stage
+Input image: the generated Game Ghost abandoned-maintenance concept is the exact style reference.
+Create the deepest opaque background plate for the same abandoned underground maintenance district: extremely distant underground city infrastructure, huge shadowy machine towers, faint receding pipe bridges, a cold blue-black subterranean void, sparse pinprick amber work lights and very faint cyan memory-energy haze.
+Use high-resolution pixel-art-inspired hand-painted 2D game art, crisp controlled pixel clusters, low texture noise and dark grounded industrial realism.
+Use an exact 16:9 side-view orthographic camera designed for normalization to 1280x720. Keep the lower gameplay lane from y=430 to y=720 visually quiet and dark. Make it edge-to-edge and opaque.
+SCENERY ONLY: no walkable floors, platform tops, catwalks, ladders, doors, gates, duty room, foreground generators, crates, hazards, checkpoints, characters, enemies, UI, labels, text or foreground silhouettes. No object should look collidable or reachable.
+Avoid generic cyberpunk neon, saturated colors, glossy sci-fi corridors, obvious gameplay geometry, bright bloom and washed-out fog.
