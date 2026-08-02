@@ -1,6 +1,10 @@
 class_name GrayboxPlayerVisual
 extends PlayerVisual
 
+const IDLE_ANIMATION: StringName = &"idle"
+const RUN_ANIMATION: StringName = &"run"
+
+var animated_sprite: AnimatedSprite2D
 var _is_hurt := false
 var _attack_time_remaining := 0.0
 var _attack_direction := Vector2.RIGHT
@@ -10,8 +14,21 @@ var _attack_color := Color.TRANSPARENT
 var _facing_direction := 1.0
 
 
+func configure_sprite(sprite: AnimatedSprite2D) -> void:
+	animated_sprite = sprite
+	queue_redraw()
+
+
 func sync_state(state: PlayerVisualState) -> void:
 	_facing_direction = state.facing_direction
+	if animated_sprite == null:
+		return
+	animated_sprite.flip_h = state.facing_direction < 0.0
+	var next_animation := (
+		RUN_ANIMATION if not is_zero_approx(state.velocity.x) else IDLE_ANIMATION
+	)
+	if animated_sprite.animation != next_animation or not animated_sprite.is_playing():
+		animated_sprite.play(next_animation)
 
 
 func _process(delta: float) -> void:
@@ -43,9 +60,10 @@ func show_attack(
 
 
 func _draw() -> void:
-	var body_color := Color("ff9f8f") if _is_hurt else Color("d7f4ff")
-	draw_rect(Rect2(-14.0, -22.0, 28.0, 44.0), body_color)
-	draw_rect(Rect2(-10.0, -17.0, 20.0, 5.0), Color("54d2e8"))
+	if animated_sprite == null:
+		var body_color := Color("ff9f8f") if _is_hurt else Color("d7f4ff")
+		draw_rect(Rect2(-14.0, -22.0, 28.0, 44.0), body_color)
+		draw_rect(Rect2(-10.0, -17.0, 20.0, 5.0), Color("54d2e8"))
 	if _attack_time_remaining <= 0.0:
 		return
 	var attack_rotation := 0.0 if not is_zero_approx(_attack_direction.x) else PI * 0.5

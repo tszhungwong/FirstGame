@@ -38,6 +38,7 @@ func _run() -> void:
 	_test_time_effects_controller_owns_global_time_scale()
 	await _test_pause_controller_stops_pausable_gameplay()
 	await _test_pause_settings_menu_restarts_from_checkpoint()
+	await _test_player_animation_follows_horizontal_input()
 	await _test_player_moves_right_from_keyboard_input()
 	await _test_player_jumps_from_keyboard_input()
 	await _test_holding_jump_reaches_platform_height()
@@ -351,6 +352,36 @@ func _test_pause_settings_menu_restarts_from_checkpoint() -> void:
 	)
 	_expect(locale_changed_from_menu, "settings language selection updates AppSettings")
 	app_settings.set_locale(original_locale)
+	game.queue_free()
+	await process_frame
+
+
+func _test_player_animation_follows_horizontal_input() -> void:
+	var game_scene := load(GAME_SCENE_PATH) as PackedScene
+	if game_scene == null:
+		_fail("game scene is available for player animation")
+		return
+	var game := game_scene.instantiate()
+	root.add_child(game)
+	await physics_frame
+
+	var player: CharacterBody2D = game.get_player()
+	var animated_sprite := player.get_node("AnimatedSprite2D") as AnimatedSprite2D
+	var starts_idle := animated_sprite.animation == &"idle"
+	Input.action_press("move_left")
+	await physics_frame
+	var runs_left := animated_sprite.animation == &"run"
+	Input.action_release("move_left")
+	Input.action_press("move_right")
+	await physics_frame
+	var runs_right := animated_sprite.animation == &"run"
+	Input.action_release("move_right")
+	await physics_frame
+
+	_expect(
+		starts_idle and runs_left and runs_right and animated_sprite.animation == &"idle",
+		"Player animation is idle without horizontal input and run while A or D is pressed"
+	)
 	game.queue_free()
 	await process_frame
 

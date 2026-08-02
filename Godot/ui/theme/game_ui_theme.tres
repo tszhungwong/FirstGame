@@ -1,34 +1,10 @@
-[gd_resource type="Theme" load_steps=7 format=3]
+[gd_resource type="Theme" format=3 uid="uid://d38hayd4kosvl"]
 
-[ext_resource type="FontFile" path="res://prototypes/font_locale_ui_prototype/fonts/NotoSansTC-Regular.otf" id="1_font"]
-
-[sub_resource type="StyleBoxFlat" id="StylePanel"]
-bg_color = Color(0.035, 0.063, 0.078, 0.98)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.16, 0.55, 0.58, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleButton"]
-bg_color = Color(0.07, 0.13, 0.16, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.18, 0.43, 0.46, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-content_margin_left = 18.0
-content_margin_right = 18.0
+[ext_resource type="FontFile" uid="uid://38loyg0h4brt" path="res://prototypes/font_locale_ui_prototype/fonts/NotoSansTC-Regular.otf" id="1_font"]
 
 [sub_resource type="StyleBoxFlat" id="StyleButtonHover"]
+content_margin_left = 18.0
+content_margin_right = 18.0
 bg_color = Color(0.1, 0.25, 0.28, 1)
 border_width_left = 2
 border_width_top = 2
@@ -39,10 +15,24 @@ corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleButton"]
 content_margin_left = 18.0
 content_margin_right = 18.0
+bg_color = Color(0.07, 0.13, 0.16, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.43, 0.46, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleButtonPressed"]
+content_margin_left = 18.0
+content_margin_right = 18.0
 bg_color = Color(0.04, 0.4, 0.42, 1)
 border_width_left = 2
 border_width_top = 2
@@ -53,8 +43,6 @@ corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
-content_margin_left = 18.0
-content_margin_right = 18.0
 
 [sub_resource type="StyleBoxFlat" id="StyleDanger"]
 bg_color = Color(0.2, 0.075, 0.08, 1)
@@ -68,15 +56,27 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
+[sub_resource type="StyleBoxFlat" id="StylePanel"]
+bg_color = Color(0.035, 0.063, 0.078, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.16, 0.55, 0.58, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
 [resource]
 default_font = ExtResource("1_font")
 default_font_size = 21
 Button/colors/font_color = Color(0.86, 0.94, 0.95, 1)
 Button/colors/font_focus_color = Color(0.95, 1, 1, 1)
 Button/colors/font_hover_color = Color(0.95, 1, 1, 1)
-Button/styles/normal = SubResource("StyleButton")
-Button/styles/hover = SubResource("StyleButtonHover")
 Button/styles/focus = SubResource("StyleButtonHover")
+Button/styles/hover = SubResource("StyleButtonHover")
+Button/styles/normal = SubResource("StyleButton")
 Button/styles/pressed = SubResource("StyleButtonPressed")
 DangerButton/base_type = &"Button"
 DangerButton/colors/font_color = Color(1, 0.82, 0.78, 1)

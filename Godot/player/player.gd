@@ -12,6 +12,7 @@ signal died
 signal hit_confirmed(duration: float)
 
 @export var tuning: PlayerTuning
+@export_node_path("AnimatedSprite2D") var animated_sprite_path: NodePath
 
 var _initial_health := 5
 var max_health: int:
@@ -42,6 +43,8 @@ func _ready() -> void:
 	_vitals = VitalsType.new(tuning.max_health, tuning.invulnerability_duration)
 	_vitals.health_changed.connect(_on_vitals_health_changed)
 	_vitals.died.connect(_on_vitals_died)
+	var animated_sprite := get_node_or_null(animated_sprite_path) as AnimatedSprite2D
+	_visual.configure_sprite(animated_sprite)
 	_combat.attack_visual_requested.connect(_visual.show_attack)
 	_combat.hit_confirmed.connect(hit_confirmed.emit)
 	_motor.configure(tuning)
