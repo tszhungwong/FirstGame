@@ -11,4 +11,3 @@ var skill_pressed := false
 var drop_pressed := false
 var aim_up := false
 var aim_down := false
-

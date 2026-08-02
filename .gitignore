@@ -1,1 +1,4 @@
 *.md
+art_source/*
+doc/*
+tmp/*
