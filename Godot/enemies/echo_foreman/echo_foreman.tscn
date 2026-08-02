@@ -4,6 +4,8 @@
 [ext_resource type="Resource" path="res://enemies/common/boss_enemy.tres" id="2_base"]
 [ext_resource type="Resource" path="res://enemies/echo_foreman/default_echo_foreman.tres" id="3_behavior"]
 [ext_resource type="PackedScene" path="res://ui/world_identity/world_identity_label.tscn" id="4_identity"]
+[ext_resource type="Script" path="res://enemies/echo_foreman/echo_foreman_visual.gd" id="5_visual"]
+[ext_resource type="SpriteFrames" path="res://enemies/echo_foreman/echo_foreman_sprite_frames.tres" id="6_frames"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_boss"]
 radius = 34.0
@@ -19,7 +21,19 @@ definition = ExtResource("2_base")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=505140355]
 shape = SubResource("CapsuleShape2D_boss")
 
+[node name="Visual" type="Node2D" parent="."]
+unique_name_in_owner = true
+texture_filter = 1
+script = ExtResource("5_visual")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Visual"]
+unique_name_in_owner = true
+position = Vector2(0, -52)
+sprite_frames = ExtResource("6_frames")
+animation = &"idle"
+autoplay = "idle"
+
 [node name="IdentityLabel" parent="." instance=ExtResource("4_identity")]
-position = Vector2(0, -26)
+position = Vector2(0, -116)
 theme_override_colors/font_color = Color(1, 0.68, 0.56, 1)
 text_key = &"identity.echo_foreman"
